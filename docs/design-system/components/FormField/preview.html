@@ -1,17 +1,46 @@
-<!-- @dsCard group="Forms" height=200 subtitle="Empty and filled; square, label above" -->
+<!-- @dsCard group="Forms" height=430 subtitle="Row search field; stacked blank, filled and invalid fields" -->
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>FormField — preview</title></head>
+<head><meta charset="utf-8"><title>FormField — preview</title>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-5) var(--space-6); }
+  .cap { margin: 0 0 var(--space-2); font-size: 14px; line-height: 21px; color: var(--ink-muted); }
+</style>
+</head>
 <body>
-<div class="pc-pad">
-  <div class="pc-form">
-    <div class="pc-field">
-      <label for="lastName">Last Name</label>
-      <input class="pc-input" type="search" id="lastName" name="lastName" maxlength="30" autocomplete="off">
+<div class="pc-pad grid">
+  <div>
+    <p class="cap">Blank</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field">
+        <label for="fn1">First Name</label>
+        <input class="pc-input" type="text" id="fn1" name="firstName" maxlength="30" autocomplete="given-name" required aria-required="true">
+      </div>
     </div>
-    <div class="pc-field">
-      <label for="lastNameFilled">Last Name</label>
-      <input class="pc-input" type="search" id="lastNameFilled" name="lastNameFilled" maxlength="30" autocomplete="off" value="Davis">
+    <p class="cap">Filled</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field">
+        <label for="fn2">First Name</label>
+        <input class="pc-input" type="text" id="fn2" name="firstName" maxlength="30" autocomplete="given-name" required aria-required="true" value="George">
+      </div>
+    </div>
+  </div>
+  <div>
+    <p class="cap">Required, left empty</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field pc-field-invalid">
+        <label for="ln3">Last Name</label>
+        <input class="pc-input" type="text" id="ln3" name="lastName" maxlength="30" autocomplete="family-name" required aria-required="true" aria-invalid="true" aria-describedby="ln3-error">
+        <p class="pc-field-error" id="ln3-error">Last Name is required.</p>
+      </div>
+    </div>
+    <p class="cap">Wrong format, value kept</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field pc-field-invalid">
+        <label for="tel4">Telephone</label>
+        <input class="pc-input" type="tel" inputmode="numeric" id="tel4" name="telephone" maxlength="10" autocomplete="tel-national" required aria-required="true" aria-invalid="true" aria-describedby="tel4-error" value="608555102">
+        <p class="pc-field-error" id="tel4-error">Telephone must be exactly 10 digits.</p>
+      </div>
     </div>
   </div>
 </div>
