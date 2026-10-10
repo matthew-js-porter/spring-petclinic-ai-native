@@ -91,12 +91,15 @@ class VetsPageHtmlUnitTests {
 
 		HtmlAnchor vetsLink = page.querySelector("nav[aria-label='Main'] a[href='/vets.html']");
 		assertThat(vetsLink.getAttribute("aria-current")).isEqualTo("page");
+		assertThat(page.querySelectorAll("nav[aria-label='Main'] [aria-current]")).hasSize(1);
 		HtmlPage viaNav = vetsLink.click();
 		assertThat(rows(viaNav)).hasSize(5);
 
+		HtmlAnchor homeLink = page.querySelector("nav[aria-label='Main'] .nav-item a[href='/']");
+		assertThat(homeLink.hasAttribute("aria-current")).isFalse();
 		HtmlPage viaBrand = page.getAnchorByHref("/").click();
-		assertThat(viaBrand.getUrl().getPath()).isEqualTo("/vets.html");
-		assertThat(rows(viaBrand)).hasSize(5);
+		assertThat(viaBrand.getUrl().getPath()).isEqualTo("/");
+		assertThat(viaBrand.getTitleText()).isEqualTo("Welcome · Spring PetClinic");
 	}
 
 	@Test

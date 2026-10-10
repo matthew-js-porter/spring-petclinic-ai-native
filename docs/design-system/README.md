@@ -3,7 +3,7 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 ## Content
 
 - Write in plain, short English. No marketing voice, no exclamation marks, no emoji.
-- Page titles are a single plural noun in Title Case: "Veterinarians", later "Owners".
+- Page titles are a single plural noun in Title Case: "Veterinarians", later "Owners". The one exception is the homepage, titled "Welcome".
 - Nav items and table headers are written in Title Case in the markup ("Specialties") and set UPPERCASE by CSS; never type them in capitals.
 - Data is shown as stored: lowercase specialty names (`radiology`, `dentistry surgery`), several values separated by a single space.
 - An empty value is the word `none` in `ink-muted`, never a dash or a blank cell.
@@ -31,7 +31,8 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 - Content sits in Bootstrap's `.container`; the navbar spans the full width at `navbar-height` (64px) plus the 4px accent bar.
 - Corners are square: `radius-none` everywhere. `radius-control` is Bootstrap's default, held back for form inputs.
 - No shadows, no gradients, no cards. Structure comes from the brown bar, the 2px header rule and the 1px row lines.
-- Spacing follows Bootstrap's scale: `space-3` × `space-4` table cell padding, `space-5` between a table and its pagination, `space-6` above the page title.
+- Spacing follows Bootstrap's scale: `space-3` × `space-4` table cell padding, `space-5` between a table and its pagination, `space-6` above the page title, `space-5` between the homepage title and its photo.
+- The homepage photo is `hero-width` (360px) wide at most and shrinks with its container, so it never scrolls sideways on a phone.
 
 ## States and accessibility
 
@@ -45,4 +46,5 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 - Logo: the heart-with-cross mark in `spring-green` from the Logos group, 24px (`logo-size`) beside the wordmark, `alt=""` because the wordmark names the link.
 - Nav icons are thin outline glyphs before the label: a house for Home, a bulleted list for Veterinarians. They look like Bootstrap Icons (`house`, `list-ul`); the previews draw simple stand-ins, so use the real Bootstrap Icons in the app.
 - Pagination uses text chevrons (« ‹ › ») rather than icons.
-- No emoji, no illustrations.
+- One photograph, `pets.png` from the Photos group, on the homepage only: square, no border, shadow or card, with descriptive `alt` text.
+- No emoji, no illustrations, and no other photographs.
