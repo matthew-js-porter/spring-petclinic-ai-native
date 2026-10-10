@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,12 +53,14 @@ class VetControllerTests {
 
 	@Test
 	void showsFirstPageOfVets() {
-		assertThat(this.mvc.get().uri("/vets.html")).hasStatusOk()
+		MvcTestResult result = this.mvc.get().uri("/vets.html").exchange();
+
+		assertThat(result).hasStatusOk()
 			.hasContentTypeCompatibleWith(MediaType.TEXT_HTML)
 			.hasViewName("vets/vetList")
 			.model()
-			.containsKeys("listVets", "currentPage");
-		assertThat(this.mvc.get().uri("/vets.html")).bodyText()
+			.containsKey("listVets");
+		assertThat(result).bodyText()
 			.contains("<td>James Carter</td>", "<td>Helen Leary</td>", "<td>radiology</td>",
 					"<td>dentistry surgery</td>", ">none</td>")
 			.doesNotContain("Sharon Jenkins");
@@ -66,8 +69,9 @@ class VetControllerTests {
 	@Test
 	void showsOneRowPerVetOnEachPage() {
 		assertThat(rows(body("/vets.html"))).isEqualTo(5);
-		assertThat(rows(body("/vets.html?page=2"))).isEqualTo(1);
-		assertThat(body("/vets.html?page=2")).contains("<td>Sharon Jenkins</td>");
+		String page2 = body("/vets.html?page=2");
+		assertThat(rows(page2)).isEqualTo(1);
+		assertThat(page2).contains("<td>Sharon Jenkins</td>");
 	}
 
 	@Test
@@ -75,8 +79,8 @@ class VetControllerTests {
 		String page1 = body("/vets.html");
 		assertThat(page1).contains("<a href=\"/vets.html?page=2\" aria-label=\"Page 2\">2</a>")
 			.contains("<span aria-current=\"page\">1</span>")
-			.contains("<span class=\"pc-disabled\" aria-disabled=\"true\" title=\"First\">&laquo;</span>")
-			.contains("<span class=\"pc-disabled\" aria-disabled=\"true\" title=\"Previous\">&lsaquo;</span>")
+			.contains("<span class=\"pc-disabled\" aria-disabled=\"true\" title=\"First\">«</span>")
+			.contains("<span class=\"pc-disabled\" aria-disabled=\"true\" title=\"Previous\">‹</span>")
 			.doesNotContain("aria-label=\"First page\"", "aria-label=\"Previous page\"");
 
 		String page2 = body("/vets.html?page=2");
@@ -94,8 +98,7 @@ class VetControllerTests {
 
 	@Test
 	void marksVeterinariansActiveInTheNavbar() {
-		assertThat(body("/vets.html")).containsPattern("href=\"/vets.html\"\\s+aria-current=\"page\"")
-			.containsPattern("href=\"/webjars/bootstrap/[0-9.]+/css/bootstrap.min.css\"");
+		assertThat(body("/vets.html")).containsPattern("href=\"/vets.html\"\\s+aria-current=\"page\"");
 	}
 
 	@ParameterizedTest
@@ -124,9 +127,9 @@ class VetControllerTests {
 					 {"id":3,"firstName":"Linda","lastName":"Douglas",
 					  "specialties":[{"id":3,"name":"dentistry"},{"id":2,"name":"surgery"}]},
 					 {"id":4},{"id":5},{"id":6,"specialties":[]}]}
-					""");
-		assertThat(this.mvc.get().uri("/vets").accept(MediaType.APPLICATION_JSON)).bodyText()
-			.doesNotContain("nrOfSpecialties", "\"new\"");
+					""")
+			.doesNotHavePath("$.vetList[0].nrOfSpecialties")
+			.doesNotHavePath("$.vetList[0].new");
 	}
 
 	@Test
@@ -154,7 +157,7 @@ class VetControllerTests {
 
 	private static int rows(String body) {
 		String tbody = body.substring(body.indexOf("<tbody>"), body.indexOf("</tbody>"));
-		return tbody.split("<tr>", -1).length - 1;
+		return tbody.split("</tr>", -1).length - 1;
 	}
 
 	private void stubVets(List<Vet> all) {

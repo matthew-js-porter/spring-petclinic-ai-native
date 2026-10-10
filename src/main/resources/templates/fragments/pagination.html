@@ -5,7 +5,7 @@
 <nav th:fragment="pagination (page, url, label)" th:if="${page.totalPages > 1}"
 	 class="pc-pagination" th:aria-label="${label}"
 	 th:with="current=${page.number + 1}, last=${page.totalPages}">
-	<span class="pc-pagination-label">Pages:</span>
+	<span>Pages:</span>
 	<span aria-hidden="true">[</span>
 	<th:block th:each="n : ${#numbers.sequence(1, last)}">
 		<span th:if="${n == current}" aria-current="page" th:text="${n}">1</span>
@@ -13,15 +13,17 @@
 	</th:block>
 	<span aria-hidden="true">]</span>
 	<span class="pc-pagination-steps">
-		<a th:if="${page.hasPrevious()}" class="pc-step" th:href="@{${url}(page=1)}" title="First" aria-label="First page">&laquo;</a>
-		<span th:unless="${page.hasPrevious()}" class="pc-disabled" aria-disabled="true" title="First">&laquo;</span>
-		<a th:if="${page.hasPrevious()}" class="pc-step" th:href="@{${url}(page=${current - 1})}" title="Previous" aria-label="Previous page">&lsaquo;</a>
-		<span th:unless="${page.hasPrevious()}" class="pc-disabled" aria-disabled="true" title="Previous">&lsaquo;</span>
-		<a th:if="${page.hasNext()}" class="pc-step" th:href="@{${url}(page=${current + 1})}" title="Next" aria-label="Next page">&rsaquo;</a>
-		<span th:unless="${page.hasNext()}" class="pc-disabled" aria-disabled="true" title="Next">&rsaquo;</span>
-		<a th:if="${page.hasNext()}" class="pc-step" th:href="@{${url}(page=${last})}" title="Last" aria-label="Last page">&raquo;</a>
-		<span th:unless="${page.hasNext()}" class="pc-disabled" aria-disabled="true" title="Last">&raquo;</span>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasPrevious()}, 1, '«', 'First')}"/>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasPrevious()}, ${current - 1}, '‹', 'Previous')}"/>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasNext()}, ${current + 1}, '›', 'Next')}"/>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasNext()}, ${last}, '»', 'Last')}"/>
 	</span>
 </nav>
+
+<!--/* One first/previous/next/last control: a link when enabled, plain text when not. */-->
+<th:block th:fragment="step (enabled, target, symbol, title)">
+	<a th:if="${enabled}" class="pc-step" th:href="@{${url}(page=${target})}" th:title="${title}" th:aria-label="|${title} page|" th:text="${symbol}">»</a>
+	<span th:unless="${enabled}" class="pc-disabled" aria-disabled="true" th:title="${title}" th:text="${symbol}">»</span>
+</th:block>
 </body>
 </html>

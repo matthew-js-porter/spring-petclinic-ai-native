@@ -14,7 +14,8 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * End-to-end checks with the real database, Thymeleaf, WebJars and actuator.
+ * End-to-end checks with the real database and actuator. The rendered page and its
+ * stylesheets and scripts are covered by {@link VetsPageHtmlUnitTests}.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,18 +23,6 @@ class VetsIntegrationTests {
 
 	@Autowired
 	private MockMvcTester mvc;
-
-	@Test
-	void pagesTheSeededVets() {
-		assertThat(this.mvc.get().uri("/vets.html")).hasStatusOk()
-			.bodyText()
-			.contains("<td>James Carter</td>", "<td>dentistry surgery</td>")
-			.doesNotContain("Sharon Jenkins");
-		assertThat(this.mvc.get().uri("/vets.html?page=2")).hasStatusOk()
-			.bodyText()
-			.contains("<td>Sharon Jenkins</td>")
-			.doesNotContain("James Carter");
-	}
 
 	@Test
 	void returnsTheSeededVetsAsJson() {
@@ -45,10 +34,8 @@ class VetsIntegrationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "/webjars/bootstrap/css/bootstrap.min.css", "/webjars/bootstrap/js/bootstrap.bundle.min.js",
-			"/resources/css/petclinic.css", "/resources/fonts/montserrat-latin.woff2",
-			"/resources/fonts/varela-round-latin.woff2" })
-	void servesStaticAssets(String path) {
+	@ValueSource(strings = { "/resources/fonts/montserrat-latin.woff2", "/resources/fonts/varela-round-latin.woff2" })
+	void servesFonts(String path) {
 		assertThat(this.mvc.get().uri(path)).hasStatusOk();
 	}
 
@@ -56,7 +43,8 @@ class VetsIntegrationTests {
 	void healthIsUpWithoutDetails() {
 		assertThat(this.mvc.get().uri("/actuator/health")).hasStatusOk()
 			.bodyJson()
-			.satisfies((json) -> assertThat(json.getJson()).doesNotContain("\"components\"", "\"details\""))
+			.doesNotHavePath("$.components")
+			.doesNotHavePath("$.details")
 			.extractingPath("$.status")
 			.isEqualTo("UP");
 	}

@@ -48,26 +48,24 @@ class VetRepositoryTests {
 
 	@Test
 	void seedsTheVetToSpecialtyLinks() {
-		Map<Integer, String> names = this.specialties.findAll()
-			.stream()
-			.collect(Collectors.toMap(Specialty::id, Specialty::name));
-		Map<Integer, List<String>> byVet = this.vets.findAll(Sort.by("id"))
+		Map<Integer, List<Integer>> specialtyIdsByVet = this.vets.findAll(Sort.by("id"))
 			.stream()
 			.collect(Collectors.toMap(Vet::id,
-					(vet) -> vet.specialties().stream().map((s) -> names.get(s.specialty().getId())).sorted().toList()));
+					(vet) -> vet.specialties().stream().map((s) -> s.specialty().getId()).sorted().toList()));
 
-		assertThat(byVet).containsEntry(1, List.of())
-			.containsEntry(2, List.of("radiology"))
-			.containsEntry(3, List.of("dentistry", "surgery"))
-			.containsEntry(4, List.of("surgery"))
-			.containsEntry(5, List.of("radiology"))
+		// 1 radiology, 2 surgery, 3 dentistry
+		assertThat(specialtyIdsByVet).containsEntry(1, List.of())
+			.containsEntry(2, List.of(1))
+			.containsEntry(3, List.of(2, 3))
+			.containsEntry(4, List.of(2))
+			.containsEntry(5, List.of(1))
 			.containsEntry(6, List.of());
 	}
 
 	@Test
 	void seedsThreeSpecialties() {
-		assertThat(this.specialties.findAll()).extracting(Specialty::name)
-			.containsExactlyInAnyOrder("radiology", "surgery", "dentistry");
+		assertThat(this.specialties.findAll()).containsExactlyInAnyOrder(new Specialty(1, "radiology"),
+				new Specialty(2, "surgery"), new Specialty(3, "dentistry"));
 	}
 
 	@Test

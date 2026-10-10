@@ -42,8 +42,6 @@
 
 	/* Bootstrap overrides */
 	--bs-body-font-family: var(--pc-font-body);
-	--bs-body-font-size: 1rem;
-	--bs-body-line-height: 1.5;
 	--bs-body-color: var(--pc-ink);
 	--bs-body-bg: var(--pc-surface);
 	--bs-link-color: var(--pc-spring-green-dark);
@@ -96,9 +94,8 @@ button:focus-visible {
 }
 
 .pc-navbar .navbar-toggler {
+	--bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.5);
 	align-self: center;
-	border-color: rgba(255, 255, 255, 0.5);
-	border-radius: 0;
 }
 
 .pc-navbar .navbar-nav {
@@ -154,14 +151,8 @@ button:focus-visible {
 }
 
 /* Data table */
-.pc-table-scroll {
-	/* overflow-x: auto would otherwise also scroll vertically for the visually hidden caption */
-	overflow-y: hidden;
-}
-
 .pc-table {
 	--bs-table-color: var(--pc-ink);
-	--bs-table-bg: var(--pc-surface);
 	--bs-table-striped-color: var(--pc-ink);
 	--bs-table-striped-bg: var(--pc-surface-stripe);
 	--bs-table-border-color: var(--pc-line);
@@ -184,7 +175,6 @@ button:focus-visible {
 
 .pc-table > tbody > tr > td.pc-muted {
 	--bs-table-color-state: var(--pc-ink-muted);
-	--bs-table-color-type: var(--pc-ink-muted);
 }
 
 .pc-col-name {
@@ -223,7 +213,6 @@ button:focus-visible {
 .pc-footer {
 	padding: 24px 0;
 	border-top: 1px solid var(--pc-line);
-	background: var(--pc-surface);
 	text-align: center;
 	font-size: 14px;
 	line-height: 21px;

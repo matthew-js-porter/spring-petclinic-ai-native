@@ -7,10 +7,7 @@ import org.springframework.data.relational.core.mapping.Table;
 /**
  * Row of the {@code vet_specialties} join table, owned by {@link Vet}. Specialties are
  * their own aggregate, so they are referenced by id.
- * <p>
- * Spring Data JDBC quotes explicit table and column names, so they are written in upper
- * case to match how H2 stores the unquoted names from {@code schema.sql}.
  */
-@Table("VET_SPECIALTIES")
-public record VetSpecialty(@Column("SPECIALTY_ID") AggregateReference<Specialty, Integer> specialty) {
+@Table("vet_specialties")
+public record VetSpecialty(@Column("specialty_id") AggregateReference<Specialty, Integer> specialty) {
 }

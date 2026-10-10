@@ -43,9 +43,7 @@ class VetController {
 		if (page > 1 && page > result.getTotalPages()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "page " + page + " does not exist");
 		}
-		Function<Vet, VetView> toView = viewMapper();
-		model.addAttribute("listVets", result.map(toView));
-		model.addAttribute("currentPage", page);
+		model.addAttribute("listVets", result.map(viewMapper()));
 		return "vets/vetList";
 	}
 
