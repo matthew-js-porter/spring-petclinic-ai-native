@@ -187,4 +187,6 @@ Visits; Edit Owner / Add New Pet / Edit Pet / Add Visit actions; redirecting a s
 - Suggested order: seed owner 11 and update count-dependent tests, repository methods and tests, controller and JSON, `ownerDetails.html`, name links in `ownersList.html`, design-system `DetailList` and CSS, HtmlUnit tests, docs.
 - Boot 4 test imports live in `org.springframework.boot.webmvc.test.autoconfigure.*`; check the generated imports.
 - Run `actionlint` only if workflows change (they should not).
-- Check `intent/007-search-owners` status before merging, per concern 6.
+- Check `intent/007-search-owners` status before merging, per concern 6. Whichever of 007 and 008 merges second adds or re-verifies the name-cell link test (4.4) and notes the result in its PR.
+- No back link or breadcrumb ships in this change (concern 5, assumption 15). Do not add one without a design-system update; if wanted, raise it as a follow-up intent.
+- `DetailList` has no designer-approved reference (concern 8). Request design-owner review of its `preview.html` before merge, and record the outcome in section 10.
