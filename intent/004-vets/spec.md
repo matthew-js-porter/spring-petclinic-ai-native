@@ -68,6 +68,11 @@ Add:
   <artifactId>spring-boot-starter-thymeleaf-test</artifactId>
   <scope>test</scope>
 </dependency>
+<dependency>  <!-- added in implementation, see section 10 -->
+  <groupId>org.htmlunit</groupId>
+  <artifactId>htmlunit</artifactId>
+  <scope>test</scope>
+</dependency>
 ```
 Verify the Boot 4 artifact names (the Thymeleaf starter and its test starter, and whether `webjars-locator-lite` is BOM-managed) with `spring-tools:create-spring-boot-project` or start.spring.io, and run `spring-tools:validate`. Add the Bootstrap WebJar version as a property next to `java.version`. The WebJar is chosen over files copied into `static/` so that Snyk Open Source sees Bootstrap and can gate on it. No Thymeleaf layout dialect: use plain Thymeleaf fragments (4.6). No devtools.
 
@@ -192,6 +197,7 @@ Tests sit in `src/test/java/org/springframework/samples/petclinic/vet/` (and the
 | `SpecialtyRepositoryTests` | `@DataJdbcTest` | 2 | `findAll()` returns radiology, surgery and dentistry. May be folded into `VetRepositoryTests` if it stays small. |
 | `VetControllerTests` | `@WebMvcTest(VetController.class)` with `@MockitoBean` `VetRepository` and `SpecialtyRepository` | 4, 5, 7, 8, 10 | See below. |
 | `RootRedirectTests` | `@WebMvcTest` (imports the redirect controller or `WebMvcConfigurer`) | 9 | `GET /` is 302 to `/vets.html`. |
+| `VetsPageHtmlUnitTests` | `@SpringBootTest` + `@AutoConfigureMockMvc`, HtmlUnit `WebClient` | 4, 6 | Added in implementation (deviation 9): drives the page like a browser through MockMvc's HtmlUnit integration: table rows, pagination clicks, navbar and brand links, assets load. |
 | `PetClinicApplicationTests` (existing) | `@SpringBootTest` | boot | Keeps `contextLoads()`. |
 | `VetsIntegrationTests` | `@SpringBootTest` + `@AutoConfigureMockMvc` | 4, 6, 7, 11 | A few end-to-end checks with the real database, Thymeleaf and WebJar: `/vets.html` page 1 has 5 rows and page 2 has 1, `/vets` returns six vets, Bootstrap and `petclinic.css` return 200, and the actuator checks. |
 
@@ -253,3 +259,18 @@ Choices made where the intent was silent or ambiguous (no questions could be ask
 
 ## 9. Handoff notes for engineering
 One PR is feasible: dependencies, two SQL files, `vet` package (about 8 classes), two templates plus layout fragments, one CSS file, tests. Record resolved versions (Boot, Thymeleaf, Bootstrap WebJar, H2) in the PR description, and list any deviation from this spec in the spec itself. This spec needs full human review before a plan is written.
+
+## 10. Implementation deviations
+Recorded during implementation (plan: [plan.md](./plan.md)). The look was settled after this spec by the design system in `docs/design-system/` and the reference mock `PetClinic Vets.html`; where they differ from section 4.5, the implementation follows them.
+
+1. **Look from the design system.** `petclinic.css` implements the tokens in `docs/design-system/tokens.json`: a `#34302d` navbar with a 4px `#6db33f` top bar, `#3f7223` for links and the active nav item, warm-grey stripes, square corners. This resolves concern 1: Spring green is decorative only (accent bar, logo, focus ring on dark), and every text pair meets WCAG AA. The one exception is the disabled pagination chevrons (`#b6b0a8`, 2.2:1), which WCAG exempts as disabled controls.
+2. **Pagination is plain text**, `Pages: [ 1 2 ] « ‹ › »` as in the design system's Pagination component, not Bootstrap's boxed `.pagination`. It is not rendered when there is only one page. Disabled chevrons are `<span aria-disabled="true">`, not links.
+3. **Brand mark** is the inline SVG heart-and-cross from the mock, not the upstream Spring logo. No image files are added.
+4. **Fonts** are Montserrat (600/700, variable) and Varela Round, latin subset, self-hosted in `static/resources/fonts/` under the SIL OFL 1.1 (licences alongside). There is no request to Google Fonts.
+5. **Navigation** keeps this spec's decision (section 4.5, confirmed by the owner): the brand link plus one "Veterinarians" item. The mock's "Home" item is intentionally left out. The icon is Bootstrap Icons' `list-ul` (MIT), inlined as SVG, with no icons WebJar.
+6. **Page range checks** are explicit in the controller (`ResponseStatusException` 400/404). No `@Min` is used, so no validation starter is needed.
+7. **Upper-case mapped names.** Spring Data JDBC quotes explicitly named tables and columns, so `@Table`, `@Column` and `idColumn` values are upper case (`VETS`, `VET_SPECIALTIES`, `SPECIALTY_ID`, `VET_ID`) to match how H2 stores the unquoted names in `schema.sql`. Later domain intents must follow the same rule.
+8. **Query count.** A page read issues the page query plus **one `vet_specialties` query per vet on the page**, so it is bounded by the page size (at most 1 + 5) but is not the single child query stated in 4.3. `VetRepositoryTests` asserts the bound. The JSON endpoint reads all vets the same way (1 + 6). This is acceptable for the seed data; revisit with single-query loading or a `@Query` projection if vets grow.
+9. **HtmlUnit tests** were added at review (`VetsPageHtmlUnitTests`, `org.htmlunit:htmlunit` BOM-managed, test scope). HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3.8's bundle, so these tests run with JavaScript disabled, and the collapsing navbar stays a manual browser check (5, item 12).
+10. **WebJar URLs are versioned when rendered.** Templates use version-less `@{/webjars/bootstrap/...}`, and the generated HTML contains `/webjars/bootstrap/5.3.8/...`. Both forms are served.
+11. **Resolved versions:** Spring Boot 4.1.1, Thymeleaf 3.1.5, Bootstrap WebJar 5.3.8 (pinned as `webjars-bootstrap.version`, not BOM-managed: concern 3), webjars-locator-lite 1.1.4, HtmlUnit 4.21.0, H2 2.4.240. Upstream seed data was checked: names, specialties and links match section 4.2.

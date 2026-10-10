@@ -18,6 +18,8 @@ curl -i localhost:8080/actuator/health
 - Java 25, pinned in `pom.xml` and `.sdkmanrc` (`java=25.0.2-open`). Run `sdk env install` / `sdk env` before building; a mismatched default JDK breaks the build. JDK 27 (latest non-LTS) is not installable via SDKMAN, so 25 is a deliberate deviation recorded in the spec.
 - Config is YAML only (`application.yaml`); do not add `application.properties`.
 - Keep the actuator surface minimal: Boot's default exposes only `health`. Don't add `management.endpoints` settings unless a spec asks for it.
+- UI follows the design system in `docs/design-system/` (tokens, components, usage rules); `static/resources/css/petclinic.css` implements it on Bootstrap 5.3.
+- Spring Data JDBC quotes explicit `@Table`/`@Column` names, so write them in UPPER CASE to match H2.
 - Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
 
 ## Design system

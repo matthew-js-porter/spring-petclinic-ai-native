@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" th:fragment="layout (pageTitle, activeMenu, content)">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="|${pageTitle} · Spring PetClinic|">Spring PetClinic</title>
+	<link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/resources/css/petclinic.css}">
+</head>
+<body>
+<header class="pc-header">
+	<nav class="navbar navbar-expand-lg pc-navbar" data-bs-theme="dark" aria-label="Main">
+		<div class="container">
+			<a class="pc-brand" th:href="@{/}">
+				<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+					<path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"/>
+					<path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"/>
+				</svg>
+				<span>Spring PetClinic</span>
+			</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar"
+					aria-controls="main-navbar" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="main-navbar">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="pc-nav-link" th:href="@{/vets.html}"
+						   th:aria-current="${activeMenu == 'vets'} ? 'page' : null">
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+								<path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+							</svg>
+							<span>Veterinarians</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+</header>
+
+<main class="container pc-main">
+	<th:block th:replace="${content}"/>
+</main>
+
+<footer class="pc-footer">
+	<div class="container">Spring PetClinic · a Spring Boot sample application</div>
+</footer>
+
+<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>
