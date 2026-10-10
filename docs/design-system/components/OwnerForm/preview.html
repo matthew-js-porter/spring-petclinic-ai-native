@@ -1,0 +1,73 @@
+<!-- @dsCard group="Patterns" height=860 subtitle="Edit Owner redisplayed with errors; Owner Information after a save; Find Owners entry link" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>OwnerForm — preview</title>
+<style>
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-6); align-items: start; }
+  .cap { margin: 0 0 var(--space-3); font-size: 14px; line-height: 21px; color: var(--ink-muted); border-bottom: var(--border-hairline) solid var(--line); padding-bottom: var(--space-1); }
+  h2 { margin: 0 0 var(--space-5); font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; color: var(--ink); }
+  .stack > * + * { margin-top: var(--space-6); }
+</style>
+</head>
+<body>
+<div class="pc-pad board">
+  <section aria-labelledby="t1">
+    <p class="cap">/owners/1/edit.html, submitted with two problems</p>
+    <h2 id="t1">Edit Owner</h2>
+    <p class="pc-message" role="alert">Owner not saved: 2 fields need attention.</p>
+    <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+      <p class="pc-form-help">All fields are required.</p>
+      <div class="pc-field">
+        <label for="firstName">First Name</label>
+        <input class="pc-input" type="text" id="firstName" name="firstName" maxlength="30" autocomplete="given-name" required aria-required="true" value="George">
+      </div>
+      <div class="pc-field">
+        <label for="lastName">Last Name</label>
+        <input class="pc-input" type="text" id="lastName" name="lastName" maxlength="30" autocomplete="family-name" required aria-required="true" value="Franklin">
+      </div>
+      <div class="pc-field">
+        <label for="address">Address</label>
+        <input class="pc-input" type="text" id="address" name="address" maxlength="255" autocomplete="street-address" required aria-required="true" value="110 W. Liberty St.">
+      </div>
+      <div class="pc-field pc-field-invalid">
+        <label for="city">City</label>
+        <input class="pc-input" type="text" id="city" name="city" maxlength="80" autocomplete="address-level2" required aria-required="true" aria-invalid="true" aria-describedby="city-error">
+        <p class="pc-field-error" id="city-error">City is required.</p>
+      </div>
+      <div class="pc-field pc-field-invalid">
+        <label for="telephone">Telephone</label>
+        <input class="pc-input" type="tel" inputmode="numeric" id="telephone" name="telephone" maxlength="10" autocomplete="tel-national" required aria-required="true" aria-invalid="true" aria-describedby="telephone-error" value="6085551 23">
+        <p class="pc-field-error" id="telephone-error">Telephone must be exactly 10 digits.</p>
+      </div>
+      <button class="pc-button" type="submit">Update Owner</button>
+    </form>
+  </section>
+  <div class="stack">
+    <section aria-labelledby="t2">
+      <p class="cap">/owners/1.html, after the save</p>
+      <h2 id="t2">Owner Information</h2>
+      <p class="pc-message" role="status">Owner Values Updated</p>
+      <dl class="pc-detail">
+        <div><dt>Name</dt><dd>George Franklin</dd></div>
+        <div><dt>Address</dt><dd>110 W. Liberty St.</dd></div>
+        <div><dt>City</dt><dd>Sun Prairie</dd></div>
+        <div><dt>Telephone</dt><dd>6085559876</dd></div>
+      </dl>
+      <p style="margin:var(--space-3) 0 0"><a class="pc-action" href="#">Edit Owner</a></p>
+    </section>
+    <section aria-labelledby="t3">
+      <p class="cap">/owners.html, entry point</p>
+      <h2 id="t3">Owners</h2>
+      <a class="pc-action" href="#">Add Owner</a>
+      <form class="pc-form" method="get" role="search" action="#">
+        <div class="pc-field">
+          <label for="q">Last Name</label>
+          <input class="pc-input" type="search" id="q" name="lastName" maxlength="30" autocomplete="off">
+        </div>
+        <button class="pc-button" type="submit">Find Owner</button>
+      </form>
+    </section>
+  </div>
+</div>
+</body>
+</html>

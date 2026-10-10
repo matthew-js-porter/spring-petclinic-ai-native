@@ -68,3 +68,20 @@ body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 2
   .pc-detail > div { display: grid; grid-template-columns: var(--detail-label-width) minmax(0, 1fr); }
   .pc-detail dt, .pc-detail dd { padding: var(--space-3) var(--space-4); }
 }
+
+/* Stacked form (intent 009): one field per row, button below */
+.pc-form-stacked { flex-direction: column; align-items: stretch; }
+.pc-form-stacked .pc-form-help { margin: 0; color: var(--ink-muted); }
+.pc-form-stacked .pc-button { align-self: flex-start; }
+@media (min-width: 576px) {
+  .pc-form.pc-form-stacked { flex-direction: column; align-items: stretch; max-width: var(--field-width); }
+  .pc-form-stacked .pc-field { width: auto; }
+}
+
+/* Field error state: words plus a heavier border and a left rule, never colour alone */
+.pc-field-invalid .pc-input { border-width: var(--border-strong); padding: calc(var(--space-2) - 1px) calc(var(--space-3) - 1px); }
+.pc-field-error { margin: 0; padding: 0 0 0 var(--space-3); font-family: var(--font-body); font-size: 16px; line-height: 24px; color: var(--ink); border-left: var(--border-accent) solid var(--line-strong); }
+
+/* Action link: a link that starts an action (Add Owner, Edit Owner); never styled as a button */
+.pc-action { display: inline-block; margin: 0 0 var(--space-5); color: var(--spring-green-dark); }
+.pc-action:focus-visible, .pc-pad a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }

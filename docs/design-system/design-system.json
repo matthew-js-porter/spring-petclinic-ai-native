@@ -1,7 +1,7 @@
 {
   "v": 3,
   "layout": "files",
-  "createdOnFiles": {"v": 1, "at": "2026-10-10T17:14:24Z"},
+  "createdOnFiles": {"v": 1, "at": "2026-10-10T23:08:36Z"},
   "title": "Spring PetClinic",
   "namespace": "PetClinic",
   "libraries": [],
@@ -13,8 +13,8 @@
       "tile": "l",
       "order": ["petclinic-mark.png", "petclinic-lockup.png"],
       "files": {
-        "petclinic-mark.png": {"name": "petclinic-mark.png", "blob": "3a43cff2f44e3df9858fe3f4ea7dfabc", "size": 9738, "type": "image/png"},
-        "petclinic-lockup.png": {"name": "petclinic-lockup.png", "blob": "c8787bb7982d9cf599ea679a58973a55", "size": 43435, "type": "image/png"}
+        "petclinic-mark.png": {"name": "petclinic-mark.png", "blob": "6c8d824982e6dc1265c254cdb7c8d8c6", "size": 9738, "type": "image/png"},
+        "petclinic-lockup.png": {"name": "petclinic-lockup.png", "blob": "001d72fcd2a091ed6e409b1b6acd50a7", "size": 43435, "type": "image/png"}
       }
     },
     "Photos": {
@@ -22,11 +22,11 @@
       "tile": "l",
       "order": ["pets.png"],
       "files": {
-        "pets.png": {"name": "pets.png", "blob": "661294abfd417ed2dd93c88309af0d1c", "size": 970430, "type": "image/png"}
+        "pets.png": {"name": "pets.png", "blob": "c20f8efd310eeeea8ca222423223a5f2", "size": 970430, "type": "image/png"}
       }
     }
   },
   "blobs": {},
   "docs": {"readme": "project/README.md", "sections": []},
-  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T22:23:55Z", "via": "Claude Code", "note": "Owner details (intent 008): DetailList component, section-title type style, detail-label-width token, empty-collection sentence"}
+  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T23:08:36Z", "via": "Claude Code", "note": "Modify Owners (spec 009 §4.7): stacked FormField layout and error state, InlineMessage confirmation and form summary, action links, Button labels, OwnerForm pattern board"}
 }
