@@ -36,7 +36,7 @@
 				</thead>
 				<tbody>
 				<tr th:each="owner : ${listOwners.content}">
-					<td th:text="|${owner.firstName} ${owner.lastName}|">George Franklin</td>
+					<td><a th:href="@{/owners/{id}.html(id=${owner.id})}" th:text="|${owner.firstName} ${owner.lastName}|">George Franklin</a></td>
 					<td th:text="${owner.address}">110 W. Liberty St.</td>
 					<td th:text="${owner.city}">Madison</td>
 					<td class="text-nowrap" th:text="${owner.telephone}">6085551023</td>

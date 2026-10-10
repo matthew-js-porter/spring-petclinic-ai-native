@@ -191,3 +191,17 @@ Visits; Edit Owner / Add New Pet / Edit Pet / Add Visit actions; redirecting a s
 - Check `intent/007-search-owners` status before merging, per concern 6. Whichever of 007 and 008 merges second adds or re-verifies the name-cell link test (4.4) and notes the result in its PR.
 - No back link or breadcrumb ships in this change (concern 5, assumption 15). Do not add one without a design-system update; if wanted, raise it as a follow-up intent.
 - `DetailList` has no designer-approved reference (concern 8). Request design-owner review of its `preview.html` before merge, and record the outcome in section 10.
+
+## 10. Deviations
+Recorded during implementation (plan: [plan.md](./plan.md)).
+
+1. **Intent 007 merged first.** Section 2 says 007 had no code; it shipped on `main` (PR #34) before this change. So this PR is the second to merge and owns the name-link check (4.4, concern 6). The link is in the one table row that the list and search results share. `OwnersPageHtmlUnitTests.linksSearchResultsToTheOwnersPage` and `OwnerControllerTests.searchesByTheTrimmedLastName` assert it on search results.
+2. **JSON regardless of `Accept` (F10).** A `produces = application/json` mapping, as on `/owners` and `/vets`, answers `Accept: text/html` with 406. To meet F10, `GET /owners/{id}` has no `produces` condition and returns a `ResponseEntity` with the content type preset to `application/json`, which Spring writes without negotiating. The list endpoints keep their existing 406 behaviour (F14), so the two JSON styles now differ on that one point.
+3. **Empty-state class.** The no-pets sentence is `<p class="pc-muted pc-empty">`. `pc-empty` sets the margin and padding from the visual reference (`space-3` above and below), and `pc-muted` sets the colour.
+4. **Design-system additions beyond `DetailList`.**
+   - `section-title` type style (24/30/700 display) for the Pets `h3`, as 4.7 anticipated.
+   - `detail-label-width` (12rem) size token for the label column, rather than a hard-coded width.
+   - The README records "Owner Information" as a second exception to the plural-noun page-title rule.
+5. **`DetailList` markup.** Each `dt`/`dd` pair is wrapped in a `div` (allowed in 4.3). The `div` carries the row rule and, from `md` up, the two-column grid.
+6. **Design review of `DetailList`.** Pending at PR time (concern 8). The outcome goes here.
+7. **Published design system.** `DetailList`, `section-title` and `detail-label-width` exist only in `docs/design-system/` until the published artifact is updated. No asset blobs changed.

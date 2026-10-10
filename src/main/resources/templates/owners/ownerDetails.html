@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+	  th:replace="~{fragments/layout :: layout('Owner Information', 'owners', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+	<h2 class="pc-page-title">Owner Information</h2>
+
+	<dl class="pc-detail">
+		<div>
+			<dt>Name</dt>
+			<dd th:text="|${owner.firstName} ${owner.lastName}|">George Franklin</dd>
+		</div>
+		<div>
+			<dt>Address</dt>
+			<dd th:text="${owner.address}">110 W. Liberty St.</dd>
+		</div>
+		<div>
+			<dt>City</dt>
+			<dd th:text="${owner.city}">Madison</dd>
+		</div>
+		<div>
+			<dt>Telephone</dt>
+			<dd th:text="${owner.telephone}">6085551023</dd>
+		</div>
+	</dl>
+
+	<h3 class="pc-section-title">Pets</h3>
+
+	<p th:if="${#lists.isEmpty(owner.pets)}" class="pc-muted pc-empty">This owner has no pets.</p>
+
+	<table th:unless="${#lists.isEmpty(owner.pets)}" id="pets" class="table table-striped pc-table">
+		<caption class="visually-hidden" th:text="|Pets of ${owner.firstName} ${owner.lastName}|">Pets of George Franklin</caption>
+		<thead>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Birth Date</th>
+			<th scope="col">Type</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr th:each="pet : ${owner.pets}">
+			<td th:text="${pet.name}">Leo</td>
+			<td class="text-nowrap" th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}">2010-09-07</td>
+			<td th:text="${pet.type}">cat</td>
+		</tr>
+		</tbody>
+	</table>
+</th:block>
+</body>
+</html>

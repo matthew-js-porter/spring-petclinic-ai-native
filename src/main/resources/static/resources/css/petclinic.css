@@ -43,6 +43,7 @@
 	/* Size */
 	--pc-hero-width: 360px;
 	--pc-field-width: 20rem;
+	--pc-detail-label-width: 12rem;
 
 	/* Bootstrap overrides */
 	--bs-body-font-family: var(--pc-font-body);
@@ -161,6 +162,61 @@ button:focus-visible,
 	max-width: 100%;
 	height: auto;
 	margin-top: 24px;
+}
+
+/* Section title: an h3 under the page title, such as "Pets" */
+.pc-section-title {
+	margin: 48px 0 12px;
+	font-family: var(--pc-font-display);
+	font-size: 24px;
+	line-height: 30px;
+	font-weight: 700;
+	color: var(--pc-ink);
+}
+
+/* Empty collection: one muted sentence in place of a table */
+.pc-empty {
+	margin: 0;
+	padding: 12px 0;
+}
+
+/* Detail list: one record's labelled facts; labels stack over values on a phone, two columns from md up */
+.pc-detail {
+	margin: 0;
+	border-top: 2px solid var(--pc-line-strong);
+}
+
+.pc-detail > div {
+	border-bottom: 1px solid var(--pc-line);
+}
+
+.pc-detail dt {
+	padding: 12px 16px 0;
+	font-family: var(--pc-font-display);
+	font-size: 14px;
+	line-height: 24px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--pc-ink);
+}
+
+.pc-detail dd {
+	margin: 0;
+	padding: 4px 16px 12px;
+	overflow-wrap: anywhere;
+}
+
+@media (min-width: 768px) {
+	.pc-detail > div {
+		display: grid;
+		grid-template-columns: var(--pc-detail-label-width) minmax(0, 1fr);
+	}
+
+	.pc-detail dt,
+	.pc-detail dd {
+		padding: 12px 16px;
+	}
 }
 
 /* Data table */

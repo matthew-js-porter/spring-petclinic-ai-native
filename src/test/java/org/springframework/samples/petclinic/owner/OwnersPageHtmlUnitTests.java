@@ -54,7 +54,22 @@ class OwnersPageHtmlUnitTests {
 			.isEqualTo(List.of("George Franklin", "110 W. Liberty St.", "Madison", "6085551023", "Leo"));
 		assertThat(rows(page)).extracting(List::getFirst)
 			.containsExactly("George Franklin", "Betty Davis", "Eduardo Rodriquez", "Harold Davis", "Peter McTavish");
-		assertThat(page.querySelectorAll("#owners tbody a")).isEmpty();
+		assertThat(page.querySelectorAll("#owners tbody td:not(:first-child) a")).isEmpty();
+	}
+
+	@Test
+	void linksEachOwnerNameToTheOwnersPage() throws IOException {
+		HtmlPage page = this.webClient.getPage("/owners.html");
+
+		assertThat(page.querySelectorAll("#owners tbody td:first-child a")).hasSize(5)
+			.extracting((link) -> ((HtmlAnchor) link).getHrefAttribute())
+			.containsExactly("/owners/1.html", "/owners/2.html", "/owners/3.html", "/owners/4.html", "/owners/5.html");
+
+		HtmlPage details = page.getAnchorByText("George Franklin").click();
+
+		assertThat(details.getUrl().toString()).endsWith("/owners/1.html");
+		assertThat(details.getTitleText()).isEqualTo("Owner Information · Spring PetClinic");
+		assertThat(details.<DomElement>querySelector("dd").asNormalizedText()).isEqualTo("George Franklin");
 	}
 
 	@Test
@@ -78,7 +93,25 @@ class OwnersPageHtmlUnitTests {
 			.containsExactly("Jean Coleman", "Jeff Black", "Maria Escobito", "David Schroeder", "Carlos Estaban");
 		assertThat(rows(page2).getFirst()).last().isEqualTo("Max Samantha");
 		assertThat(rows(page2).getLast()).last().isEqualTo("Lucky Sly");
-		assertThat(page2.querySelectorAll("a[aria-label='Next page'], a[aria-label='Last page']")).isEmpty();
+	}
+
+	@Test
+	void showsTheOwnerWithoutPetsOnTheThirdAndLastPage() throws IOException {
+		HtmlPage page2 = this.webClient.getPage("/owners.html?page=2");
+
+		HtmlPage page3 = page2.getAnchorByText("3").click();
+
+		assertThat(page3.getUrl().toString()).endsWith("/owners.html?page=3");
+		assertThat(rows(page3)).singleElement()
+			.isEqualTo(List.of("Helen Ostrander", "4120 Monroe St.", "Fitchburg", "6085554412", "none"));
+		assertThat(page3.querySelectorAll("a[aria-label='Next page'], a[aria-label='Last page']")).isEmpty();
+	}
+
+	@Test
+	void returnsNotFoundBeyondTheThirdPage() throws IOException {
+		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+
+		assertThat(this.webClient.getPage("/owners.html?page=4").getWebResponse().getStatusCode()).isEqualTo(404);
 	}
 
 	@Test
@@ -130,6 +163,18 @@ class OwnersPageHtmlUnitTests {
 
 		HtmlPage reloaded = this.webClient.getPage(results.getUrl());
 		assertThat(rows(reloaded)).extracting(List::getFirst).containsExactly("Betty Davis", "Harold Davis");
+	}
+
+	@Test
+	void linksSearchResultsToTheOwnersPage() throws IOException {
+		HtmlPage results = search("Davis");
+
+		assertThat(results.querySelectorAll("#owners tbody td:first-child a"))
+			.extracting((link) -> ((HtmlAnchor) link).getHrefAttribute())
+			.containsExactly("/owners/2.html", "/owners/4.html");
+
+		HtmlPage details = results.getAnchorByText("Harold Davis").click();
+		assertThat(details.getUrl().toString()).endsWith("/owners/4.html");
 	}
 
 	@Test

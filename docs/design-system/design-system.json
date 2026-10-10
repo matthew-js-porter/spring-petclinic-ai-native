@@ -28,5 +28,5 @@
   },
   "blobs": {},
   "docs": {"readme": "project/README.md", "sections": []},
-  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T21:57:11Z", "via": "Claude Code", "note": "Search owners (intent 007): FormField, Button and InlineMessage components, field-width token; corners square everywhere, radius-control removed"}
+  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T22:23:55Z", "via": "Claude Code", "note": "Owner details (intent 008): DetailList component, section-title type style, detail-label-width token, empty-collection sentence"}
 }
