@@ -9,4 +9,6 @@ The site header on every page: a `spring-brown` bar with a 4px `spring-green` ac
 - Focus: 2px `focus-ring-on-dark` inset outline.
 - Wrap it in `<header>` and `<nav aria-label="Main">`. In the Thymeleaf app this is Bootstrap's `navbar navbar-expand-lg` with the collapse toggle below `lg`; this preview shows the expanded state only.
 
+Items in the app, in order: **Home** (house icon, links to `/`, current on the homepage) and **Veterinarians** (bulleted-list icon, current on `/vets.html`). Exactly one item is current on each page.
+
 Do: add one item per top-level feature (Owners, Veterinarians...). Don't: put text in `spring-green` on this bar, or round the active item.

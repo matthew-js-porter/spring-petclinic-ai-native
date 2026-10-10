@@ -4,15 +4,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * There is no home page yet, so the root URL (and the navbar brand link) leads to the
- * vets list.
+ * Serves the welcome page at the root URL, which the navbar brand and Home item link to.
  */
 @Controller
-class RootController {
+class WelcomeController {
 
 	@GetMapping("/")
-	String root() {
-		return "redirect:/vets.html";
+	String welcome() {
+		return "welcome";
 	}
 
 }

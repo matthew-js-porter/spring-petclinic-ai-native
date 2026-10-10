@@ -4,19 +4,22 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@WebMvcTest(RootController.class)
-class RootRedirectTests {
+@WebMvcTest(WelcomeController.class)
+class WelcomeControllerTests {
 
 	@Autowired
 	private MockMvcTester mvc;
 
 	@Test
-	void redirectsRootToVetList() {
-		assertThat(this.mvc.get().uri("/")).hasStatus3xxRedirection().hasRedirectedUrl("/vets.html");
+	void showsWelcomePageAtRoot() {
+		MvcTestResult result = this.mvc.get().uri("/").exchange();
+		assertThat(result).hasStatusOk().hasContentTypeCompatibleWith(MediaType.TEXT_HTML).hasViewName("welcome");
 	}
 
 }

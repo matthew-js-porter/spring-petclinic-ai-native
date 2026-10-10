@@ -40,6 +40,9 @@
 	--pc-font-display: Montserrat, "Helvetica Neue", Arial, sans-serif;
 	--pc-font-body: "Varela Round", "Helvetica Neue", Arial, sans-serif;
 
+	/* Size */
+	--pc-hero-width: 360px;
+
 	/* Bootstrap overrides */
 	--bs-body-font-family: var(--pc-font-body);
 	--bs-body-color: var(--pc-ink);
@@ -148,6 +151,14 @@ button:focus-visible {
 
 .pc-muted {
 	color: var(--pc-ink-muted);
+}
+
+.pc-hero {
+	display: block;
+	width: var(--pc-hero-width);
+	max-width: 100%;
+	height: auto;
+	margin-top: 24px;
 }
 
 /* Data table */
