@@ -85,3 +85,21 @@ body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 2
 /* Action link: a link that starts an action (Add Owner, Edit Owner); never styled as a button */
 .pc-action { display: inline-block; margin: 0 0 var(--space-5); color: var(--spring-green-dark); }
 .pc-action:focus-visible, .pc-pad a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Select and date variants (intent 010): the same square box as the text input */
+select.pc-input { appearance: none; padding-right: calc(var(--space-3) + var(--space-5)); background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - var(--space-4) - 5px) 50%, calc(100% - var(--space-4)) 50%; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
+.pc-field-invalid select.pc-input { padding-right: calc(var(--space-3) + var(--space-5) - 1px); }
+input[type="date"].pc-input { min-height: calc(24px + 2 * var(--space-2) + 2 * var(--border-hairline)); }
+.pc-field-help { margin: 0; font-size: 14px; line-height: 21px; color: var(--ink-muted); }
+
+/* Wide tables scroll inside a focusable region, never the page */
+.pc-table-region { overflow-x: auto; }
+.pc-table-region:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.pc-table-region > .pc-table { width: max-content; min-width: 100%; }
+
+/* Links in tables, the actions column and the pets section entry link */
+.pc-table a { color: var(--spring-green-dark); }
+.pc-table a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.pc-col-actions, .pc-table .text-nowrap { white-space: nowrap; }
+.pc-section-title + .pc-action { margin-bottom: var(--space-3); }
+.pc-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

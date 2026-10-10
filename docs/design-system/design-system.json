@@ -1,7 +1,7 @@
 {
   "v": 3,
   "layout": "files",
-  "createdOnFiles": {"v": 1, "at": "2026-10-10T23:08:36Z"},
+  "createdOnFiles": {"v": 1, "at": "2026-10-10T23:34:08Z"},
   "title": "Spring PetClinic",
   "namespace": "PetClinic",
   "libraries": [],
@@ -13,8 +13,8 @@
       "tile": "l",
       "order": ["petclinic-mark.png", "petclinic-lockup.png"],
       "files": {
-        "petclinic-mark.png": {"name": "petclinic-mark.png", "blob": "6c8d824982e6dc1265c254cdb7c8d8c6", "size": 9738, "type": "image/png"},
-        "petclinic-lockup.png": {"name": "petclinic-lockup.png", "blob": "001d72fcd2a091ed6e409b1b6acd50a7", "size": 43435, "type": "image/png"}
+        "petclinic-mark.png": {"name": "petclinic-mark.png", "blob": "0425c1f2d77af92dd2646af2460980e5", "size": 9738, "type": "image/png"},
+        "petclinic-lockup.png": {"name": "petclinic-lockup.png", "blob": "d755bf6ebeb451a368519e369aafd138", "size": 43435, "type": "image/png"}
       }
     },
     "Photos": {
@@ -22,11 +22,11 @@
       "tile": "l",
       "order": ["pets.png"],
       "files": {
-        "pets.png": {"name": "pets.png", "blob": "c20f8efd310eeeea8ca222423223a5f2", "size": 970430, "type": "image/png"}
+        "pets.png": {"name": "pets.png", "blob": "9c9be366b594fbdaebac0cbc027e9170", "size": 970430, "type": "image/png"}
       }
     }
   },
   "blobs": {},
   "docs": {"readme": "project/README.md", "sections": []},
-  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T23:08:36Z", "via": "Claude Code", "note": "Modify Owners (spec 009 §4.7): stacked FormField layout and error state, InlineMessage confirmation and form summary, action links, Button labels, OwnerForm pattern board"}
+  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T23:34:08Z", "via": "Claude Code", "note": "Add or Edit a Pet (spec 010 §4.7): FormField select and date variants with helper line, DataTable actions column and wide-table region, Add Pet/Update Pet labels, pet confirmations, PetForm pattern board"}
 }
