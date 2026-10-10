@@ -77,6 +77,8 @@ Domain tables, entities, repositories, seed data, `schema.sql`/`data.sql`, Flywa
 - Run `spring-tools:validate`; no diagnostics.
 - CI: `build.yml` and `snyk.yml` pass on the PR. If Snyk reports `high` or above on H2 or a transitive dependency, do not suppress it; raise it (see concerns).
 
+**Deviation (implementation):** by decision, none of the automated tests above were added: health `UP` without details, the single `jdbc:h2:mem:` `DataSource`, the empty `PUBLIC` schema, the fault-injected `DOWN` check, and `/h2-console` returning 404. The existing `contextLoads()` still proves the context starts with H2 and Data JDBC. F2, F3, F4, F6 and F7 were verified by the manual smoke run: the Hikari pool connected to `jdbc:h2:mem:<uuid>`; `/actuator/health` returned 200 `{"groups":["liveness","readiness"],"status":"UP"}`; `/h2-console`, `/actuator/info` and `/actuator/env` returned 404; and no `*.mv.db` file appeared. **F5 (DB health feeding the overall status) is not verified**, and concerns 2 and 5 remain open. The intent 001 health and endpoint assertions this spec refers to were never in the test suite (only `contextLoads()` exists). Resolved versions: Boot 4.1.1, H2 2.4.240, HikariCP 7.0.2, Spring Data JDBC 4.1.1.
+
 ## 6. Policy conformance
 No brand, security, or UX policy skills or documents exist in this repo or among the available skills (only `intent`, `spec`, and Spring tooling), so none could be checked. General defaults applied, for a policy owner to confirm:
 - **Security:** in-memory only, no credentials to manage beyond H2's default `sa` user (not reachable over the network, since no TCP server or console is enabled); health details hidden; no new endpoints; Boot-managed dependency versions; Snyk gate applies.

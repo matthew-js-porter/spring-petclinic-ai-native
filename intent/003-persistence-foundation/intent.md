@@ -12,7 +12,7 @@ Observable results:
 - The application starts without errors and connects to an in-memory H2 database; nothing is written to disk and each start begins with an empty database.
 - A request to `/actuator/health` returns HTTP 200 with status `UP`. The database check feeds that overall status (if the database is unavailable, health is not `UP`), but the response shows only the status, as Spring Boot does by default.
 
-Out of scope: any PetClinic domain tables, entities, repositories or seed data; schema migration tooling; the H2 web console; file-based or production databases (e.g. MySQL/Postgres); exposing any actuator endpoint other than `health`; showing health details or components.
+Out of scope: any PetClinic domain tables, entities, repositories or seed data; schema migration tooling; enabling the H2 web console (the `spring-boot-h2console` module is on the classpath at reviewer request, but stays disabled; see spec 4.1); file-based or production databases (e.g. MySQL/Postgres); exposing any actuator endpoint other than `health`; showing health details or components.
 
 ## Affected users and systems
 - Developers and agents working on this repo (gain a datasource to build domain features on).
