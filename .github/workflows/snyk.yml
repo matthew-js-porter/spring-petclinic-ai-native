@@ -1,0 +1,84 @@
+# F5: Snyk Open Source (dependencies) and Snyk Code (SAST) scans.
+# SARIF files are always kept as the `snyk-sarif` artifact, which maintain-scan.yml reads.
+name: snyk
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC, before maintain-scan
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: snyk-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  snyk:
+    # SNYK_TOKEN is withheld from fork PRs, so skip them.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Run Snyk on the same JDK as the build (C5) instead of the snyk/actions/maven image.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
+
+      - name: Snyk Open Source
+        id: oss
+        continue-on-error: true
+        run: snyk test --severity-threshold=high --sarif-file-output=snyk-oss.sarif
+
+      - name: Snyk Code
+        id: code
+        continue-on-error: true
+        run: snyk code test --severity-threshold=high --sarif-file-output=snyk-code.sarif
+
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snyk-sarif
+          path: "*.sarif"
+          if-no-files-found: warn
+
+      - name: Upload Open Source SARIF to code scanning
+        if: always() && vars.SARIF_UPLOAD == 'true' && hashFiles('snyk-oss.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: snyk-oss.sarif
+          category: snyk-open-source
+
+      - name: Upload Code SARIF to code scanning
+        if: always() && vars.SARIF_UPLOAD == 'true' && hashFiles('snyk-code.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: snyk-code.sarif
+          category: snyk-code
+
+      - name: Fail on high or critical findings
+        if: steps.oss.outcome == 'failure' || steps.code.outcome == 'failure'
+        env:
+          OSS: ${{ steps.oss.outcome }}
+          CODE: ${{ steps.code.outcome }}
+        run: |
+          echo "::error::Snyk scan failed (open source: $OSS, code: $CODE). See the logs above and the snyk-sarif artifact."
+          exit 1
