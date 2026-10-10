@@ -1,6 +1,6 @@
 # Review policy
 
-Read by the Claude review job (`.github/workflows/review.yml`) and by human reviewers. Reviews are advisory: never approve, request changes, or fail a check because of findings. Humans decide and merge.
+Read by the Claude review job (`.github/workflows/claude-code-review.yml`) and by human reviewers. Reviews are advisory: never approve, request changes, or fail a check because of findings. Humans decide and merge.
 
 ## What to check
 

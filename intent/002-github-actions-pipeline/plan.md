@@ -26,10 +26,10 @@ Deliver as one PR per step, in this order, so each PR is built by the pipeline t
 - Check Snyk on Java 25 and that Snyk Code is enabled on the account; record any deviation in the spec (C4, C5).
 - Verify: known-vulnerable test dependency on a branch fails the job; remove it.
 
-### Step 3 — `REVIEW.md` + `review.yml` (F3, F4)
+### Step 3 — `REVIEW.md` + `claude-code-review.yml` / `claude.yml` (F3, F4)
 - `REVIEW.md` (~40 lines): passes for bugs, security (secrets, injection, actuator exposure beyond health), spec/plan and `CLAUDE.md` conformance; `[critical]/[major]/[minor]` tags; only report issues with a concrete failure scenario; advisory only.
-- Job `review`: `pull_request` (opened, synchronize, ready_for_review, reopened), skip drafts and forks; `claude-code-action@v1` with the `code-review@claude-code-plugins` plugin, prompt following `REVIEW.md`, `--comment`, `claude_args` with `--allowedTools "mcp__github_inline_comment__create_inline_comment" --max-turns`, `timeout-minutes`, `concurrency` cancel-in-progress per PR, `continue-on-error: true`. Auth via `claude_code_oauth_token`; no `github_token` input so commits trigger CI.
-- Job `claude-mention`: `issue_comment` / `pull_request_review_comment` with `@claude`, interactive mode, write permissions.
+- `claude-code-review.yml` (generated, minimal edits): `pull_request` (opened, synchronize, ready_for_review, reopened), skip drafts and forks; `claude-code-action@v1` with the `code-review@claude-code-plugins` plugin, prompt following `REVIEW.md`, `--comment`, `claude_args` with `--allowedTools "mcp__github_inline_comment__create_inline_comment" --max-turns`, `timeout-minutes`, `concurrency` cancel-in-progress per PR, `continue-on-error: true`. Auth via `claude_code_oauth_token`; no `github_token` input so commits trigger CI.
+- `claude.yml` (generated, minimal edits): `@claude` mentions, interactive mode, write permissions.
 - Verify: PR with an obvious bug gets tagged inline comments with a green check; `@claude` comment produces a commit on the PR branch and `build` runs on it.
 
 ### Step 4 — `design-spec.yml` (F2)
