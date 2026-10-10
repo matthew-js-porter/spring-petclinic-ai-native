@@ -3,9 +3,9 @@ Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
 
 ## 1. Summary
-Add an in-memory H2 database wired through Spring Boot's Data JDBC starter, so that later domain intents only add their own tables and repositories. The database's health feeds `/actuator/health`; the response stays status-only. No tables, entities, repositories, seed data, migration tooling, or H2 console.
+Add an in-memory H2 database wired through Spring Boot's Data JDBC starter, so that later domain intents only add their own tables and repositories. The database's health feeds `/actuator/health`; the response stays status-only. No tables, entities, repositories, seed data, or migration tooling. The H2 console module is on the classpath (added at review request) but stays disabled.
 
-The change is two dependencies plus tests. No new configuration is expected, because Spring Boot auto-configures an embedded database when H2 is on the classpath.
+The change is four dependencies plus tests. No new configuration is expected, because Spring Boot auto-configures an embedded database when H2 is on the classpath.
 
 ## 2. Existing codebase context
 - `pom.xml`: Boot 4.1.1 parent, Java 25, dependencies `spring-boot-starter-webmvc`, `spring-boot-starter-actuator` and their test starters. There is no datasource or persistence dependency.
@@ -24,7 +24,7 @@ The change is two dependencies plus tests. No new configuration is expected, bec
 | F4 | `GET /actuator/health` returns HTTP 200 with `status` `UP`. |
 | F5 | The database health indicator contributes to the overall status: if the datasource is unavailable, `/actuator/health` is not `UP` (Boot default: 503 `DOWN`). |
 | F6 | The health response shows only the status (plus the `groups` array Boot 4.1 already adds, accepted in intent 001). No `components` or `details`. |
-| F7 | No actuator endpoint other than `health` is exposed; no H2 console. |
+| F7 | No actuator endpoint other than `health` is exposed. The H2 console is not enabled: the `spring-boot-h2console` module is present, but `spring.h2.console.enabled` stays at its default (`false`) and no `/h2-console` path responds. |
 
 ### Non-functional / constraints
 - H2, in-memory only. Spring Data JDBC (`spring-boot-starter-data-jdbc`), not JPA.
@@ -46,17 +46,26 @@ The change is two dependencies plus tests. No new configuration is expected, bec
   <artifactId>h2</artifactId>
   <scope>runtime</scope>
 </dependency>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-h2console</artifactId>
+</dependency>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-jdbc-test</artifactId>
+  <scope>test</scope>
+</dependency>
 ```
-Optionally add `spring-boot-starter-data-jdbc-test` (test scope) if tests need `@DataJdbcTest`; this intent has no repositories, so it is not required. Confirm the artifact names against start.spring.io / the `spring-tools:create-spring-boot-project` skill at implementation time (Boot 4 modularised starters). Do not add devtools or any H2 console module.
+`spring-boot-h2console` and `spring-boot-starter-data-jdbc-test` were added at the reviewer's request (PR #10 comment); the test starter makes `@DataJdbcTest` available for later intents. Confirm the artifact names against start.spring.io / the `spring-tools:create-spring-boot-project` skill at implementation time (Boot 4 modularised starters). Do not add devtools. **Deviation from the intent:** the intent excluded the H2 console; the module is now included but must remain disabled (see 4.2).
 
 ### 4.2 Configuration
-Leave `application.yaml` unchanged. With H2 on the classpath and no `spring.datasource.url`, Boot auto-configures an embedded in-memory `DataSource` (generated unique name, user `sa`, empty password) and, via the actuator, a `DataSourceHealthIndicator`. No file URL is configured, so nothing touches disk. `spring.h2.console.enabled` defaults to false and is not set. The engineer should verify during implementation that the defaults behave as above; only add explicit settings (for example `spring.datasource.generate-unique-name: true`) if verification shows a gap, and record that as a deviation here.
+Leave `application.yaml` unchanged. With H2 on the classpath and no `spring.datasource.url`, Boot auto-configures an embedded in-memory `DataSource` (generated unique name, user `sa`, empty password) and, via the actuator, a `DataSourceHealthIndicator`. No file URL is configured, so nothing touches disk. `spring.h2.console.enabled` defaults to false and is not set, so adding `spring-boot-h2console` does not expose a console. Enabling it is a later, explicit decision (and would need a security review). The engineer should verify during implementation that the defaults behave as above; only add explicit settings (for example `spring.datasource.generate-unique-name: true`) if verification shows a gap, and record that as a deviation here.
 
 ### 4.3 Code
 No production Java is added. `PetClinicApplication` is unchanged; Data JDBC repository scanning finds nothing and that is fine.
 
 ### 4.4 Out of scope
-Domain tables, entities, repositories, seed data, `schema.sql`/`data.sql`, Flyway/Liquibase, H2 console, file or production databases, other actuator endpoints, health details or components.
+Domain tables, entities, repositories, seed data, `schema.sql`/`data.sql`, Flyway/Liquibase, enabling the H2 console (the module is present but disabled), file or production databases, other actuator endpoints, health details or components.
 
 ## 5. Acceptance and verification
 - `./mvnw clean verify` succeeds.
@@ -64,7 +73,7 @@ Domain tables, entities, repositories, seed data, `schema.sql`/`data.sql`, Flywa
 - Test: context has exactly one `DataSource`, whose JDBC URL starts with `jdbc:h2:mem:` (proves in-memory, nothing on disk).
 - Test: the database is empty at start (for example, `INFORMATION_SCHEMA.TABLES` has no tables in the `PUBLIC` schema).
 - Test: database health feeds overall status. Close or replace the datasource with one that fails (for example a test configuration whose `getConnection()` throws, or close the pool) and assert `/actuator/health` is not 200/`UP`, still without details. This is the only way to prove F5, because the healthy response deliberately hides the `db` component. Check the Boot 4 package names for the test annotations.
-- Manual smoke (via the `run` skill): start the app, `curl -i localhost:8080/actuator/health` gives `200` and `"status":"UP"`; no `h2-console` path responds; no `*.mv.db` file appears in the working directory.
+- Manual smoke (via the `run` skill): start the app, `curl -i localhost:8080/actuator/health` gives `200` and `"status":"UP"`; no `h2-console` path responds (console module present but disabled); no `*.mv.db` file appears in the working directory.
 - Run `spring-tools:validate`; no diagnostics.
 - CI: `build.yml` and `snyk.yml` pass on the PR. If Snyk reports `high` or above on H2 or a transitive dependency, do not suppress it; raise it (see concerns).
 
@@ -79,7 +88,8 @@ No brand, security, or UX policy skills or documents exist in this repo or among
 2. **F5 is only testable by fault injection.** Because details and components are hidden, the healthy response cannot show that the DB is checked. The failure test in section 5 is therefore required, not optional.
 3. **Snyk gate on a new dependency.** H2 has had high-severity CVEs in older versions. The Boot-managed version should be current, but this is unverified here. If the gate fails and the fix needs a version override in `pom.xml`, that departs from "no pinned versions" and must be noted as a deviation.
 4. **Empty Data JDBC setup is unexercised.** With no entities or repositories, Data JDBC wiring is not proven beyond context startup. The first domain intent will be the real test; this is accepted by the intent's scope.
-5. **Boot 4 artifact names.** Starter and test-starter names changed in Boot 4; verify at implementation time rather than relying on Boot 3 names.
+5. **H2 console on the classpath.** `spring-boot-h2console` is a latent exposure if someone later sets `spring.h2.console.enabled=true`; add a test asserting `/h2-console` does not respond.
+6. **Boot 4 artifact names.** Starter and test-starter names changed in Boot 4; verify at implementation time rather than relying on Boot 3 names.
 
 No contradicting policies were found.
 
@@ -89,9 +99,9 @@ Choices made where the intent was silent or ambiguous (no questions could be ask
 2. H2 is added with `runtime` scope, since no production code references H2 classes directly.
 3. "Database unavailable" is taken to mean the DB health indicator reports `DOWN` (Boot default: HTTP 503 with `status: DOWN`). The intent only requires "not `UP`".
 4. The `groups` array in the health body is acceptable under "status only" (consistent with intent 001's spec).
-5. The test-only Data JDBC starter is optional and left out unless needed.
+5. The test-only Data JDBC starter (`spring-boot-starter-data-jdbc-test`) and `spring-boot-h2console` are included at the reviewer's request. The console module is added without enabling it, so F7 still holds. The intent's exclusion of the console should be updated to match.
 6. The database is verified empty by inspecting `INFORMATION_SCHEMA`, rather than by an application-level check.
 7. A Snyk failure on H2 would be escalated to a human, not suppressed or worked around by the implementer.
 
 ## 9. Handoff notes for engineering
-Small, single-PR change (two dependencies, tests). Record the resolved H2 and Boot versions in the PR description. This spec needs full human review before a plan is written.
+Small, single-PR change (four dependencies, tests). Record the resolved H2 and Boot versions in the PR description. This spec needs full human review before a plan is written.
