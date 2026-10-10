@@ -1,6 +1,7 @@
 # Spec: Owner Details
 Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
+Visual reference: [PetClinic Owner Details.html](./PetClinic%20Owner%20Details.html) (George Franklin, the no-pets state for owner 11, phone width, Find Owners name links and the proposed `DetailList`, built with `docs/design-system/`)
 
 ## 1. Summary
 Add a read-only owner details page, the first step toward upstream Spring PetClinic's "Owner Information" page.
