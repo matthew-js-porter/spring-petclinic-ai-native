@@ -5,9 +5,9 @@ Author: matthew-js-porter
 ## 1. Summary
 Replace the root redirect with a real welcome page, as in upstream Spring PetClinic.
 
-- `GET /` returns a Thymeleaf page (200, no redirect) in the shared layout, with a "Welcome" `h2` and upstream's pets illustration with meaningful alt text.
+- `GET /` returns a Thymeleaf page (200, no redirect) in the shared layout, with a "Welcome" `h2` and a photo of the author's dog (`pets.png`) with meaningful alt text.
 - The navbar gains a "Home" item before "Veterinarians", with a house icon, marked `aria-current="page"` on the homepage. Veterinarians stays current on the vets page. The brand link already points to `/` and now lands on the homepage.
-- The pets image is added as a static asset and recorded in `docs/design-system/` (the system currently says "no illustrations").
+- The pets photo is added as a static asset and recorded in `docs/design-system/` (the system currently says "no illustrations").
 - The vets page, `/vets` JSON and `/actuator/health` do not change.
 
 ## 2. Existing codebase context
@@ -27,7 +27,7 @@ Replace the root redirect with a real welcome page, as in upstream Spring PetCli
 | F1 | `./mvnw clean verify` succeeds with all tests passing. |
 | F2 | `GET /` returns 200 `text/html`, rendered by Thymeleaf with the shared layout. No redirect (no 3xx, no `Location`). |
 | F3 | The page has one `h2` with the text `Welcome` (class `pc-page-title`), inside `<main>`. |
-| F4 | The page shows upstream's `pets.png` as an `<img>` with non-empty, descriptive `alt` text (see 4.3) that scales down to the container width without overflow at 320px. |
+| F4 | The page shows `pets.png` as an `<img>` with non-empty, descriptive `alt` text (see 4.3), capped at 360px wide and scaling down to the container width without overflow at 320px. |
 | F5 | The navbar lists, in order, "Home" then "Veterinarians". Home links to `/`, has the house icon, and has `aria-current="page"` on the homepage only. Veterinarians has `aria-current="page"` on `/vets.html` only. Exactly one nav item is current on each page. |
 | F6 | The brand link leads to `/` (unchanged markup) and so to the homepage. |
 | F7 | The page title is `Welcome · Spring PetClinic`. |
@@ -74,11 +74,11 @@ Same shape as `vetList.html`:
 Set `width` and `height` attributes from the real image dimensions to avoid layout shift.
 
 ### 4.3 Image and alt text
-- Source: upstream `spring-petclinic` `src/main/resources/static/resources/images/pets.png`, copied unchanged to `src/main/resources/static/resources/images/pets.png`. Same file name and path as upstream.
-- Alt text (proposed): "A cat and a dog sitting together". The engineer must look at the actual image and correct this to describe what it shows. Upstream's `<img>` has no `alt`, so this is a deviation.
+- Source: a photo of the author's dog supplied by matthew-js-porter, not upstream's illustration (see section 10, D1). It lives at `src/main/resources/static/resources/images/pets.png`, upstream's file name and path. As supplied it is a 3024x4032 PNG of 10.3 MB.
+- Resize and compress it for the web, to about 720px wide (2x the 360px display width), keeping the 3:4 aspect ratio, and strip camera metadata (D2). Set the `<img>` `width` and `height` from the resized file. Do not ship the 10 MB original.
+- Alt text: "A small grey and white long-haired dog lying on its back in a fluffy cream bed, hugging a brown and white stuffed toy dog". Upstream's `<img>` has no `alt`, so this is a deviation.
 - `alt=""` is not acceptable: the intent requires meaningful alt text.
-- Do not re-encode or edit the file ("as-is"). If it is unusually large, note that in the PR.
-- Record the upstream commit the file was taken from in the PR description.
+- Note in the PR description that the image is the author's own photo.
 
 ### 4.4 Layout and navbar (`fragments/layout.html`)
 - Insert a Home `<li class="nav-item">` before Veterinarians, using the existing `pc-nav-link` markup: `th:href="@{/}"`, `th:aria-current="${activeMenu == 'home'} ? 'page' : null"`, label `<span>Home</span>` (Title Case in markup; CSS uppercases).
@@ -86,10 +86,10 @@ Set `width` and `height` attributes from the real image dimensions to avoid layo
 - Layout parameters are unchanged. The `activeMenu` value for the homepage is `'home'`.
 
 ### 4.5 CSS and design system docs
-- Add `.pc-hero` to `petclinic.css`: `display: block; max-width: 100%; height: auto;` with top margin `space-5`. Only existing spacing tokens. No border, radius or shadow.
+- Add `.pc-hero` to `petclinic.css`: `display: block; width: 360px; max-width: 100%; height: auto;` with top margin `space-5`. No border, radius or shadow. The 360px cap keeps the portrait photo from filling the container width (about 1500px tall); add it to `docs/design-system/tokens.json` as a size token (`hero-width`) rather than hard-coding an undocumented value (D3).
 - Update `docs/design-system/` in the same PR:
-  - `README.md`: Iconography changes "No emoji, no illustrations" to allow the single welcome illustration (`pets.png`) on the homepage, keeping the ban on emoji and any other illustrations. Content notes that the homepage title "Welcome" is the one exception to the plural-noun page title rule.
-  - `assets/`: add `pets.png` (for example under an `Illustrations/` group) with a short note on source and licence, and register it in `design-system.json` if that file lists assets.
+  - `README.md`: Iconography changes "No emoji, no illustrations" to allow the single welcome photograph (`pets.png`) on the homepage, keeping the ban on emoji, illustrations and any other photographs (D4). Content notes that the homepage title "Welcome" is the one exception to the plural-noun page title rule.
+  - `assets/`: add `pets.png` (for example under a `Photos/` group) with a short note that it is the author's own photo, and register it in `design-system.json` if that file lists assets.
   - `components/Navbar/README.md`: add Home as the first item and state that it is current on `/`. Update `components/Navbar/preview.html` if it does not already show Home.
 
 ### 4.6 Configuration
@@ -122,12 +122,12 @@ Manual check in a real browser (HtmlUnit cannot run Bootstrap's bundle): `./mvnw
 | Workflow | Change goes through a branch and PR; plan follows after spec review. |
 
 ## 7. Areas of concern
-1. **Design system says "no illustrations".** The intent resolved that the upstream pets image fits as-is, but the written rule still forbids it. The spec resolves this by amending the rule to allow this one image (4.5). A human must confirm, since this weakens a stated rule rather than only adding to it.
+1. **Design system says "no illustrations".** The intent resolved that a pets image fits, but the written rule still forbids illustrations, and the image is now a photograph. The spec resolves this by amending the rule to allow this one photo (4.5). A human must confirm, since this weakens a stated rule rather than only adding to it.
 2. **Design-system mirror.** `docs/design-system/` is a versioned mirror of a published artifact. Editing the mirror without updating the source can cause drift. The spec follows the project rule (update in the same PR); the published source should be updated too.
 3. **Icons: "use the real Bootstrap Icons" vs. no new dependency.** The design system tells implementers to use real Bootstrap Icons. A `bootstrap-icons` WebJar would add a dependency under the Snyk gate and a whole icon font for two glyphs. The spec instead inlines the `house` SVG path, as `list-ul` already is. Bootstrap Icons are MIT licensed, which is compatible; note source and licence in the PR.
-4. **Image licence.** Upstream is Apache 2.0, which the intent treats as compatible. But this repo has no `LICENSE` file and an empty `<license/>` in `pom.xml`, so the project's own licence is not stated, and a repository's licence does not by itself prove the rights to every file in it. The engineer should confirm provenance and add an attribution note. The missing project licence is a separate gap this spec does not fix.
+4. **Image licence.** The image is the author's own photo (D1), so upstream Apache 2.0 attribution no longer applies. The repo has no `LICENSE` file and an empty `<license/>` in `pom.xml`, so the terms the photo is published under are not stated; that separate gap is not fixed here.
 5. **"Welcome" vs. the page title rule.** The design system requires a single plural noun in Title Case; the intent requires "Welcome". Both cannot hold. The intent wins and the docs record the exception (4.5).
-6. **Alt text is unverified.** The upstream image was not available when writing this spec, so the proposed alt text is a placeholder to be corrected during implementation.
+6. **Alt text.** Resolved: written from the supplied photo (4.3).
 7. **Upstream differences.** Upstream's welcome page uses a translated message and `img-responsive`. Here the heading is hard-coded English (i18n is out of scope) and the image is made responsive in `petclinic.css`.
 
 ## 8. Assumptions
@@ -136,7 +136,7 @@ Manual check in a real browser (HtmlUnit cannot run Bootstrap's bundle): `./mvnw
 3. A dedicated `WelcomeController` and `welcome.html` are used instead of Boot's implicit welcome-page support; `RootController` and `RootRedirectTests` are removed rather than adapted.
 4. Only `/` serves the page; `/index.html` and `/home` are not mapped.
 5. The image is served from `/resources/images/pets.png` (upstream's path), alongside the existing `/resources/css` and `/resources/fonts`.
-6. The proposed alt text is "A cat and a dog sitting together", pending a look at the file.
+6. The alt text describes the supplied photo (4.3).
 7. The Home icon is an inline SVG of Bootstrap Icons `house`, not a new WebJar.
 8. Navbar items stay hand-written in `layout.html`; two items do not justify a data-driven list.
 9. The homepage has no content beyond the `Welcome` heading and the image, in line with the intent's out-of-scope list.
@@ -149,4 +149,11 @@ Manual check in a real browser (HtmlUnit cannot run Bootstrap's bundle): `./mvnw
 - Boot 4 test imports live in `org.springframework.boot.webmvc.test.autoconfigure.*`; check the generated imports.
 
 ## 10. Implementation deviations
-None yet.
+Recorded 2026-10-10, after a design mockup of the homepage with the supplied image.
+
+| ID | Deviation | Reason |
+|----|-----------|--------|
+| D1 | `pets.png` is a photo of the author's dog (3024x4032 PNG, 10.3 MB as supplied), not upstream's `pets.png` illustration. No upstream commit to record; no Apache attribution needed. | Author supplied their own image. |
+| D2 | The image is resized (about 720px wide), compressed and stripped of metadata, contrary to "do not re-encode or edit the file". | At 10.3 MB the original is far too heavy for a page that is a heading and one image. |
+| D3 | `.pc-hero` gets a 360px width cap (new `hero-width` size token in `docs/design-system/tokens.json`) in addition to `max-width: 100%`. | The portrait photo would otherwise fill the 1116px container and render about 1500px tall. At phone width the 100% limit still applies, so there is no horizontal scroll. |
+| D4 | The design-system exception is for one photograph, not an illustration. | Follows from D1. |
