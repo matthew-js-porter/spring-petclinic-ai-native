@@ -1,6 +1,6 @@
 # OwnerForm
 
-The New Owner and Edit Owner page pattern (intent 009): a composition of FormField, Button, InlineMessage and action links, not a new component. Use it as the review board for the owner form and as the model for later record forms (pets, visits).
+The New Owner and Edit Owner page pattern (intent 009): a composition of FormField, Button, InlineMessage and action links, not a new component. Use it as the review board for the owner form and as the model for later record forms; PetForm (intent 010) follows it.
 
 **The consumer provides** the heading ("New Owner" or "Edit Owner"), the button label ("Add Owner" or "Update Owner"), the form `action` (`/owners` or `/owners/{id}`), the five values, and on a redisplay the field errors and the summary.
 

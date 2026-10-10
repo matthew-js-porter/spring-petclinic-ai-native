@@ -1,31 +1,30 @@
-<!-- @dsCard group="Forms" height=430 subtitle="Row search field; stacked blank, filled and invalid fields" -->
+<!-- @dsCard group="Forms" height=720 subtitle="Text, date and select fields: blank, filled and invalid" -->
 <!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><title>FormField — preview</title>
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-5) var(--space-6); }
   .cap { margin: 0 0 var(--space-2); font-size: 14px; line-height: 21px; color: var(--ink-muted); }
+  .grid > div > .pc-form { margin-bottom: var(--space-5); }
 </style>
 </head>
 <body>
 <div class="pc-pad grid">
   <div>
-    <p class="cap">Blank</p>
+    <p class="cap">Text, blank</p>
     <div class="pc-form pc-form-stacked">
       <div class="pc-field">
         <label for="fn1">First Name</label>
         <input class="pc-input" type="text" id="fn1" name="firstName" maxlength="30" autocomplete="given-name" required aria-required="true">
       </div>
     </div>
-    <p class="cap">Filled</p>
+    <p class="cap">Text, filled</p>
     <div class="pc-form pc-form-stacked">
       <div class="pc-field">
         <label for="fn2">First Name</label>
         <input class="pc-input" type="text" id="fn2" name="firstName" maxlength="30" autocomplete="given-name" required aria-required="true" value="George">
       </div>
     </div>
-  </div>
-  <div>
     <p class="cap">Required, left empty</p>
     <div class="pc-form pc-form-stacked">
       <div class="pc-field pc-field-invalid">
@@ -40,6 +39,69 @@
         <label for="tel4">Telephone</label>
         <input class="pc-input" type="tel" inputmode="numeric" id="tel4" name="telephone" maxlength="10" autocomplete="tel-national" required aria-required="true" aria-invalid="true" aria-describedby="tel4-error" value="608555102">
         <p class="pc-field-error" id="tel4-error">Telephone must be exactly 10 digits.</p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <p class="cap">Date, blank, with format helper</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field">
+        <label for="bd1">Birth Date</label>
+        <input class="pc-input" type="date" id="bd1" name="birthDate" max="2026-10-10" autocomplete="off" required aria-required="true" aria-describedby="bd1-help">
+        <p class="pc-field-help" id="bd1-help">yyyy-mm-dd</p>
+      </div>
+    </div>
+    <p class="cap">Date, filled</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field">
+        <label for="bd2">Birth Date</label>
+        <input class="pc-input" type="date" id="bd2" name="birthDate" max="2026-10-10" autocomplete="off" required aria-required="true" aria-describedby="bd2-help" value="2010-09-07">
+        <p class="pc-field-help" id="bd2-help">yyyy-mm-dd</p>
+      </div>
+    </div>
+    <p class="cap">Date in the future, value kept</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field pc-field-invalid">
+        <label for="bd3">Birth Date</label>
+        <input class="pc-input" type="date" id="bd3" name="birthDate" max="2026-10-10" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="bd3-help bd3-error" value="2999-01-01">
+        <p class="pc-field-help" id="bd3-help">yyyy-mm-dd</p>
+        <p class="pc-field-error" id="bd3-error">Birth Date cannot be in the future.</p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <p class="cap">Select, prompt showing</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field">
+        <label for="ty1">Type</label>
+        <select class="pc-input" id="ty1" name="typeId" required aria-required="true">
+          <option value="" selected>Select a type</option>
+          <option value="5">bird</option><option value="1">cat</option><option value="2">dog</option>
+          <option value="6">hamster</option><option value="3">lizard</option><option value="4">snake</option>
+        </select>
+      </div>
+    </div>
+    <p class="cap">Select, chosen (open list is the browser's own)</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field">
+        <label for="ty2">Type</label>
+        <select class="pc-input" id="ty2" name="typeId" required aria-required="true">
+          <option value="">Select a type</option>
+          <option value="5">bird</option><option value="1" selected>cat</option><option value="2">dog</option>
+          <option value="6">hamster</option><option value="3">lizard</option><option value="4">snake</option>
+        </select>
+      </div>
+    </div>
+    <p class="cap">Select, nothing chosen</p>
+    <div class="pc-form pc-form-stacked">
+      <div class="pc-field pc-field-invalid">
+        <label for="ty3">Type</label>
+        <select class="pc-input" id="ty3" name="typeId" required aria-required="true" aria-invalid="true" aria-describedby="ty3-error">
+          <option value="" selected>Select a type</option>
+          <option value="5">bird</option><option value="1">cat</option><option value="2">dog</option>
+          <option value="6">hamster</option><option value="3">lizard</option><option value="4">snake</option>
+        </select>
+        <p class="pc-field-error" id="ty3-error">Type is required.</p>
       </div>
     </div>
   </div>

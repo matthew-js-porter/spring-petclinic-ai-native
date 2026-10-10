@@ -1,0 +1,132 @@
+<!-- @dsCard group="Patterns" height=1080 subtitle="New Pet blank; New Pet redisplayed with three errors; Edit Pet with one error; Owner Information after a save, with and without pets" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>PetForm — preview</title>
+<style>
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-6); align-items: start; }
+  .cap { margin: 0 0 var(--space-3); font-size: 14px; line-height: 21px; color: var(--ink-muted); border-bottom: var(--border-hairline) solid var(--line); padding-bottom: var(--space-1); }
+  h2 { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; color: var(--ink); }
+  .owner { margin: 0 0 var(--space-5); }
+  .stack > * + * { margin-top: var(--space-6); }
+</style>
+</head>
+<body>
+<div class="pc-pad board">
+  <div class="stack">
+    <section aria-labelledby="t1">
+      <p class="cap">/owners/1/pets/new.html, blank</p>
+      <h2 id="t1">New Pet</h2>
+      <p class="pc-muted owner">Owner: <span>George Franklin</span></p>
+      <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+        <p class="pc-form-help">All fields are required.</p>
+        <div class="pc-field">
+          <label for="a-name">Name</label>
+          <input class="pc-input" type="text" id="a-name" name="name" maxlength="30" autocomplete="off" required aria-required="true">
+        </div>
+        <div class="pc-field">
+          <label for="a-birthDate">Birth Date</label>
+          <input class="pc-input" type="date" id="a-birthDate" name="birthDate" max="2026-10-10" autocomplete="off" required aria-required="true" aria-describedby="a-birthDate-help">
+          <p class="pc-field-help" id="a-birthDate-help">yyyy-mm-dd</p>
+        </div>
+        <div class="pc-field">
+          <label for="a-typeId">Type</label>
+          <select class="pc-input" id="a-typeId" name="typeId" required aria-required="true">
+            <option value="" selected>Select a type</option>
+            <option value="5">bird</option><option value="1">cat</option><option value="2">dog</option>
+            <option value="6">hamster</option><option value="3">lizard</option><option value="4">snake</option>
+          </select>
+        </div>
+        <button class="pc-button" type="submit">Add Pet</button>
+      </form>
+    </section>
+    <section aria-labelledby="t2">
+      <p class="cap">POST /owners/1/pets, three problems</p>
+      <h2 id="t2">New Pet</h2>
+      <p class="pc-muted owner">Owner: <span>George Franklin</span></p>
+      <p class="pc-message" role="alert">Pet not saved: 3 fields need attention.</p>
+      <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+        <p class="pc-form-help">All fields are required.</p>
+        <div class="pc-field pc-field-invalid">
+          <label for="b-name">Name</label>
+          <input class="pc-input" type="text" id="b-name" name="name" maxlength="30" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="b-name-error" value="leo">
+          <p class="pc-field-error" id="b-name-error">This owner already has a pet with this name.</p>
+        </div>
+        <div class="pc-field pc-field-invalid">
+          <label for="b-birthDate">Birth Date</label>
+          <input class="pc-input" type="date" id="b-birthDate" name="birthDate" max="2026-10-10" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="b-birthDate-help b-birthDate-error" value="2999-01-01">
+          <p class="pc-field-help" id="b-birthDate-help">yyyy-mm-dd</p>
+          <p class="pc-field-error" id="b-birthDate-error">Birth Date cannot be in the future.</p>
+        </div>
+        <div class="pc-field pc-field-invalid">
+          <label for="b-typeId">Type</label>
+          <select class="pc-input" id="b-typeId" name="typeId" required aria-required="true" aria-invalid="true" aria-describedby="b-typeId-error">
+            <option value="" selected>Select a type</option>
+            <option value="5">bird</option><option value="1">cat</option><option value="2">dog</option>
+            <option value="6">hamster</option><option value="3">lizard</option><option value="4">snake</option>
+          </select>
+          <p class="pc-field-error" id="b-typeId-error">Type is required.</p>
+        </div>
+        <button class="pc-button" type="submit">Add Pet</button>
+      </form>
+    </section>
+  </div>
+  <div class="stack">
+    <section aria-labelledby="t3">
+      <p class="cap">POST /owners/6/pets/8, Max renamed to an existing pet's name</p>
+      <h2 id="t3">Edit Pet</h2>
+      <p class="pc-muted owner">Owner: <span>Jean Coleman</span></p>
+      <p class="pc-message" role="alert">Pet not saved: 1 field needs attention.</p>
+      <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+        <p class="pc-form-help">All fields are required.</p>
+        <div class="pc-field pc-field-invalid">
+          <label for="c-name">Name</label>
+          <input class="pc-input" type="text" id="c-name" name="name" maxlength="30" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="c-name-error" value="samantha">
+          <p class="pc-field-error" id="c-name-error">This owner already has a pet with this name.</p>
+        </div>
+        <div class="pc-field">
+          <label for="c-birthDate">Birth Date</label>
+          <input class="pc-input" type="date" id="c-birthDate" name="birthDate" max="2026-10-10" autocomplete="off" required aria-required="true" aria-describedby="c-birthDate-help" value="2012-09-04">
+          <p class="pc-field-help" id="c-birthDate-help">yyyy-mm-dd</p>
+        </div>
+        <div class="pc-field">
+          <label for="c-typeId">Type</label>
+          <select class="pc-input" id="c-typeId" name="typeId" required aria-required="true">
+            <option value="">Select a type</option>
+            <option value="5">bird</option><option value="1" selected>cat</option><option value="2">dog</option>
+            <option value="6">hamster</option><option value="3">lizard</option><option value="4">snake</option>
+          </select>
+        </div>
+        <button class="pc-button" type="submit">Update Pet</button>
+      </form>
+    </section>
+    <section aria-labelledby="t4">
+      <p class="cap">/owners/1.html, after adding Rex</p>
+      <h2 id="t4">Owner Information</h2>
+      <p class="pc-message" role="status">New Pet has been Added</p>
+      <dl class="pc-detail">
+        <div><dt>Name</dt><dd>George Franklin</dd></div>
+        <div><dt>City</dt><dd>Madison</dd></div>
+      </dl>
+      <h3 class="pc-section-title">Pets</h3>
+      <a class="pc-action" href="#">Add New Pet</a>
+      <div class="table-responsive pc-table-region" tabindex="0" role="region" aria-label="Pets table">
+      <table class="pc-table">
+        <caption>Pets</caption>
+        <thead><tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr></thead>
+        <tbody>
+          <tr><td>Leo</td><td class="text-nowrap">2010-09-07</td><td>cat</td><td class="pc-col-actions"><a href="#">Edit Pet<span class="pc-visually-hidden"> Leo</span></a></td></tr>
+          <tr><td>Rex</td><td class="text-nowrap">2021-05-14</td><td>dog</td><td class="pc-col-actions"><a href="#">Edit Pet<span class="pc-visually-hidden"> Rex</span></a></td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+    <section aria-labelledby="t5">
+      <p class="cap">/owners/11.html, no pets yet: the link sits in the same place</p>
+      <h3 class="pc-section-title" id="t5" style="margin-top:0">Pets</h3>
+      <a class="pc-action" href="#">Add New Pet</a>
+      <p class="pc-empty">This owner has no pets.</p>
+    </section>
+  </div>
+</div>
+</body>
+</html>
