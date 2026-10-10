@@ -1,4 +1,6 @@
 # F2: when an intent.md lands on main, have Claude draft spec.md beside it and open a PR.
+# claude-code-action does not support push events, so a push only detects the changed
+# intents and re-dispatches this workflow once per folder; the spec job runs on dispatch.
 name: design-spec
 
 on:
@@ -6,6 +8,11 @@ on:
     branches: [main]
     paths: ["intent/*/intent.md"]
   workflow_dispatch:
+    inputs:
+      folder:
+        description: "Intent folder to spec, e.g. intent/003-name (empty: every intent without spec.md)"
+        required: false
+        type: string
 
 permissions: {}
 
@@ -29,8 +36,11 @@ jobs:
           BEFORE: ${{ github.event.before }}
           SHA: ${{ github.sha }}
           EVENT: ${{ github.event_name }}
+          FOLDER: ${{ inputs.folder }}
         run: |
-          if [ "$EVENT" = "workflow_dispatch" ]; then
+          if [ "$EVENT" = "workflow_dispatch" ] && [ -n "$FOLDER" ]; then
+            changed="${FOLDER%/}/intent.md"
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
             changed=$(git ls-files 'intent/*/intent.md')
           elif [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
             changed=$(git diff --name-only "$BEFORE" "$SHA")
@@ -52,9 +62,27 @@ jobs:
           echo "folders=$json" >> "$GITHUB_OUTPUT"
           echo "Intents needing a spec: $json"
 
+  dispatch:
+    needs: detect
+    if: github.event_name == 'push' && needs.detect.outputs.folders != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch a spec run per intent
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FOLDERS: ${{ needs.detect.outputs.folders }}
+        run: |
+          for folder in $(jq -r '.[]' <<< "$FOLDERS"); do
+            echo "dispatching $folder"
+            gh workflow run design-spec.yml --repo "$GITHUB_REPOSITORY" --ref main -f folder="$folder"
+          done
+
   spec:
     needs: detect
-    if: needs.detect.outputs.folders != '[]'
+    if: github.event_name == 'workflow_dispatch' && needs.detect.outputs.folders != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
