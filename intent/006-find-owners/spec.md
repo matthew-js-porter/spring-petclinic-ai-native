@@ -6,8 +6,8 @@ Author: matthew-js-porter
 Add a read-only owners list, as the first step toward upstream Spring PetClinic's "Find Owners" area.
 
 - New tables `owners`, `pets` and `types`, seeded on every start with upstream's 10 owners, 13 pets and 6 pet types (no manual step).
-- `GET /owners` returns a Thymeleaf page in the shared layout: a paginated table (5 per page) with Name, Address, City, Telephone and Pets (pet names only, `none` if the owner has no pets).
-- The same URL returns all owners as JSON when the client asks for `application/json`.
+- `GET /owners.html` returns a Thymeleaf page in the shared layout: a paginated table (5 per page) with Name, Address, City, Telephone and Pets (pet names only, `none` if the owner has no pets).
+- `GET /owners` returns all owners as JSON, as `/vets` does for vets.
 - The navbar gains a "Find Owners" item in the order Home, Find Owners, Veterinarians, current (`aria-current="page"`) on the owners page.
 - No search form, forms, details page, links to owners, visits, i18n or security. Vets page, vets JSON, homepage and `/actuator/health` do not change.
 
@@ -27,12 +27,12 @@ Add a read-only owners list, as the first step toward upstream Spring PetClinic'
 |----|-------------|
 | F1 | `./mvnw clean verify` succeeds with all tests passing. |
 | F2 | On every start the database holds 10 owners, 13 pets and 6 pet types with the ids and values in 4.1, with no manual step. |
-| F3 | `GET /owners` returns 200 `text/html`, rendered server-side by Thymeleaf with the shared layout. |
+| F3 | `GET /owners.html` returns 200 `text/html`, rendered server-side by Thymeleaf with the shared layout. |
 | F4 | The page has one `h2` "Owners" (class `pc-page-title`) and a table with columns Name, Address, City, Telephone, Pets. Name is `First Last`. Pets is the owner's pet names only, plain text, joined by a space (as the vets page joins specialties), sorted by name; an owner with no pets shows `none` in `pc-muted`. Names are not links. |
-| F5 | The list is ordered by owner id and paginated at 5 per page (`?page=N`, 1-based, default 1), using the shared pagination fragment with url `/owners` and label `Owners pages`. With the seed data, page 1 has 5 owners and page 2 has 5. |
+| F5 | The list is ordered by owner id and paginated at 5 per page (`?page=N`, 1-based, default 1), using the shared pagination fragment with url `/owners.html` and label `Owners pages`. With the seed data, page 1 has 5 owners and page 2 has 5. |
 | F6 | `?page=0`, `?page=-1`, `?page=abc` return 400 and a page beyond the last returns 404, the same as the vets page, with no stack trace. |
-| F7 | `GET /owners` with `Accept: application/json` returns 200 `application/json` with all 10 owners (not paginated), each with `id`, `firstName`, `lastName`, `address`, `city`, `telephone` and `pets` (see 4.4). A request with no `Accept` header or `*/*` returns HTML. |
-| F8 | The navbar lists Find Owners, with a search icon, linking to `/owners`, with `aria-current="page"` on the owners page only. Nav order is Home, Find Owners, Veterinarians regardless of build order (see 4.5). Exactly one item is current on each page. |
+| F7 | `GET /owners` returns 200 `application/json` with all 10 owners (not paginated), each with `id`, `firstName`, `lastName`, `address`, `city`, `telephone` and `pets` (see 4.4), regardless of the `Accept` header. |
+| F8 | The navbar lists Find Owners, with a search icon, linking to `/owners.html`, with `aria-current="page"` on the owners page only. Nav order is Home, Find Owners, Veterinarians regardless of build order (see 4.5). Exactly one item is current on each page. |
 | F9 | The page title is `Owners · Spring PetClinic`. |
 | F10 | The page works at phone width: the navbar collapses via the existing toggle and the table does not cause page-level horizontal scroll (see 4.3). |
 | F11 | The vets page, `/vets` JSON, the homepage (or `/` redirect, whichever exists) and `/actuator/health` behave as before. |
@@ -122,19 +122,19 @@ Same shape as `vet`:
 - `PetType` record: `@Table("TYPES")`, `@Id Integer id, String name`, and a read-only `PetTypeRepository` (kept for later pet and visit intents; the owners page does not need it, so add it only if a test uses it, otherwise leave the `types` table and record for the next intent).
 - `OwnerRepository extends Repository<Owner, Integer>` with `Page<Owner> findAll(Pageable)` and `List<Owner> findAll(Sort)`. No write methods.
 - `OwnerView(Integer id, String firstName, String lastName, String address, String city, String telephone, List<PetView> pets)` and `PetView(Integer id, String name)`. These are what the page and JSON render, so entities (and `birthDate`/`type`) are never serialised directly.
-- `OwnerController` (package-private, `@Controller`): `static final int PAGE_SIZE = 5`, sort by `id`, one mapping for HTML and one for JSON, both on `/owners`, page validation identical to `VetController` (400 for `page < 1`, 404 beyond the last page, with the same page-1-always-valid rule).
+- `OwnerController` (package-private, `@Controller`): `static final int PAGE_SIZE = 5`, sort by `id`, `GET /owners.html` for HTML and `GET /owners` for JSON (the `VetController` structure), page validation identical to `VetController` (400 for `page < 1`, 404 beyond the last page, with the same page-1-always-valid rule).
 
 The `pets` child collection is loaded by Spring Data JDBC with one extra query for the page, not one per owner. The repository test confirms the query count is bounded.
 
 ### 4.3 Template `templates/owners/ownersList.html`
-Same shape as `vetList.html`: `layout('Owners', 'owners', ~{::content})`, `h2.pc-page-title` "Owners", `table#owners.table.table-striped.pc-table` with a visually hidden caption (`Owners and their pets, page N of M`), `th scope="col"` for Name, Address, City, Telephone, Pets; Pets cell `none` / `pc-muted` when empty; then `fragments/pagination :: pagination(${listOwners}, '/owners', 'Owners pages')`. All values are output with `th:text` (escaped), never `th:utext`.
+Same shape as `vetList.html`: `layout('Owners', 'owners', ~{::content})`, `h2.pc-page-title` "Owners", `table#owners.table.table-striped.pc-table` with a visually hidden caption (`Owners and their pets, page N of M`), `th scope="col"` for Name, Address, City, Telephone, Pets; Pets cell `none` / `pc-muted` when empty; then `fragments/pagination :: pagination(${listOwners}, '/owners.html', 'Owners pages')`. All values are output with `th:text` (escaped), never `th:utext`.
 
 **Phone width.** Five columns do not fit at 320px. Wrap the table in Bootstrap's `.table-responsive` so the table scrolls inside its own container while the page does not scroll horizontally. The design system does not currently describe a wide-table pattern; add one line to `components/DataTable/README.md` documenting `.table-responsive` for tables with more than three columns, rather than hard-coding CSS. Telephone cells should not wrap mid-number (`text-nowrap`, a Bootstrap utility). The `.table-responsive` wrapper must stay keyboard-reachable: give it `tabindex="0"`, `role="region"` and an `aria-label` ("Owners table") so keyboard users can scroll it, and check the focus outline is visible (concern 4).
 
-### 4.4 URLs and JSON (open question)
-**Decision:** HTML and JSON both live at `/owners`, selected by content negotiation (`produces = text/html` and `produces = application/json`). A browser sends `Accept: text/html` and gets the page; `curl -H 'Accept: application/json' /owners` gets JSON; no `Accept` or `*/*` gets HTML. The engineer must make the mappings produce this exact behaviour and cover it with tests (5.1); if Spring's tie-breaking for `*/*` cannot be made to prefer HTML, fall back to HTML-only `/owners` plus JSON at `/owners.json` (a sibling path, as vets uses `/vets.html` and `/vets`) and record the deviation in section 10. This differs from vets, which uses two paths; it is chosen because the intent suggests it and because it keeps one URL for the navbar and for pagination.
+### 4.4 URLs and JSON
+**Decision:** follow the vets structure exactly: `GET /owners.html` is the paginated HTML page and `GET /owners` is the JSON (as `/vets.html` and `/vets`). No content negotiation, so no `Accept` or `*/*` edge cases and no `Vary` concern. The navbar and pagination link to `/owners.html`.
 
-`/owners/find` is not mapped: there is no search form, so "Find Owners" goes straight to the list. The nav label stays "Find Owners" as the intent specifies, even though no search exists yet (concern 2).
+`/owners/find` is not mapped: there is no search form, so "Find Owners" goes straight to `/owners.html`. The nav label stays "Find Owners" as the intent specifies, even though no search exists yet (concern 2).
 
 JSON shape, following the vets precedent of an upstream-style wrapper (`{"ownerList": [...]}`):
 ```json
@@ -143,7 +143,7 @@ JSON shape, following the vets precedent of an upstream-style wrapper (`{"ownerL
 Pets in JSON carry `id` and `name` only, matching what the page shows; birth date and type are left for the owner details intent. JSON is ordered by owner id and unpaginated (10 rows; revisit when owners can be added, see concern 5).
 
 ### 4.5 Navbar and layout (`fragments/layout.html`)
-- Add a Find Owners `<li class="nav-item">` in the existing `pc-nav-link` markup: `th:href="@{/owners}"`, `th:aria-current="${activeMenu == 'owners'} ? 'page' : null"`, label `<span>Find Owners</span>` (Title Case in markup; CSS uppercases). Icon: inline Bootstrap Icons `search` SVG (16x16, `fill="currentColor"`, `aria-hidden="true"`, `focusable="false"`), as the other items inline theirs; no WebJar. The `search` glyph is new to the design system and is documented in `README.md` Iconography and the Navbar README (the system today names only house and list-ul).
+- Add a Find Owners `<li class="nav-item">` in the existing `pc-nav-link` markup: `th:href="@{/owners.html}"`, `th:aria-current="${activeMenu == 'owners'} ? 'page' : null"`, label `<span>Find Owners</span>` (Title Case in markup; CSS uppercases). Icon: inline Bootstrap Icons `search` SVG (16x16, `fill="currentColor"`, `aria-hidden="true"`, `focusable="false"`), as the other items inline theirs; no WebJar. The `search` glyph is new to the design system and is documented in `README.md` Iconography and the Navbar README (the system today names only house and list-ul).
 - **Order.** Final order is Home, Find Owners, Veterinarians. Intent 005 may land before or after this one:
   - If Home is already in `layout.html`, insert Find Owners between Home and Veterinarians.
   - If not, insert Find Owners before Veterinarians; intent 005's spec must then insert Home before Find Owners. Whichever merges second rebases and checks the order, and the nav-order test (5.1) asserts whichever items exist in this order.
@@ -151,11 +151,11 @@ Pets in JSON carry `id` and `name` only, matching what the page shows; birth dat
 
 ### 4.6 Design system and CSS
 - No new colours, radii or shadows. The table reuses `pc-table`, `pc-col-name` and `pc-muted`.
-- Update in the same PR: `components/Navbar/README.md` (Find Owners item, current on `/owners`, `search` icon; update `preview.html` to show it), `components/DataTable/README.md` (the `.table-responsive` wide-table note and the Owners table as an example), `README.md` Iconography (search glyph).
+- Update in the same PR: `components/Navbar/README.md` (Find Owners item, current on `/owners.html`, `search` icon; update `preview.html` to show it), `components/DataTable/README.md` (the `.table-responsive` wide-table note and the Owners table as an example), `README.md` Iconography (search glyph).
 - The Telephone and Pets columns need no new styles; if the Name column's `pc-col-name` width rule hurts the five-column layout, adjust within the existing tokens and note it in section 10.
 
 ### 4.7 Security and privacy
-- Read-only, `GET` only, one unauthenticated endpoint plus JSON on the same path. The only input is `page`, validated as for vets. No SQL is built from input (repository paging only), so no injection surface.
+- Read-only, `GET` only, two unauthenticated endpoints (`/owners.html` and `/owners` JSON). The only input is `page`, validated as for vets. No SQL is built from input (repository paging only), so no injection surface.
 - Thymeleaf `th:text` escapes all values; JSON is serialised by Jackson from view records.
 - The data is upstream's fictitious sample data (names, addresses, telephone numbers), so no real personal data is added. When real owner data and security are introduced (out of scope), the unauthenticated list of names, addresses and phone numbers becomes personal data and must be protected (concern 3).
 - No new dependency, so the Snyk gate is unaffected; actuator unchanged.
@@ -167,13 +167,13 @@ Last-name search form and `/owners/find`; adding or editing owners and pets; own
 
 ### 5.1 Tests
 - `OwnerRepositoryTests` (`@DataJdbcTest`, like `VetRepositoryTests`): the 10 owners, 13 pets and 6 types exist; George Franklin has Leo; Eduardo Rodriquez has Jewel and Rosy; Carlos Estaban has two pets named Lucky and Sly; owners 1 to 10 each have the expected pet count (owners with none: none in seed, so use a test that inserts an owner without pets in a test transaction to cover `none`, or cover it in the controller test with a mocked repository). `findAll(PageRequest.of(0, 5, Sort.by("id")))` returns 5 of 10 with pets populated and page index 1 returns the other 5; the query count is bounded, not one per owner. Guards against `schema.sql`/`data.sql` ceasing to run.
-- `OwnerControllerTests` (`@WebMvcTest`, `MockMvcTester`, mocked repository): `/owners` is 200, view `owners/ownersList`, `text/html`; `Accept: application/json` gives JSON with `ownerList`, `address`, `city`, `telephone` and `pets`; no `Accept` and `*/*` give HTML; `page=0`, `-1`, `abc` give 400; a page beyond the last gives 404; an owner with no pets renders `none`; HTML-special characters in a name are escaped.
-- `OwnersPageHtmlUnitTests` (`@SpringBootTest` + `@AutoConfigureMockMvc`, HtmlUnit, JS off, like `VetsPageHtmlUnitTests`): title `Owners · Spring PetClinic`; one `h2` "Owners"; headers Name, Address, City, Telephone, Pets in order; page 1 has 5 rows starting with George Franklin and showing `110 W. Liberty St.`, `Madison`, `6085551023`, `Leo`; Jean Coleman shows `Max Samantha` (sorted by name); no cell contains an anchor; page 1 has a pagination link to page 2 and following it shows Maria Escobito's neighbours (owners 6 to 10); page 2 has no "Next" link; nav items include Find Owners and are in the order Home (if present), Find Owners, Veterinarians; on `/owners` only Find Owners is current, and on `/vets.html` Find Owners is not.
+- `OwnerControllerTests` (`@WebMvcTest`, `MockMvcTester`, mocked repository): `/owners.html` is 200, view `owners/ownersList`, `text/html`; `/owners` gives `application/json` with `ownerList`, `address`, `city`, `telephone` and `pets`; `page=0`, `-1`, `abc` give 400; a page beyond the last gives 404; an owner with no pets renders `none`; HTML-special characters in a name are escaped.
+- `OwnersPageHtmlUnitTests` (`@SpringBootTest` + `@AutoConfigureMockMvc`, HtmlUnit, JS off, like `VetsPageHtmlUnitTests`): title `Owners · Spring PetClinic`; one `h2` "Owners"; headers Name, Address, City, Telephone, Pets in order; page 1 has 5 rows starting with George Franklin and showing `110 W. Liberty St.`, `Madison`, `6085551023`, `Leo`; Jean Coleman shows `Max Samantha` (sorted by name); no cell contains an anchor; page 1 has a pagination link to page 2 and following it shows Maria Escobito's neighbours (owners 6 to 10); page 2 has no "Next" link; nav items include Find Owners and are in the order Home (if present), Find Owners, Veterinarians; on `/owners.html` only Find Owners is current, and on `/vets.html` Find Owners is not.
 - `OwnersIntegrationTests` (`@SpringBootTest`, real server or MockMvc): JSON from `/owners` has 10 owners and 13 pets in total.
 - Existing vets, root/homepage, actuator and context tests stay green unchanged (F11). If `RootController` is still on `main`, its redirect test is untouched.
 
 ### 5.2 Manual check
-`./mvnw spring-boot:run`; open `/owners` in a browser. Verify the Find Owners nav item and its current state, the pagination, keyboard focus outlines (including the scrollable table region), and at 320px wide that the navbar toggle works and only the table region scrolls, not the page. `curl -i localhost:8080/owners` is HTML; `curl -H 'Accept: application/json' localhost:8080/owners` is JSON; `/actuator/health` is `UP`.
+`./mvnw spring-boot:run`; open `/owners.html` in a browser. Verify the Find Owners nav item and its current state, the pagination, keyboard focus outlines (including the scrollable table region), and at 320px wide that the navbar toggle works and only the table region scrolls, not the page. `curl -i localhost:8080/owners.html` is HTML; `curl -i localhost:8080/owners` is JSON; `/actuator/health` is `UP`.
 
 ## 6. Policy conformance
 | Policy | How met |
@@ -185,7 +185,7 @@ Last-name search form and `/owners/find`; adding or editing owners and pets; own
 | Workflow | Branch and PR; the plan is written only after this spec has full human review. |
 
 ## 7. Areas of concern
-1. **Content negotiation on `/owners`.** The vets precedent uses two paths. One URL with two representations is more RESTful but easy to get wrong for `*/*` (curl, some crawlers and link previewers) and caching needs `Vary: Accept` (Spring adds it for `produces`-based mappings, to be verified). A fallback is given in 4.4. A human should confirm the choice.
+1. **Two paths, as vets.** HTML at `/owners.html` and JSON at `/owners`, matching `/vets.html` and `/vets`. Consistent, but `/owners` shows JSON rather than the page a visitor might type; accepted for consistency.
 2. **"Find Owners" label with no search.** The intent fixes the label and the order, but the page is only a list; visitors may expect a search field. Accepted, since the search follows in a later intent; the label and the `h2` ("Owners") deliberately differ.
 3. **Unauthenticated personal data.** Names, addresses and phone numbers are public with no login. Acceptable only because the data is fictitious sample data and security is out of scope. Real data must not be loaded until authentication and access control exist.
 4. **Five columns on a phone.** The design system has no wide-table rule and was derived from a two-column vets page. A scrollable region (`.table-responsive`) is added and documented, which is a new pattern with its own accessibility needs (focusable, labelled). The alternative, stacking rows into labelled blocks on mobile, needs new CSS and design decisions and was rejected as more than this intent asks.
@@ -196,7 +196,7 @@ Last-name search form and `/owners/find`; adding or editing owners and pets; own
 9. **Pets without `type` use.** `types` is seeded and `Pet` maps `type`, though nothing displays it. This is deliberate groundwork per the intent ("owners and their pets exist in the database"), at the cost of a little unused mapping.
 
 ## 8. Assumptions
-1. HTML is at `/owners` and JSON is at the same URL via content negotiation (`Accept: application/json`), with `*/*` or no `Accept` giving HTML; the navbar goes straight to `/owners`; `/owners/find` is not mapped. Fallback in 4.4.
+1. HTML is at `/owners.html` and JSON at `/owners`, the same structure as the vets page; the navbar goes straight to `/owners.html`; `/owners/find` is not mapped.
 2. Page `<title>` and `h2` are "Owners"; the nav label is "Find Owners" (from the intent); `activeMenu` is `'owners'`; the template is `owners/ownersList.html`; package is `...petclinic.owner`.
 3. JSON is wrapped as `{"ownerList": [...]}` following the vets `vetList` precedent, unpaginated, ordered by id; pets in JSON are `{id, name}`.
 4. Pet names are sorted alphabetically and joined by a space, matching how specialties are shown on the vets page. Upstream shows them in its own order.
