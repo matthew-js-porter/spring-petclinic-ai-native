@@ -18,7 +18,20 @@ curl -i localhost:8080/actuator/health
 - Java 25, pinned in `pom.xml` and `.sdkmanrc` (`java=25.0.2-open`). Run `sdk env install` / `sdk env` before building; a mismatched default JDK breaks the build. JDK 27 (latest non-LTS) is not installable via SDKMAN, so 25 is a deliberate deviation recorded in the spec.
 - Config is YAML only (`application.yaml`); do not add `application.properties`.
 - Keep the actuator surface minimal: Boot's default exposes only `health`. Don't add `management.endpoints` settings unless a spec asks for it.
+- UI follows the design system in `docs/design-system/` (tokens, components, usage rules); `static/resources/css/petclinic.css` implements it on Bootstrap 5.3.
+- Spring Data JDBC quotes explicit `@Table`/`@Column` names, so write them in UPPER CASE to match H2.
 - Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
+
+## Design system
+
+UI work follows the Spring PetClinic design system in `docs/design-system/` (a versioned mirror of the published design system artifact, derived from the vets page screenshot in intent 004). Read `README.md` there before building or styling any page.
+
+- `tokens.json` holds the colours, type, spacing, radii and borders; `components/<Name>/README.md` covers the four components (Navbar, DataTable, Pagination, Footer), each with a `preview.html`. `assets/Logos/` has the logo crops.
+- Pages are Thymeleaf on Bootstrap 5.3 (WebJar), styled by a hand-written `static/resources/css/petclinic.css` that maps the tokens onto Bootstrap. No SCSS build.
+- Key rules: square corners, no shadows/gradients/cards; `spring-green` (#6db33f) is decorative only (accent bar, logo, navbar focus ring) and never text on white; `spring-green-dark` carries links and active/current states; Montserrat for display, Varela Round for body; nav items and table headers are Title Case in markup, UPPERCASE via CSS; empty values render as `none` in `ink-muted`; one light theme only.
+- Accessibility is part of the system: landmarks, hidden `<caption>` and `<th scope="col">`, `aria-current="page"`, `aria-label` on pagination, visible 2px focus outlines.
+- `intent/004-vets/PetClinic Vets.html` is the vets page rebuilt with the system, the visual reference for intent 004.
+- If the implementation needs a token or component the system lacks, update `docs/design-system/` in the same PR rather than hard-coding values in CSS.
 
 ## CI
 

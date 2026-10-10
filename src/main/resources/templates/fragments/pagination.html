@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<body>
+<!--/* Plain-text page control: "Pages: [ 1 2 ] « ‹ › »". `page` is a Spring Data Page, `url` the list URL. */-->
+<nav th:fragment="pagination (page, url, label)" th:if="${page.totalPages > 1}"
+	 class="pc-pagination" th:aria-label="${label}"
+	 th:with="current=${page.number + 1}, last=${page.totalPages}">
+	<span>Pages:</span>
+	<span aria-hidden="true">[</span>
+	<th:block th:each="n : ${#numbers.sequence(1, last)}">
+		<span th:if="${n == current}" aria-current="page" th:text="${n}">1</span>
+		<a th:unless="${n == current}" th:href="@{${url}(page=${n})}" th:aria-label="|Page ${n}|" th:text="${n}">2</a>
+	</th:block>
+	<span aria-hidden="true">]</span>
+	<span class="pc-pagination-steps">
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasPrevious()}, 1, '«', 'First')}"/>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasPrevious()}, ${current - 1}, '‹', 'Previous')}"/>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasNext()}, ${current + 1}, '›', 'Next')}"/>
+		<th:block th:replace="~{fragments/pagination :: step(${page.hasNext()}, ${last}, '»', 'Last')}"/>
+	</span>
+</nav>
+
+<!--/* One first/previous/next/last control: a link when enabled, plain text when not. */-->
+<th:block th:fragment="step (enabled, target, symbol, title)">
+	<a th:if="${enabled}" class="pc-step" th:href="@{${url}(page=${target})}" th:title="${title}" th:aria-label="|${title} page|" th:text="${symbol}">»</a>
+	<span th:unless="${enabled}" class="pc-disabled" aria-disabled="true" th:title="${title}" th:text="${symbol}">»</span>
+</th:block>
+</body>
+</html>
