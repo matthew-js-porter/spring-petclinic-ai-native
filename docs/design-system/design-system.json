@@ -1,7 +1,7 @@
 {
   "v": 3,
   "layout": "files",
-  "createdOnFiles": {"v": 1, "at": "2026-10-10T17:04:35Z"},
+  "createdOnFiles": {"v": 1, "at": "2026-10-10T17:14:24Z"},
   "title": "Spring PetClinic",
   "namespace": "PetClinic",
   "libraries": [],
@@ -13,8 +13,8 @@
       "tile": "l",
       "order": ["petclinic-mark.png", "petclinic-lockup.png"],
       "files": {
-        "petclinic-mark.png": {"name": "petclinic-mark.png", "blob": "d7d238075c6df4ae4da0da1301638065", "size": 9738, "type": "image/png"},
-        "petclinic-lockup.png": {"name": "petclinic-lockup.png", "blob": "bbe52645e12c7856a4fc9c058560ed86", "size": 43435, "type": "image/png"}
+        "petclinic-mark.png": {"name": "petclinic-mark.png", "blob": "3a43cff2f44e3df9858fe3f4ea7dfabc", "size": 9738, "type": "image/png"},
+        "petclinic-lockup.png": {"name": "petclinic-lockup.png", "blob": "c8787bb7982d9cf599ea679a58973a55", "size": 43435, "type": "image/png"}
       }
     },
     "Photos": {
@@ -22,11 +22,11 @@
       "tile": "l",
       "order": ["pets.png"],
       "files": {
-        "pets.png": {"name": "pets.png", "blob": "eec1ffa4871f4a55d0fa16e22521a9e1", "size": 970430, "type": "image/png"}
+        "pets.png": {"name": "pets.png", "blob": "661294abfd417ed2dd93c88309af0d1c", "size": 970430, "type": "image/png"}
       }
     }
   },
   "blobs": {},
   "docs": {"readme": "project/README.md", "sections": []},
-  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T19:30:00Z", "via": "Claude Code", "note": "Homepage (intent 005): Photos group with pets.png, hero-width token, Home nav item, Welcome title exception"}
+  "lastChange": {"by": "matthew-js-porter", "at": "2026-10-10T21:57:11Z", "via": "Claude Code", "note": "Search owners (intent 007): FormField, Button and InlineMessage components, field-width token; corners square everywhere, radius-control removed"}
 }

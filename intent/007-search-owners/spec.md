@@ -18,7 +18,7 @@ Add the upstream-style last-name search to the Find Owners list from intent 006,
 - `ownersList.html`: `h2.pc-page-title`, a `.table-responsive.pc-table-region` (focusable region) around `table#owners.pc-table`, then `fragments/pagination :: pagination(page, url, label)`. The pagination fragment builds links as `@{${url}(page=${n})}`, so it cannot carry other query parameters today.
 - Seed owners: last names Franklin, Davis (Betty), Rodriquez, Davis (Harold), McTavish, Coleman, Black, Escobito, Schroeder, Estaban.
 - Tests from 006: `OwnerRepositoryTests`, `OwnerControllerTests`, `OwnersPageHtmlUnitTests`, `OwnersIntegrationTests`.
-- The design system has no form field, button or message component; `radius-control` is reserved for inputs.
+- The design system had no form field, button or message component, and reserved `radius-control` for inputs. Both are resolved in `docs/design-system/` (concerns 1 and 2).
 
 ## 3. Requirements
 
@@ -142,8 +142,8 @@ Made without a human to ask; each can be reversed in review.
 - A12. The seed data has no prefix matching more than 5 owners, so pagination with a search term is tested with a mocked repository or extra rows inserted in a test transaction, not by changing `data.sql`.
 
 ## 8. Areas of concern
-1. **Design system contradicts itself on corners.** `README.md` says corners are square everywhere (`radius-none`) yet also that `radius-control` is "held back for form inputs". Both cannot hold for a visible input. This spec chooses square (A10) because the rule is stated absolutely and a rounded input beside a square button would look inconsistent. A design owner should confirm and fix the system text either way.
-2. **Design-system gap.** There are no form field, button or message components. They are specified here and must be added with previews in the same PR; the published design system artifact should also receive them to avoid drift from the mirror.
+1. **Design system contradicts itself on corners.** `README.md` says corners are square everywhere (`radius-none`) yet also that `radius-control` is "held back for form inputs". Both cannot hold for a visible input. This spec chooses square (A10) because the rule is stated absolutely and a rounded input beside a square button would look inconsistent. **Resolved:** the design owner confirmed square; `radius-control` is removed and the README now says corners are square everywhere, inputs and buttons included.
+2. **Design-system gap.** There are no form field, button or message components. They are specified here and must be added with previews in the same PR; the published design system artifact should also receive them to avoid drift from the mirror. **Resolved:** FormField, Button and InlineMessage (plus a `field-width` token) are in `docs/design-system/` and published to the artifact.
 3. **Search terms in URLs.** A bookmarkable GET puts last names in access logs, proxy logs and browser history. Acceptable for fictitious data; if real owner data is ever loaded, reconsider (POST with redirect, log scrubbing) together with authentication, which remains out of scope.
 4. **Wildcard handling is unverified.** Whether Spring Data JDBC escapes `%` and `_` in `StartingWith` was not confirmed; the tests in 5.1 decide, with the fallback in 4.1.
 5. **Index use and scale.** Case-insensitive prefix search does not use the plain `owners_last_name` index. Irrelevant at 10 rows; revisit (functional index or collation) if the clinic grows. The JSON stays unpaginated as in 006 and still grows without bound.

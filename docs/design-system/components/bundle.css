@@ -35,3 +35,22 @@ body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 2
 .pc-footer { padding: var(--space-5) var(--space-4); border-top: var(--border-hairline) solid var(--line); text-align: center; font-size: 14px; line-height: 21px; color: var(--ink-muted); background: var(--surface); }
 
 .pc-pad { padding: var(--space-4) var(--space-6); }
+
+/* Form field */
+.pc-form { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-3); margin: 0 0 var(--space-5); }
+.pc-field { display: flex; flex-direction: column; gap: var(--space-1); }
+.pc-field label { font-family: var(--font-body); font-size: 16px; line-height: 24px; color: var(--ink); }
+.pc-input { box-sizing: border-box; width: 100%; padding: var(--space-2) var(--space-3); font-family: var(--font-body); font-size: 16px; line-height: 24px; color: var(--ink); background: var(--surface); border: var(--border-hairline) solid var(--line-strong); border-radius: var(--radius-none); }
+.pc-input:focus { outline: 2px solid var(--focus-ring); outline-offset: 2px; box-shadow: none; }
+@media (min-width: 576px) {
+  .pc-form { flex-direction: row; align-items: flex-end; }
+  .pc-field { width: var(--field-width); }
+}
+
+/* Button */
+.pc-button { box-sizing: border-box; padding: var(--space-2) var(--space-4); font-family: var(--font-display); font-size: 14px; line-height: 24px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--on-dark); background: var(--spring-green-dark); border: var(--border-hairline) solid var(--spring-green-dark); border-radius: var(--radius-none); cursor: pointer; }
+.pc-button:hover { background: var(--spring-brown); border-color: var(--spring-brown); }
+.pc-button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; box-shadow: none; }
+
+/* Inline message */
+.pc-message { margin: 0 0 var(--space-5); padding: var(--space-2) var(--space-4); font-family: var(--font-body); font-size: 16px; line-height: 24px; color: var(--ink); border-left: var(--border-accent) solid var(--line-strong); }
