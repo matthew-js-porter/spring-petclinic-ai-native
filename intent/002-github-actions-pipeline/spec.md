@@ -108,3 +108,15 @@ I looked for brand-guideline, security-policy and UX-standard skills or document
 - Estimated effort: about one day, mostly verifying Snyk on Java 25 and tuning the Claude prompts.
 - Record the pinned action SHAs and Java/Temurin versions in the PR descriptions.
 - Update `CLAUDE.md` with a short "CI" section (workflow list, how to run `actionlint`, no push to `main`) once the workflows exist.
+
+## 9. Implementation deviations
+Recorded while implementing `plan.md` (PRs #2-#7).
+- **Snyk runs via the CLI, not `snyk/actions/maven` (C5 resolved).** `snyk.yml` uses `actions/setup-java` (Temurin 25) plus `snyk/actions/setup` (pinned v1.0.0 SHA) and calls `snyk test` and `snyk code test` directly, so Snyk resolves dependencies on the same JDK as the build. Both scans were verified on Temurin 25.0.4 in CI. Both scans always run and upload SARIF, and a final step fails the job if either found issues.
+- **Snyk Code is enabled on the account (C4 resolved for SAST).** The first run reported 0 code issues. Security-tab upload remains opt-in via `SARIF_UPLOAD=true` (the repo is public, so code scanning is free).
+- **Snyk fails on current `main`.** Snyk Open Source reports high/critical issues in `tomcat-embed-core`/`tomcat-embed-websocket` 11.0.24 and `jackson-core`/`jackson-databind` 3.1.5, pulled in by Boot 4.1.1. This is F5 working as specified. The `snyk` check stays red until the dependencies are upgraded, and the first `maintain-scan` run should file these as intents.
+- **`review.yml` replaces the `/install-github-app` workflows.** `claude.yml` and `claude-code-review.yml` (PR #1) were removed. Two installer triggers are dropped to match F4: `@claude` in newly opened or assigned issues, and in review bodies. Issue and PR comments still trigger it. `REVIEW.md` is brought in with `--append-system-prompt`, because the code-review plugin only reads `CLAUDE.md` itself.
+- **Claude jobs skip on PRs that add or change their workflow.** claude-code-action refuses to run unless the workflow file is identical to the one on the default branch. So F2-F4 and F6 can only be verified after each workflow is merged, and a PR that edits a Claude workflow gets no Claude review of itself.
+- **`design-spec.yml` additions.** A `workflow_dispatch` trigger scans all intents for a missing `spec.md` (backfill and re-runs). Folders that already have a `spec/<nnn>-<name>` branch are also skipped, which prevents duplicate PRs while a spec PR is open (F2 re-run check).
+- **`maintain-scan.yml`** groups findings with a shared root cause into one intent and skips problems already covered by an existing intent. It does not invoke Claude when the latest `main` scan has no results or no artifact.
+- **Action pinning (C6).** The only third-party action besides claude-code-action is `snyk/actions/setup`, which is SHA-pinned. `anthropics/claude-code-action@v1` stays floating; pin it to a SHA once the post-merge checks pass.
+
