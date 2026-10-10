@@ -1,7 +1,7 @@
 # Spec: Modify Owners
 Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
-Visual reference: none yet. There is no designer-approved board for the owner form (concern 8); the engineer builds `preview.html` files from `docs/design-system/` and the design owner reviews them before merge.
+Visual reference: [PetClinic Owner Forms.html](./PetClinic%20Owner%20Forms.html) (Add Owner link on Owners, New Owner blank and submitted empty, Edit Owner pre-filled and with two errors, both confirmations on Owner Information, and 320px, built with `docs/design-system/`). It awaits design-owner review (concern 8).
 
 ## 1. Summary
 Add the first write features, Add Owner and Edit Owner, following upstream Spring PetClinic's flow.
@@ -197,7 +197,7 @@ Deleting owners; pets and visits; owner writes through JSON; duplicate-owner det
 5. **Unauthenticated writes; CSRF decision.** Open question 1 is resolved as "follow upstream, no token". The accepted gaps: anyone who can reach the app can add or change owners and so deface or fill the in-memory DB without limit (no rate limit, no cap); and a forged cross-site POST is possible (with no login there is nothing to forge that a direct request could not do, but an internal-only deployment is exposed to browsers on that network). Real client data must not be entered until authentication, access control, CSRF protection and abuse limits exist. Snyk Code may report the missing token.
 6. **Shared in-memory database in tests.** Cached Spring contexts share H2, so a leaking write test breaks the 11-owner and 3-page assertions elsewhere, order-dependently. Mitigation in 4.9 (`@Transactional` rollback); reviewers should check every write test for it. Identity counters do not roll back.
 7. **No Cancel or back affordance.** As in intent 008 concern 5, the form has no Cancel link; leaving without saving is the navbar or the browser back button. A text link would be easy but is a design call.
-8. **No designer-approved visual reference.** The vets, owners and details pages each had an HTML board; this form has none. The engineer builds the `preview.html` states and the design owner reviews them before merge; record the outcome in a section 10 of this spec. The published design-system artifact also needs updating to avoid drift (as in 008).
+8. **No designer-approved visual reference.** The vets, owners and details pages each had an HTML board; this form now has one too ([PetClinic Owner Forms.html](./PetClinic%20Owner%20Forms.html)), but it is not yet approved. The engineer builds the `preview.html` states and the design owner reviews them before merge; record the outcome in a section 10 of this spec. The published design-system artifact also needs updating to avoid drift (as in 008).
 9. **Last write wins.** There is no version column, so two people editing the same owner overwrite each other silently. A `schema.sql` version column and optimistic locking are out of scope; flagged for a later intent.
 10. **Intent 008 spec conflicts.** 008 says the details page has no edit actions and that repositories have no write methods. Both are intentionally superseded here; the affected 008 test is updated (5.1) and the deviation is noted in section 10 when implemented.
 11. **Counter reset is manual.** `RESTART WITH 12` is hard-coded in `data.sql`. Adding a seed owner later without bumping it makes the first create fail with a duplicate key. The repository test for "new id above the seed" catches it.
