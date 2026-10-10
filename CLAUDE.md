@@ -25,7 +25,7 @@ curl -i localhost:8080/actuator/health
 GitHub Actions workflows (intent 002) live in `.github/workflows/`:
 - `build.yml`: `./mvnw -B clean verify` on Temurin 25 for pushes to `main` and every PR.
 - `snyk.yml`: Snyk Open Source and Code scans that fail on `high` and above, and keep a `snyk-sarif` artifact.
-- `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, including on fix commits pushed by `@claude`.
+- `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, plus a `/security-review` job, including on fix commits pushed by `@claude`.
 - `claude.yml`: `@claude` mentions that push fixes to the PR branch.
 - `design-spec.yml`: drafts `spec.md` as a PR when an `intent.md` lands on `main`.
 - `maintain-scan.yml`: weekly, turns confirmed Snyk findings into `intent.md` PRs.

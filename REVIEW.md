@@ -2,20 +2,16 @@
 
 Read by the Claude review job (`.github/workflows/claude-code-review.yml`) and by human reviewers. Reviews are advisory: never approve, request changes, or fail a check because of findings. Humans decide and merge.
 
+Security is not covered here: a separate job in the same workflow runs Claude Code's built-in `/security-review`.
+
 ## What to check
 
-Do three passes over the diff:
+Do two passes over the diff:
 
 1. **Bugs.** Logic errors, wrong null/empty handling, broken error paths, resource leaks, concurrency problems, tests that do not assert what they claim.
-2. **Security.**
-   - Secrets, tokens or credentials in code, config, workflow files or committed intents.
-   - Injection: SQL, command, template, log, and untrusted `${{ github.event.* }}` expressions inside workflow `run:` steps.
-   - Unsafe deserialisation, path traversal, missing authorisation, sensitive data in logs.
-   - Actuator exposure beyond `health` (any `management.endpoints` change needs a spec that asks for it).
-   - Workflow permissions broader than the job needs, unpinned third-party actions, secrets reachable from fork PRs.
-3. **Conformance.**
+2. **Conformance.**
    - If the change touches an `intent/<nnn>-<name>/` folder or implements one, compare it with that folder's `spec.md` and `plan.md`. Report missing requirements and undocumented deviations.
-   - `CLAUDE.md` rules, e.g. YAML-only config (no `application.properties`), Java 25, Boot 4 test packages.
+   - `CLAUDE.md` rules, e.g. YAML-only config (no `application.properties`), Java 25, Boot 4 test packages, no actuator exposure beyond `health` without a spec that asks for it.
    - No workflow or agent pushes directly to `main`.
 
 ## Severity
