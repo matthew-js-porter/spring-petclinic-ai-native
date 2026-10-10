@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"The plan was approved. Save it verbatim as plan.md in the same directory as the spec.md it implements (the one referenced in this conversation). Do not put it anywhere else.\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}
