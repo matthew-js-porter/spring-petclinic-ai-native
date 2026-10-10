@@ -1,6 +1,7 @@
 # Spec: Find Owners
 Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
+Visual reference: [PetClinic Owners.html](./PetClinic%20Owners.html) (page 1, page 2 and phone width, built with `docs/design-system/`)
 
 ## 1. Summary
 Add a read-only owners list, as the first step toward upstream Spring PetClinic's "Find Owners" area.
@@ -127,6 +128,8 @@ Same shape as `vet`:
 The `pets` child collection is loaded by Spring Data JDBC with one extra query for the page, not one per owner. The repository test confirms the query count is bounded.
 
 ### 4.3 Template `templates/owners/ownersList.html`
+The visual reference is [PetClinic Owners.html](./PetClinic%20Owners.html). It drops the 50% `pc-col-name` width for the five-column table (see 4.6).
+
 Same shape as `vetList.html`: `layout('Owners', 'owners', ~{::content})`, `h2.pc-page-title` "Owners", `table#owners.table.table-striped.pc-table` with a visually hidden caption (`Owners and their pets, page N of M`), `th scope="col"` for Name, Address, City, Telephone, Pets; Pets cell `none` / `pc-muted` when empty; then `fragments/pagination :: pagination(${listOwners}, '/owners.html', 'Owners pages')`. All values are output with `th:text` (escaped), never `th:utext`.
 
 **Phone width.** Five columns do not fit at 320px. Wrap the table in Bootstrap's `.table-responsive` so the table scrolls inside its own container while the page does not scroll horizontally. The design system does not currently describe a wide-table pattern; add one line to `components/DataTable/README.md` documenting `.table-responsive` for tables with more than three columns, rather than hard-coding CSS. Telephone cells should not wrap mid-number (`text-nowrap`, a Bootstrap utility). The `.table-responsive` wrapper must stay keyboard-reachable: give it `tabindex="0"`, `role="region"` and an `aria-label` ("Owners table") so keyboard users can scroll it, and check the focus outline is visible (concern 4).
