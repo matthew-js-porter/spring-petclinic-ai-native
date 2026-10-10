@@ -1,0 +1,30 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+Spring PetClinic built with the AI-native SDLC playbook. Currently a minimal Spring Boot 4.1 baseline (web MVC + Actuator)
+
+## Commands
+
+```bash
+./mvnw clean verify                                        # build + all tests
+./mvnw spring-boot:run                                     # run on :8080
+./mvnw test -Dtest=PetClinicApplicationTests#contextLoads  # single test
+curl -i localhost:8080/actuator/health
+```
+
+- Java 25, pinned in `pom.xml` and `.sdkmanrc` (`java=25.0.2-open`). Run `sdk env install` / `sdk env` before building; a mismatched default JDK breaks the build. JDK 27 (latest non-LTS) is not installable via SDKMAN, so 25 is a deliberate deviation recorded in the spec.
+- Config is YAML only (`application.yaml`); do not add `application.properties`.
+- Keep the actuator surface minimal: Boot's default exposes only `health`. Don't add `management.endpoints` settings unless a spec asks for it.
+- Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
+
+## Workflow: intent -> spec -> plan
+
+Work follows the AI-native SDLC playbook. Each change lives in `intent/<nnn>-<name>/` with `intent.md`, `spec.md` and `plan.md`; read the spec for requirements and acceptance criteria before changing code, and keep these documents in sync with the implementation when the two diverge (note deviations explicitly in the spec).
+
+- Use the `/intent` and `/spec` skills (in `.claude/skills/`) to create those artifacts.
+- A `PostToolUse` hook on `ExitPlanMode` (`.claude/settings.json`) instructs saving an approved plan as `plan.md` next to the relevant `spec.md`, not in `~/.claude/plans` only.
+- Intents and specs do not carry a Status field.
+- Generate new Spring Boot projects with `spring-tools:create-spring-boot-project`, and run `spring-tools:validate` to check for diagnostics.
