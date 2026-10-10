@@ -8,7 +8,7 @@ Add the first write features, Add Owner and Edit Owner, following upstream Sprin
 
 - Find Owners (`/owners.html`) gains an "Add Owner" link to a blank form at `GET /owners/new.html`.
 - The owner details page (`/owners/{id}.html`, intent 008) gains an "Edit Owner" link to the same form, pre-filled, at `GET /owners/{id}/edit.html`.
-- The form has First Name, Last Name, Address, City and Telephone. All are required; Telephone is exactly 10 digits. Plain HTML `POST` back to the same URL, no JavaScript.
+- The form has First Name, Last Name, Address, City and Telephone. All are required; Telephone is exactly 10 digits. Plain HTML `POST` to the resource path (`/owners` or `/owners/{id}`), no JavaScript.
 - Valid input is saved and the visitor is redirected (post/redirect/get) to the owner's details page, which shows a one-line confirmation: "New Owner Created" or "Owner Values Updated". Pets are never touched.
 - Invalid input redisplays the form with what was typed, a summary message, and a message next to each failed field, tied to the field for assistive tech.
 - Editing an unknown owner is 404, as the details page is. Data lives only for the life of the app; a restart resets to the seed.
@@ -36,10 +36,10 @@ Add the first write features, Add Owner and Edit Owner, following upstream Sprin
 | F3 | `GET /owners/new.html` returns 200 `text/html` in the shared layout: `h2` "New Owner", a blank form with First Name, Last Name, Address, City, Telephone in that order, and a submit button "Add Owner". Page title `New Owner · Spring PetClinic`. |
 | F4 | `/owners/{id}.html` has an "Edit Owner" link (to `/owners/{id}/edit.html`) for an existing owner. |
 | F5 | `GET /owners/{id}/edit.html` returns 200 for an existing owner: `h2` "Edit Owner", the same form pre-filled with the stored values, submit button "Update Owner". Page title `Edit Owner · Spring PetClinic`. Unknown id (999, 0, -1) is 404 with no stack trace; a non-numeric id is 400. |
-| F6 | `POST /owners/new.html` with valid input inserts one owner with no pets and redirects (303) to `/owners/{newId}.html`. The new owner has a fresh id above every seed id. |
-| F7 | `POST /owners/{id}/edit.html` with valid input updates only that owner's five columns and redirects (303) to `/owners/{id}.html`. The owner's pets, and their ids, are unchanged. Unknown id is 404 for GET and POST; no row is created. |
+| F6 | `POST /owners` with valid input inserts one owner with no pets and redirects (303) to `/owners/{newId}.html`. The new owner has a fresh id above every seed id. |
+| F7 | `POST /owners/{id}` with valid input updates only that owner's five columns and redirects (303) to `/owners/{id}.html`. The owner's pets, and their ids, are unchanged. Unknown id is 404 for GET and POST (no row is created); a non-numeric id is 400 on POST as on GET. |
 | F8 | Validation, applied after trimming leading and trailing whitespace: First Name, Last Name, Address, City and Telephone are required (not empty after trim); Telephone matches exactly 10 ASCII digits; maximum lengths follow the columns: First Name 30, Last Name 30, Address 255, City 80, Telephone is fixed at 10. Anything else is accepted as typed (accents, apostrophes, hyphens). |
-| F9 | Invalid input returns 200 and redisplays the form (same URL, same view) with every typed value kept (as trimmed), no row written or changed, one message next to each failed field, and one summary message above the form (4.5). |
+| F9 | Invalid input returns 200 and redisplays the form (same view, served from the POST URL) with every typed value kept (as trimmed), no row written or changed, one message next to each failed field, and one summary message above the form (4.5). |
 | F10 | After a successful save the details page shows a one-line confirmation, "New Owner Created" or "Owner Values Updated", once. Reloading the details page, following a link to it, or a direct visit shows no confirmation. |
 | F11 | A created owner appears on Find Owners (page order is by id, so last) and is found by last name search, including a case-insensitive prefix. An edited owner shows new values on the list, search, details page and `/owners` and `/owners/{id}` JSON. |
 | F12 | The request cannot set an owner id, pets, or any field other than the five. The id comes only from the URL. |
@@ -61,13 +61,13 @@ Add the first write features, Add Owner and Edit Owner, following upstream Sprin
 | Method and path | Purpose |
 |---|---|
 | `GET /owners/new.html` | blank form |
-| `POST /owners/new.html` | create; 303 to `/owners/{id}.html` or redisplay |
+| `POST /owners` | create; 303 to `/owners/{id}.html` or redisplay |
 | `GET /owners/{id}/edit.html` | pre-filled form |
-| `POST /owners/{id}/edit.html` | update; 303 to `/owners/{id}.html` or redisplay |
+| `POST /owners/{id}` | update; 303 to `/owners/{id}.html` or redisplay |
 
-Decision: follow the repo's `*.html` convention for pages (as intent 008 did), so these are not upstream's `/owners/new`, `/owners/{id}/edit`. Upstream also redirects to `/owners/{id}`, which here is JSON, so the redirect targets `/owners/{id}.html`. See concern 1.
+Decision (reviewer-confirmed, option A): `*.html` marks a GET page only; the bare path is the resource, so writes `POST` to the resource path. GET pages keep the repo's `*.html` convention (as intent 008 did), so they are not upstream's `/owners/new`, `/owners/{id}/edit`. Upstream also redirects to `/owners/{id}`, which here is JSON, so the redirect targets `/owners/{id}.html`. See concern 1.
 
-Routing check: `/owners/new.html` is a literal and wins over `/owners/{id}.html` (where `new` would be a non-numeric id and a 400). A test pins that. `/owners/{id}/edit.html` has no overlap. Post/redirect/get stops a reload from re-submitting.
+Routing check: for GET, `/owners/new.html` is a literal and wins over `/owners/{id}.html` (where `new` would be a non-numeric id and a 400). A test pins that. `/owners/{id}/edit.html` has no overlap. The POST paths share their URL with the JSON endpoints (`GET /owners`, `GET /owners/{id}`) but differ by method, and no other `POST` mapping exists for either path, so there is no clash. An unknown id on `POST /owners/{id}` is 404 and a non-numeric id is 400, before any write. Post/redirect/get stops a reload from re-submitting. An error redisplay is served from the POST URL, so a GET of that URL returns owner JSON, not the form; this is the accepted cost of the choice, and the redisplay is never a bookmarkable page.
 
 ### 4.2 Java (package `org.springframework.samples.petclinic.owner`)
 - **`OwnerForm`** (new record): `firstName`, `lastName`, `address`, `city`, `telephone`, all `String`, with `@NotBlank` and `@Size(max = ...)` per F8 and `@Pattern(regexp = "\\d{10}")` on telephone (Java `\d` is ASCII-only unless `UNICODE_CHARACTER_CLASS` is set; do not set it). Message text lives on the annotations (4.5). This is the only type bound from the request, so id and pets cannot be overposted (F12). Factory `OwnerForm.from(Owner)` for the edit page.
@@ -77,14 +77,14 @@ Routing check: `/owners/new.html` is a literal and wins over `/owners/{id}.html`
   - Update: `@Modifying @Query("UPDATE OWNERS SET FIRST_NAME = :firstName, LAST_NAME = ..., ADDRESS = ..., CITY = ..., TELEPHONE = ... WHERE ID = :id") void update(...)` (or `boolean`/`int` result). This never touches `PETS`, which is what F7 requires. Column and table names in UPPER CASE, as CLAUDE.md says for explicit names.
   - `save` must never be called for an existing owner (it would delete and re-insert pets). A repository test proves pet ids survive an update, and the Javadoc says why. An alternative that removes the footgun is a small separate write component (concern 3).
 - **`OwnerController` gains** four handlers (4.1). Create and update are separate methods sharing a private `form(...)` render helper:
-  - `@PostMapping` takes `@Valid @ModelAttribute("ownerForm") OwnerForm form, BindingResult result, RedirectAttributes flash`. On errors it returns the form view (200). Otherwise it saves, adds the flash attribute `message`, and returns `"redirect:/owners/" + id + ".html"` (303; set `RedirectView` status or use `ResponseEntity` if the default 302 is not acceptable to the tests; both are fine for browsers).
+  - `@PostMapping("/owners")` (create) and `@PostMapping("/owners/{id}")` (update) take `@Valid @ModelAttribute("ownerForm") OwnerForm form, BindingResult result, RedirectAttributes flash`. On errors it returns the form view (200). Otherwise it saves, adds the flash attribute `message`, and returns `"redirect:/owners/" + id + ".html"` (303; set `RedirectView` status or use `ResponseEntity` if the default 302 is not acceptable to the tests; both are fine for browsers).
   - Edit handlers first `findById(id)` and throw `ResponseStatusException(NOT_FOUND, "owner " + id + " does not exist")`, the details page's mechanism, before anything is written, on both GET and POST.
   - The details handler (`showOwner`) needs no change: Spring puts flash attributes into the model, and the template reads `message`.
 - **Identity counter:** append to `data.sql`, after the owner inserts, `ALTER TABLE owners ALTER COLUMN id RESTART WITH 12;` with a comment. Pets and types are not advanced here because nothing inserts them yet (the next intent that does must). A test inserts an owner and asserts the id is above 11.
 - No logging of form values (names, addresses and phone numbers are personal data).
 
 ### 4.3 Templates
-New `owners/ownerForm.html`, used for both pages. Model attributes: `ownerForm`, `ownerId` (null on create), `heading`, `submitLabel`, `action`. Page title and `h2` come from the heading ("New Owner" or "Edit Owner"); `activeMenu` is `'owners'`.
+New `owners/ownerForm.html`, used for both pages. Model attributes: `ownerForm`, `ownerId` (null on create), `heading`, `submitLabel`, `action` (`@{/owners}` on create, `@{/owners/{id}(id=${ownerId})}` on edit). Page title and `h2` come from the heading ("New Owner" or "Edit Owner"); `activeMenu` is `'owners'`.
 
 ```html
 <h2 class="pc-page-title" th:text="${heading}">New Owner</h2>
@@ -161,7 +161,7 @@ Deleting owners; pets and visits; owner writes through JSON; duplicate-owner det
 
 ### 5.1 Tests
 - `OwnerRepositoryTests` (`@DataJdbcTest`): inserting an owner via `save` returns an id above 11 and the owner has no pets; `update` changes the five columns and returns the changed row from `findById`; after updating owner 6 (Jean Coleman) her pets still have ids 7 and 8 and names Samantha and Max; updating an unknown id changes nothing; the seed count stays 11 outside the test transaction.
-- `OwnerControllerTests` (`@WebMvcTest`, mocked repositories): `GET /owners/new.html` 200 view `owners/ownerForm` with a blank `ownerForm`; `GET /owners/{id}/edit.html` 200 pre-filled, 404 unknown, 400 non-numeric; `POST` valid create redirects to `/owners/{id}.html` with flash `New Owner Created`; valid edit redirects with `Owner Values Updated`; each of the five fields blank, whitespace-only, over length, and telephone `123456789`, `12345678901`, `60855510ab`, `6085551 23`, `٦٠٨٥٥٥١٠٢٣` (non-ASCII digits) return 200 with the right field error and no repository write; values with surrounding spaces are saved trimmed; extra `id` and `pets` parameters are ignored; `/owners/new.html` is routed to the form, not to the details handler; `POST` on an unknown id is 404 with no write; `GET /owners/1.html` JSON and HTML are unchanged.
+- `OwnerControllerTests` (`@WebMvcTest`, mocked repositories): `GET /owners/new.html` 200 view `owners/ownerForm` with a blank `ownerForm` and form action `/owners`; `GET /owners/{id}/edit.html` 200 pre-filled with action `/owners/{id}`, 404 unknown, 400 non-numeric; `POST /owners` valid create redirects to `/owners/{id}.html` with flash `New Owner Created`; `POST /owners/{id}` valid edit redirects with `Owner Values Updated`; each of the five fields blank, whitespace-only, over length, and telephone `123456789`, `12345678901`, `60855510ab`, `6085551 23`, `٦٠٨٥٥٥١٠٢٣` (non-ASCII digits) return 200 with the right field error and no repository write; values with surrounding spaces are saved trimmed; extra `id` and `pets` parameters are ignored; `/owners/new.html` is routed to the form, not to the details handler; `POST /owners/{id}` on an unknown id is 404 and on a non-numeric id 400, with no write; `GET /owners` and `GET /owners/{id}` JSON still work alongside the POST mappings; `GET /owners/1.html` JSON and HTML are unchanged.
 - `OwnerFormPageHtmlUnitTests` (new; `@SpringBootTest` + `@AutoConfigureMockMvc`, HtmlUnit, JS off, `@Transactional`):
   - Blank form: title `New Owner · Spring PetClinic`, one `h2`, five labelled inputs in order with the expected `autocomplete`, one submit button "Add Owner", only Find Owners `aria-current="page"`.
   - Create flow: fill and submit; land on the details page showing the values, `New Owner Created`, and "This owner has no pets."; reload shows no message; Find Owners search for the last name lists the new owner.
@@ -187,7 +187,7 @@ Deleting owners; pets and visits; owner writes through JSON; duplicate-owner det
 | Workflow | Branch and PR; the plan is written only after this spec has full human review. |
 
 ## 7. Areas of concern
-1. **URL shape vs upstream.** The intent asks to match upstream's URLs where practical. Upstream uses `/owners/new` and `/owners/{id}/edit`, and redirects to `/owners/{id}`. This repo's settled rule is HTML at `*.html` and JSON at the bare path, so `/owners/{id}` is JSON here. Chosen: repo consistency (`/owners/new.html`, `/owners/{id}/edit.html`, redirect to `/owners/{id}.html`). Needs human confirmation; it is the same decision as intent 008 concern 1.
+1. **URL shape vs upstream.** The intent asks to match upstream's URLs where practical. Upstream uses `/owners/new` and `/owners/{id}/edit` for both GET and POST, and redirects to `/owners/{id}`. This repo's settled rule is HTML at `*.html` and JSON at the bare path, so `/owners/{id}` is JSON here. Decided (reviewer, option A): GET pages are `/owners/new.html` and `/owners/{id}/edit.html`; writes are `POST /owners` and `POST /owners/{id}`, because `.html` names a representation for GET and a form submission is not one; redirect to `/owners/{id}.html`. Upstream parity (`POST /owners/new`, `POST /owners/{id}/edit`) was rejected. Remaining cost: an error redisplay is served from a URL whose GET is JSON (4.1).
 2. **New dependency vs the Snyk gate and a lean pom.** Bean Validation needs `spring-boot-starter-validation`. It is Boot-managed and the idiomatic route (and what upstream uses), but it adds Hibernate Validator to the supply chain and must pass the high-severity gate. Alternative with no dependency: a hand-written Spring `Validator` for the five rules. Chosen: the starter. The cost of the alternative is more code and less standard error handling.
 3. **Writing to a deliberately read-only repository.** Intents 006 and 008 made `OwnerRepository` write-free on purpose. A plain `CrudRepository`/`save` for updates would silently delete and re-insert pets (changing ids, and breaking the "pets are not changed" outcome). The spec uses `save` for inserts of pet-less owners only and a targeted `UPDATE` for edits, which keeps the write surface small but leaves `save` available for misuse. Alternative: move writes to a separate component so the read interface stays write-free. Needs an engineering call; either way the "pets unchanged" repository test is mandatory.
 4. **Design system forbids what the intent asks for.**
@@ -205,7 +205,7 @@ Deleting owners; pets and visits; owner writes through JSON; duplicate-owner det
 ## 8. Assumptions
 1. Open question 1: no CSRF token, following upstream; revisit with authentication.
 2. Open question 2: confirmation uses InlineMessage with no new variant; its README wording is widened.
-3. Page URLs follow the repo's `*.html` convention, not upstream's bare paths; redirect goes to `/owners/{id}.html`.
+3. GET page URLs follow the repo's `*.html` convention, not upstream's bare paths; form submissions `POST` to the bare resource paths (`/owners`, `/owners/{id}`); redirect goes to `/owners/{id}.html`.
 4. The form is one Thymeleaf template `owners/ownerForm.html` for both create and edit; headings "New Owner" and "Edit Owner"; buttons "Add Owner" and "Update Owner" (upstream labels); page titles follow the headings.
 5. Bean Validation via `spring-boot-starter-validation` on a dedicated `OwnerForm` record, not on the `Owner` entity.
 6. Leading and trailing whitespace is trimmed from all five fields before validation and saving; internal spaces are kept. "Required" means non-empty after trim.
