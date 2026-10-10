@@ -10,8 +10,8 @@ Workflows under GitHub Actions that deliver the following observable results:
 - **Build:** every push to `main` and every pull request runs the Maven build and all tests (the equivalent of `./mvnw clean verify`) on the repo's pinned Java version, and fails visibly if either fails.
 - **Design (spec on intent merge):** when an `intent.md` merges to `main`, a non-interactive Claude job applies the `/spec` skill and opens a pull request containing the matching `spec.md` beside the intent. A human still reviews and merges it.
 - **Review (AI PR review):** every pull request gets an AI review against a `REVIEW.md` policy (bugs, security, compliance with the spec and plan), with findings tagged by severity. Findings are advisory; they neither approve nor block. An `@claude` mention on a review comment triggers a fix pushed to the PR.
-- **Maintain (weekly security scan):** a weekly scheduled job runs CodeQL and Snyk scans of the repo (also run on pull requests), plus a Claude pass that validates the findings and writes them as new `intent.md` files for triage, via a PR.
-- **Security scanning:** CodeQL and Snyk are configured as part of the pipeline, with results visible on the repo's GitHub Security tab or in the workflow run.
+- **Maintain (weekly security scan):** a weekly scheduled job runs Snyk scans of the repo (dependencies and static code analysis) (also run on pull requests), plus a Claude pass that validates the findings and writes them as new `intent.md` files for triage, via a PR.
+- **Security scanning:** Snyk (dependency and static code analysis) is configured as part of the pipeline, with results visible in the workflow run. CodeQL is not used.
 - Agent output always arrives as a pull request, never a direct push to `main`.
 
 Out of scope: the playbook's Test-stage eval suite, any deploy or rollback pipeline (no deploy target exists yet), runtime monitoring/baseline bands, and PetClinic features.
