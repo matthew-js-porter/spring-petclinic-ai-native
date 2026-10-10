@@ -42,6 +42,7 @@
 
 	/* Size */
 	--pc-hero-width: 360px;
+	--pc-field-width: 20rem;
 
 	/* Bootstrap overrides */
 	--bs-body-font-family: var(--pc-font-body);
@@ -225,6 +226,95 @@ button:focus-visible,
 
 .pc-pagination .pc-disabled {
 	color: var(--pc-ink-disabled);
+}
+
+/* Form field: label over input; fields and button stack on a phone, one row from sm up */
+.pc-form {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 12px;
+	margin: 0 0 24px;
+}
+
+.pc-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.pc-field .form-label {
+	margin: 0;
+	font-size: 16px;
+	line-height: 24px;
+	color: var(--pc-ink);
+}
+
+.pc-input {
+	padding: 8px 12px;
+	font-size: 16px;
+	line-height: 24px;
+	color: var(--pc-ink);
+	background: var(--pc-surface);
+	border: 1px solid var(--pc-line-strong);
+}
+
+.pc-input:focus {
+	color: var(--pc-ink);
+	background: var(--pc-surface);
+	border-color: var(--pc-line-strong);
+	outline: 2px solid var(--pc-focus-ring);
+	outline-offset: 2px;
+	box-shadow: none;
+}
+
+@media (min-width: 576px) {
+	.pc-form {
+		flex-direction: row;
+		align-items: flex-end;
+	}
+
+	.pc-field {
+		width: var(--pc-field-width);
+	}
+}
+
+/* Button: the system's only button style */
+.pc-button {
+	--bs-btn-padding-x: 16px;
+	--bs-btn-padding-y: 8px;
+	--bs-btn-font-family: var(--pc-font-display);
+	--bs-btn-font-size: 14px;
+	--bs-btn-font-weight: 600;
+	--bs-btn-line-height: 24px;
+	--bs-btn-color: var(--pc-on-dark);
+	--bs-btn-bg: var(--pc-spring-green-dark);
+	--bs-btn-border-color: var(--pc-spring-green-dark);
+	--bs-btn-hover-color: var(--pc-on-dark);
+	--bs-btn-hover-bg: var(--pc-spring-brown);
+	--bs-btn-hover-border-color: var(--pc-spring-brown);
+	--bs-btn-active-color: var(--pc-on-dark);
+	--bs-btn-active-bg: var(--pc-spring-brown);
+	--bs-btn-active-border-color: var(--pc-spring-brown);
+	--bs-btn-focus-box-shadow: none;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+/* Bootstrap's .btn:focus-visible removes the outline; restore the system's ring */
+.pc-button:focus-visible {
+	outline: 2px solid var(--pc-focus-ring);
+	outline-offset: 2px;
+}
+
+/* Inline message: a one-sentence answer in place of a result */
+.pc-message {
+	margin: 0 0 24px;
+	padding: 8px 16px;
+	font-size: 16px;
+	line-height: 24px;
+	color: var(--pc-ink);
+	border-left: 4px solid var(--pc-line-strong);
 }
 
 /* Footer */

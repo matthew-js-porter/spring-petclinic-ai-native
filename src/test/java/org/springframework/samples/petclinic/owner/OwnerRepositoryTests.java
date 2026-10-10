@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -104,6 +106,47 @@ class OwnerRepositoryTests {
 		this.owners.findAll(PageRequest.of(0, 5, Sort.by("id")));
 
 		// page query + count query + one pets query per owner on the page
+		assertThat(statements.get()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "Davis", "Dav", "davis", "DAVIS", "D" })
+	void findsOwnersByLastNamePrefixIgnoringCase(String term) {
+		assertThat(this.owners.findByLastNameStartingWithIgnoreCase(term, Sort.by("id"))).extracting(Owner::id)
+			.containsExactly(2, 4);
+	}
+
+	@Test
+	void findsEveryOwnerWithTheSameInitial() {
+		assertThat(this.owners.findByLastNameStartingWithIgnoreCase("E", Sort.by("id")))
+			.extracting(Owner::lastName)
+			.containsExactly("Escobito", "Estaban");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "Dx", "%", "_", "\\", "D%s", "_avis" })
+	void findsNoOwnerWhenNothingMatchesOrTheTermHoldsWildcards(String term) {
+		assertThat(this.owners.findByLastNameStartingWithIgnoreCase(term, Sort.by("id"))).isEmpty();
+	}
+
+	@Test
+	void pagesFilteredOwnersWithPetsPopulated() {
+		Page<Owner> page = this.owners.findByLastNameStartingWithIgnoreCase("e",
+				PageRequest.of(0, OwnerController.PAGE_SIZE, Sort.by("id")));
+
+		assertThat(page.getContent()).extracting(Owner::id).containsExactly(8, 10);
+		assertThat(page.getTotalElements()).isEqualTo(2);
+		assertThat(page.getTotalPages()).isEqualTo(1);
+		assertThat(page.getContent()).allSatisfy((owner) -> assertThat(owner.pets()).isNotEmpty());
+	}
+
+	@Test
+	void readsAFilteredPageWithQueriesBoundedByThePageSize() {
+		statements.set(0);
+
+		this.owners.findByLastNameStartingWithIgnoreCase("D",
+				PageRequest.of(0, OwnerController.PAGE_SIZE, Sort.by("id")));
+
 		assertThat(statements.get()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
 	}
 
