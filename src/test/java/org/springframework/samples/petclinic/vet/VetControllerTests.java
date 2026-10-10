@@ -87,6 +87,7 @@ class VetControllerTests {
 		assertThat(page2).contains("<span aria-current=\"page\">2</span>")
 			.contains("href=\"/vets.html?page=1\" title=\"First\" aria-label=\"First page\"")
 			.doesNotContain("aria-label=\"Next page\"", "aria-label=\"Last page\"");
+		assertThat(page1 + page2).doesNotContain("lastName");
 	}
 
 	@Test

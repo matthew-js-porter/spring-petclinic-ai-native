@@ -7,6 +7,9 @@ import org.htmlunit.WebClient;
 import org.htmlunit.html.DomElement;
 import org.htmlunit.html.DomNode;
 import org.htmlunit.html.HtmlAnchor;
+import org.htmlunit.html.HtmlButton;
+import org.htmlunit.html.HtmlForm;
+import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlTable;
 import org.htmlunit.html.HtmlTableRow;
@@ -99,6 +102,67 @@ class OwnersPageHtmlUnitTests {
 
 		HtmlPage owners = findOwners.click();
 		assertThat(owners.getTitleText()).isEqualTo("Owners · Spring PetClinic");
+	}
+
+	@Test
+	void offersALabelledLastNameSearch() throws IOException {
+		HtmlPage page = this.webClient.getPage("/owners.html");
+
+		HtmlForm form = page.querySelector("form[role=search]");
+		assertThat(form.getMethodAttribute()).isEqualTo("get");
+		assertThat(form.getActionAttribute()).isEqualTo("/owners.html");
+		HtmlInput field = form.getInputByName("lastName");
+		assertThat(field.getId()).isEqualTo("lastName");
+		assertThat(field.getTypeAttribute()).isEqualTo("search");
+		assertThat(field.getAttribute("maxlength")).isEqualTo("30");
+		assertThat(page.<DomElement>querySelector("label[for=lastName]").asNormalizedText()).isEqualTo("Last Name");
+		assertThat(form.<HtmlButton>querySelector("button[type=submit]").asNormalizedText()).isEqualTo("Find Owner");
+	}
+
+	@Test
+	void findsOwnersByLastName() throws IOException {
+		HtmlPage results = search("Davis");
+
+		assertThat(results.getUrl().toString()).endsWith("/owners.html?lastName=Davis");
+		assertThat(rows(results)).extracting(List::getFirst).containsExactly("Betty Davis", "Harold Davis");
+		assertThat(field(results).getValue()).isEqualTo("Davis");
+		assertThat(results.querySelectorAll(".pc-pagination")).isEmpty();
+
+		HtmlPage reloaded = this.webClient.getPage(results.getUrl());
+		assertThat(rows(reloaded)).extracting(List::getFirst).containsExactly("Betty Davis", "Harold Davis");
+	}
+
+	@Test
+	void ignoresCaseAndMatchesPrefixes() throws IOException {
+		assertThat(rows(search("dav"))).extracting(List::getFirst).containsExactly("Betty Davis", "Harold Davis");
+	}
+
+	@Test
+	void listsEveryOwnerForABlankSearch() throws IOException {
+		HtmlPage results = search("");
+
+		assertThat(rows(results)).hasSize(5);
+		assertThat(results.querySelectorAll(".pc-pagination")).hasSize(1);
+	}
+
+	@Test
+	void explainsWhenNoOwnerMatches() throws IOException {
+		HtmlPage results = search("zzz");
+
+		assertThat(results.<DomElement>querySelector("[role=status]").asNormalizedText())
+			.isEqualTo("No owners found with a last name starting with \"zzz\".");
+		assertThat(results.querySelectorAll("table, .pc-pagination")).isEmpty();
+		assertThat(field(results).getValue()).isEqualTo("zzz");
+	}
+
+	private HtmlPage search(String lastName) throws IOException {
+		HtmlPage page = this.webClient.getPage("/owners.html");
+		field(page).setValue(lastName);
+		return page.<HtmlButton>querySelector("form[role=search] button[type=submit]").click();
+	}
+
+	private static HtmlInput field(HtmlPage page) {
+		return page.querySelector("#lastName");
 	}
 
 	private static List<String> navItems(HtmlPage page) {

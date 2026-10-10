@@ -17,4 +17,8 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
 
 	List<Owner> findAll(Sort sort);
 
+	Page<Owner> findByLastNameStartingWithIgnoreCase(String lastName, Pageable pageable);
+
+	List<Owner> findByLastNameStartingWithIgnoreCase(String lastName, Sort sort);
+
 }

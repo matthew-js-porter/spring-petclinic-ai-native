@@ -20,6 +20,8 @@ class OwnerController {
 
 	static final int PAGE_SIZE = 5;
 
+	static final int MAX_LAST_NAME = 30;
+
 	private static final Sort BY_ID = Sort.by("id");
 
 	private static final Comparator<PetView> BY_NAME = Comparator.comparing(PetView::name)
@@ -32,22 +34,44 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners.html")
-	String showOwnerList(@RequestParam(defaultValue = "1") int page, Model model) {
+	String showOwnerList(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String lastName,
+			Model model) {
 		if (page < 1) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page must be 1 or greater");
 		}
-		Page<Owner> result = this.owners.findAll(PageRequest.of(page - 1, PAGE_SIZE, BY_ID));
+		String term = searchTerm(lastName);
+		PageRequest pageable = PageRequest.of(page - 1, PAGE_SIZE, BY_ID);
+		Page<Owner> result = term.isEmpty() ? this.owners.findAll(pageable)
+				: this.owners.findByLastNameStartingWithIgnoreCase(term, pageable);
 		if (page > 1 && page > result.getTotalPages()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "page " + page + " does not exist");
 		}
 		model.addAttribute("listOwners", result.map(OwnerController::toView));
+		model.addAttribute("lastName", term);
 		return "owners/ownersList";
 	}
 
 	@GetMapping(path = "/owners", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	Owners showResourcesOwnerList() {
-		return new Owners(this.owners.findAll(BY_ID).stream().map(OwnerController::toView).toList());
+	Owners showResourcesOwnerList(@RequestParam(required = false) String lastName) {
+		String term = searchTerm(lastName);
+		List<Owner> result = term.isEmpty() ? this.owners.findAll(BY_ID)
+				: this.owners.findByLastNameStartingWithIgnoreCase(term, BY_ID);
+		return new Owners(result.stream().map(OwnerController::toView).toList());
+	}
+
+	/**
+	 * Normalises the last-name search term shared by the page and the JSON: missing
+	 * becomes empty, surrounding whitespace is stripped, and anything longer than the
+	 * column is rejected.
+	 */
+	private static String searchTerm(String lastName) {
+		String term = (lastName != null) ? lastName.strip() : "";
+		if (term.length() > MAX_LAST_NAME) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"lastName must be " + MAX_LAST_NAME + " characters or fewer");
+		}
+		return term;
 	}
 
 	private static OwnerView toView(Owner owner) {

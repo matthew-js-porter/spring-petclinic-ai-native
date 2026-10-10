@@ -1,6 +1,8 @@
 package org.springframework.samples.petclinic.owner;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +34,17 @@ class OwnersIntegrationTests {
 			.extractingPath("$.ownerList[*].pets[*]")
 			.asArray()
 			.hasSize(13);
+	}
+
+	@ParameterizedTest
+	@CsvSource({ "Davis, 2", "dav, 2", "e, 2", "zzz, 0", "%, 0" })
+	void filtersTheJsonByLastNamePrefix(String term, int owners) {
+		assertThat(this.mvc.get().uri("/owners?lastName={term}", term).accept(MediaType.APPLICATION_JSON))
+			.hasStatusOk()
+			.bodyJson()
+			.extractingPath("$.ownerList")
+			.asArray()
+			.hasSize(owners);
 	}
 
 }
