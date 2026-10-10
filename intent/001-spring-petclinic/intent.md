@@ -1,6 +1,5 @@
 # Intent: Spring PetClinic starter project
 Author: matthew-js-porter
-Status: accepted
 
 ## Problem
 There is no application in this repo yet. We are building Spring PetClinic AI-natively, and every later feature needs a running, buildable Spring Boot project to land in. Without a minimal, known-good baseline, later specs and plans have nothing to build on or verify against.

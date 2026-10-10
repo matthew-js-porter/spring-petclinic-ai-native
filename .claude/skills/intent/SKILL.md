@@ -22,7 +22,6 @@ Code is no longer the bottleneck; misunderstood requirements are. The cheapest p
    ```markdown
    # Intent: <title>
    Author: <name>
-   Status: draft
 
    ## Problem
    What can't be done today, who is affected, why it matters. Plain language, the originator's own words where possible.
@@ -42,9 +41,9 @@ Code is no longer the bottleneck; misunderstood requirements are. The cheapest p
 
    For Author, use `git config user.name`; if it's unset, or the person you're talking to is clearly someone else, ask rather than guess. Keep the whole file to about a page: it is read by people and by agents, and length dilutes it. Describe *what* and *why*; leave *how* to `spec.md` and `plan.md`.
 
-5. **Review with the user before committing.** Show the draft (or its path) and ask them to correct misunderstandings. The product owner's correction is the point of the stage — an unreviewed intent is just a guess. Revise until they accept; set `Status: accepted` only when they say so.
+5. **Review with the user before committing.** Show the draft (or its path) and ask them to correct misunderstandings. The product owner's correction is the point of the stage — an unreviewed intent is just a guess. Revise until they accept.
 
-6. **Save and commit — with permission.** Write to the shared intent home as `intent/<NNN>-<kebab-name>/intent.md`, e.g. `intent/001-example-feature/intent.md`. Each intent gets its own numbered folder so the later `spec.md` and `plan.md` can sit beside it. Pick `NNN` by listing `intent/`, considering only folders named `NNN-*`, taking the highest prefix, and adding one (start at `001`; create `intent/` if missing). Numbers can collide when two branches add intents from the same base, so check again for a clash before committing and renumber yours if needed. Derive the kebab-case name from the title, short and lowercase. If the repo already uses a different layout, mention it and ask before diverging. Make sure the saved file's `Status:` line matches reality (`accepted` if the user accepted it in step 5, otherwise `draft`). Writing the file is fine. Only run `git commit` if the user has asked for it or agrees when you offer; stage only the intent file.
+6. **Save and commit — with permission.** Write to the shared intent home as `intent/<NNN>-<kebab-name>/intent.md`, e.g. `intent/001-example-feature/intent.md`. Each intent gets its own numbered folder so the later `spec.md` and `plan.md` can sit beside it. Pick `NNN` by listing `intent/`, considering only folders named `NNN-*`, taking the highest prefix, and adding one (start at `001`; create `intent/` if missing). Numbers can collide when two branches add intents from the same base, so check again for a clash before committing and renumber yours if needed. Derive the kebab-case name from the title, short and lowercase. If the repo already uses a different layout, mention it and ask before diverging. Writing the file is fine. Only run `git commit` if the user has asked for it or agrees when you offer; stage only the intent file.
 
 7. **Hand off.** Tell the user the file path and that the next step is turning the accepted intent into `spec.md` in the same folder (requirements and design constrained by org skills for security, brand, compliance, UX), then `plan.md` in plan mode. Don't start those unprompted.
 
