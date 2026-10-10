@@ -73,11 +73,12 @@ Decision (as 009, reviewer-confirmed): `*.html` marks a GET page only; the bare 
 Routing check: `/owners/{id}.html` has one path segment after `owners`, and these paths have more. The GET literal `/owners/{ownerId}/pets/new.html` does not overlap `POST /owners/{ownerId}/pets/{petId}` (different method and suffix). No other `POST` mapping exists for either POST path. An unknown owner or pet is 404 and a non-numeric id is 400, before any write. An error redisplay is served from the POST URL, so a GET of that URL is not the form page; this is the accepted cost, as in 009.
 
 ### 4.2 Java (package `org.springframework.samples.petclinic.owner`)
-- **`PetForm`** (new record): `name` (`String`), `birthDate` (`String`, ISO text), `typeId` (`Integer`). It is the only type bound from the request (F14). Bean Validation on the record: `@NotBlank` and `@Size(max = 30)` on `name`; `@NotBlank` on `birthDate`; `@NotNull` on `typeId`. Message text lives on the annotations (4.5). Factory `PetForm.from(PetDetailView or Pet)` for the edit page. `@InitBinder("petForm")` registers `StringTrimmerEditor(false)` as 009 does.
+- **`PetForm`** (new record): `name` (`String`), `birthDate` (`String`, ISO text), `typeId` (`String`, digits as text). It is the only type bound from the request (F14). Bean Validation on the record: `@NotBlank` and `@Size(max = 30)` on `name`; `@NotBlank` on `birthDate`; `@NotBlank` on `typeId`. Message text lives on the annotations (4.5). Factory `PetForm.from(PetDetailView or Pet)` for the edit page. `@InitBinder("petForm")` registers `StringTrimmerEditor(false)` as 009 does.
+  - Why `typeId` is text too: with an `Integer` field, `typeId=abc` fails at binding with Spring's generic `typeMismatch` text instead of "Type is required.". The controller parses it with `Integer.parseInt` (a `NumberFormatException` is treated as unknown), so the message stays ours and the typed value survives redisplay; the select matches options by comparing text.
   - Why `birthDate` is text, not `LocalDate`: with a `LocalDate` field, a malformed or out-of-range value (a browser without a date picker, a hand-made POST) produces Spring's generic type-mismatch text, which would need a messages file (i18n is out of scope, and config is YAML). Parsing in the controller with `LocalDate.parse(text, DateTimeFormatter.ISO_LOCAL_DATE)` lets the messages be ours and keeps the typed text for redisplay. See assumption 8.
 - **Cross-field and contextual checks** in the controller, after `@Valid`, adding to the `BindingResult` with `rejectValue` so they show next to the field:
   - birth date parses (`DateTimeParseException` becomes "must be a date in the form yyyy-mm-dd") and is not after `LocalDate.now(clock)` (a `Clock` bean is added so tests can fix "today"; see concern 6);
-  - `typeId` is in the loaded type ids (otherwise the same "Type is required." message, which also stops a crafted id from reaching the foreign key as a 500);
+  - `typeId` parses as an integer and is in the loaded type ids (non-numeric such as `abc`, or an unknown id; otherwise the same "Type is required." message, which also stops a crafted id from reaching the foreign key as a 500);
   - name is not equal, ignoring case, to any **other** pet of this owner (compare ids, so a pet never conflicts with itself). `String.equalsIgnoreCase` is used; seed names are ASCII and the rule is "ignoring case" as upstream.
   - Only one message per field: required beats format beats rule.
 - **Persistence, kept narrow.** Add a small `PetRepository extends Repository<Pet, Integer>` rather than widening `OwnerRepository`:
@@ -230,11 +231,11 @@ Deleting pets; visits and Add Visit; pet JSON writes (create, update); persisten
 2. Intent 009 ships first and its conventions (validation starter, flash `message`, stacked form, error state, link-as-action) are reused unchanged (concern 1).
 3. URLs are `/owners/{ownerId}/pets/new.html` and `/owners/{ownerId}/pets/{petId}/edit.html`, the form `POST`s to `/owners/{ownerId}/pets` (create) and `/owners/{ownerId}/pets/{petId}` (update), as 009 does for owners, and the success redirect goes to `/owners/{ownerId}.html` (concern 2).
 4. Success is a 303 redirect to the owner's details page with a flash `message` carrying the intent's exact texts.
-5. Template is `owners/petForm.html`; the form is one record `PetForm(name, birthDate, typeId)`.
+5. Template is `owners/petForm.html`; the form is one record `PetForm(name, birthDate, typeId)`, all three bound as text.
 6. The type select is ordered by name, with an empty prompt option "Select a type", and is rendered from `PetTypeRepository.findAll()`.
 7. Names are trimmed; max length 30 (column size); the duplicate rule ignores case, compares against the owner's other pets only, and allows keeping a pet's own name.
 8. `birthDate` is bound as text and parsed as ISO `yyyy-MM-dd` in the controller, so validation messages stay in our wording without a messages file. Today is allowed; there is no lower bound; the server's `Clock` defines today.
-9. An unknown type id (hand-made POST) gets the same "Type is required." message as an empty one.
+9. An unknown or non-numeric type id (hand-made POST) gets the same "Type is required." message as an empty one.
 10. A pet that belongs to another owner is a plain 404, the same as a non-existent pet.
 11. The form page shows the owner's name as plain context text (not a field), and the heading is "New Pet" or "Edit Pet".
 12. Submit labels are "Add Pet" and "Update Pet" (as upstream). Link labels are "Add New Pet" and "Edit Pet".
