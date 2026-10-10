@@ -46,8 +46,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # Also review fix commits pushed by @claude (claude.yml), whose synchronize events have claude[bot] as actor.
-          allowed_bots: "claude"
+          # Also review fix commits pushed by @claude (claude.yml) and the spec/maintain workflows,
+          # whose synchronize events have claude[bot] or github-actions[bot] as actor. Fork PRs are excluded above.
+          allowed_bots: "claude,github-actions"
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
@@ -95,8 +96,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # Also review fix commits pushed by @claude (claude.yml), whose synchronize events have claude[bot] as actor.
-          allowed_bots: "claude"
+          # Also review fix commits pushed by @claude (claude.yml) and the spec/maintain workflows,
+          # whose synchronize events have claude[bot] or github-actions[bot] as actor. Fork PRs are excluded above.
+          allowed_bots: "claude,github-actions"
           prompt: '/security-review'
           claude_args: >-
             --max-turns 30
