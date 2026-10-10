@@ -61,7 +61,8 @@ body {
 }
 
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+.pc-table-region:focus-visible {
 	outline: 2px solid var(--pc-focus-ring);
 	outline-offset: 2px;
 	box-shadow: none;
@@ -190,6 +191,12 @@ button:focus-visible {
 
 .pc-col-name {
 	width: 50%;
+}
+
+/* Wide tables scroll inside their region at narrow widths instead of the page */
+.pc-table-region > .pc-table {
+	width: max-content;
+	min-width: 100%;
 }
 
 /* Pagination */

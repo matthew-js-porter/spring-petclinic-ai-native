@@ -63,7 +63,7 @@ class WelcomePageHtmlUnitTests {
 			.stream()
 			.map(DomNode::asNormalizedText)
 			.toList();
-		assertThat(items).containsExactly("Home", "Veterinarians");
+		assertThat(items).containsExactly("Home", "Find Owners", "Veterinarians");
 
 		assertThat(page.querySelectorAll("nav[aria-label='Main'] [aria-current]")).singleElement()
 			.satisfies((current) -> {

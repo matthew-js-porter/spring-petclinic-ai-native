@@ -218,3 +218,12 @@ Last-name search form and `/owners/find`; adding or editing owners and pets; own
 - Suggested order: schema and seed, records and repository with its test, controller and JSON, template and nav item, HtmlUnit tests, design-system docs.
 - Boot 4 test imports live in `org.springframework.boot.webmvc.test.autoconfigure.*`; check the generated imports.
 - Run `actionlint` only if workflows change (they should not).
+
+## 10. Implementation notes and deviations
+1. **Seed data matches upstream.** The values in 4.1 were diffed against upstream `spring-petclinic` `src/main/resources/db/h2/data.sql` (main branch). Every type, owner and pet matches. The only difference is mechanical: upstream inserts with `default` ids, and this repo inserts the same ids explicitly (4.1).
+2. **Query bound is 2 + page size, not "one extra query for the page" (4.2).** Spring Data JDBC loads a `@MappedCollection` with one query per aggregate, as the vets repository test documents. `OwnerRepositoryTests` asserts at most `2 + PAGE_SIZE` statements per page (page, count and one pets query per owner), which is bounded by the page size rather than the table size. Single-query loading was not enabled.
+3. **Wide-table CSS.** `petclinic.css` gains a `.pc-table-region > .pc-table { width: max-content; min-width: 100% }` rule, taken from the visual reference's phone board, so at narrow widths the table scrolls inside its region instead of squeezing its columns. The existing `:focus-visible` rule (2px `focus-ring`) now also covers `.pc-table-region`. No new tokens. Documented in `components/DataTable/README.md`.
+4. **Existing test updated for the new nav item.** `WelcomePageHtmlUnitTests` asserted the exact nav list `Home, Veterinarians`. It now expects `Home, Find Owners, Veterinarians` (F8). No other existing test changed.
+5. **Nav order.** Intent 005 had already merged, so Find Owners sits between Home and Veterinarians (4.5, first case).
+6. **No `PetTypeRepository`.** The repository test checks the 6 types with `JdbcClient`, so per assumption 12 only the `PetType` record and the `types` table were added.
+7. **Pet ordering.** Pets are sorted by name, then id, so Carlos Estaban's and Jeff Black's two pets named Lucky keep a stable order.

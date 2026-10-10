@@ -44,7 +44,7 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 ## Iconography
 
 - Logo: the heart-with-cross mark in `spring-green` from the Logos group, 24px (`logo-size`) beside the wordmark, `alt=""` because the wordmark names the link.
-- Nav icons are thin outline glyphs before the label: a house for Home, a bulleted list for Veterinarians. They look like Bootstrap Icons (`house`, `list-ul`); the previews draw simple stand-ins, so use the real Bootstrap Icons in the app.
+- Nav icons are thin outline glyphs before the label: a house for Home, a magnifying glass for Find Owners, a bulleted list for Veterinarians. They look like Bootstrap Icons (`house`, `search`, `list-ul`); the previews draw simple stand-ins, so use the real Bootstrap Icons in the app.
 - Pagination uses text chevrons (« ‹ › ») rather than icons.
 - One photograph, `pets.png` from the Photos group, on the homepage only: square, no border, shadow or card, with descriptive `alt` text.
 - No emoji, no illustrations, and no other photographs.
