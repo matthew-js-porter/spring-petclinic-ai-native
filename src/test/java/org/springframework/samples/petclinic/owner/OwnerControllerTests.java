@@ -1,14 +1,17 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,12 +133,6 @@ class OwnerControllerTests {
 	@Test
 	void doesNotServeHtmlFromTheJsonEndpoint() {
 		assertThat(this.mvc.get().uri("/owners").accept(MediaType.TEXT_HTML)).hasStatus(HttpStatus.NOT_ACCEPTABLE);
-	}
-
-	@Test
-	void isReadOnly() {
-		assertThat(this.mvc.post().uri("/owners")).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
-		assertThat(this.mvc.post().uri("/owners.html")).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
 	@Test
@@ -426,10 +423,264 @@ class OwnerControllerTests {
 			.doesNotContain("<script>alert(1)</script>", "<b>1 Main St.</b>", "<i>Rex</i>");
 	}
 
+	/**
+	 * Writes go to the resource paths only. A POST to an owner's {@code .html} page reaches
+	 * {@code POST /owners/{id}} with a non-numeric id, so it is a 400 and writes nothing.
+	 */
 	@Test
-	void detailsAreReadOnly() {
-		assertThat(this.mvc.post().uri("/owners/1")).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
-		assertThat(this.mvc.post().uri("/owners/1.html")).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
+	void writesNothingForAPostToAnHtmlPage() {
+		stubOwner(owner(1, "George", "Franklin"));
+
+		assertThat(post("/owners.html", valid())).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
+		assertThat(post("/owners/1.html", valid())).hasStatus(HttpStatus.BAD_REQUEST);
+		assertThat(post("/owners/new.html", valid())).hasStatus(HttpStatus.BAD_REQUEST);
+		assertThat(post("/owners/1/edit.html", valid())).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
+		then(this.owners).should(never()).save(any());
+		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
+				anyString());
+	}
+
+	@Test
+	void linksTheDetailsPageToTheEditForm() {
+		stubOwner(owner(1, "George", "Franklin"));
+
+		assertThat(body("/owners/1.html")).contains("<a class=\"pc-action\" href=\"/owners/1/edit.html\">Edit Owner</a>")
+			.doesNotContain("role=\"status\"");
+	}
+
+	@Test
+	void showsTheFlashMessageOnTheDetailsPage() {
+		stubOwner(owner(1, "George", "Franklin"));
+
+		assertThat(this.mvc.get().uri("/owners/1.html").flashAttr("message", "Owner Values Updated")).hasStatusOk()
+			.bodyText()
+			.contains("<p class=\"pc-message\" role=\"status\">Owner Values Updated</p>");
+	}
+
+	@Test
+	void linksTheOwnersPageToTheNewOwnerForm() {
+		assertThat(body("/owners.html")).contains("<a class=\"pc-action\" href=\"/owners/new.html\">Add Owner</a>");
+		stubSearch("zzz", List.of());
+		assertThat(body("/owners.html?lastName=zzz")).contains("href=\"/owners/new.html\"");
+	}
+
+	@Test
+	void showsABlankNewOwnerForm() {
+		MvcTestResult result = this.mvc.get().uri("/owners/new.html").exchange();
+
+		assertThat(result).hasStatusOk()
+			.hasContentTypeCompatibleWith(MediaType.TEXT_HTML)
+			.hasViewName("owners/ownerForm")
+			.model()
+			.containsEntry("ownerForm", OwnerForm.empty())
+			.containsEntry("action", "/owners");
+		assertThat(result).bodyText()
+			.contains("<title>New Owner · Spring PetClinic</title>", ">New Owner</h2>",
+					"<form method=\"post\" action=\"/owners\" novalidate", ">Add Owner</button>")
+			.containsPattern("href=\"/owners.html\"\\s+aria-current=\"page\"")
+			.doesNotContain("role=\"alert\"", "aria-invalid");
+		then(this.owners).should(never()).findById(any());
+	}
+
+	@Test
+	void showsTheEditFormFilledWithTheOwner() {
+		stubOwner(owner(1, "George", "Franklin"));
+
+		MvcTestResult result = this.mvc.get().uri("/owners/1/edit.html").exchange();
+
+		assertThat(result).hasStatusOk()
+			.hasViewName("owners/ownerForm")
+			.model()
+			.containsEntry("ownerForm", new OwnerForm("George", "Franklin", "1 Main St.", "Madison", "6085550001"))
+			.containsEntry("action", "/owners/1");
+		assertThat(result).bodyText()
+			.contains("<title>Edit Owner · Spring PetClinic</title>", ">Edit Owner</h2>",
+					"<form method=\"post\" action=\"/owners/1\" novalidate", "value=\"Franklin\"",
+					">Update Owner</button>");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "/owners/999/edit.html", "/owners/0/edit.html", "/owners/-1/edit.html" })
+	void returnsNotFoundForTheEditFormOfAnUnknownOwner(String path) {
+		assertThat(this.mvc.get().uri(path)).hasStatus(HttpStatus.NOT_FOUND).bodyText().doesNotContain("Exception");
+	}
+
+	@Test
+	void rejectsANonNumericIdForTheEditForm() {
+		assertThat(this.mvc.get().uri("/owners/abc/edit.html")).hasStatus(HttpStatus.BAD_REQUEST);
+	}
+
+	@Test
+	void createsAnOwnerAndRedirectsToTheirPage() {
+		given(this.owners.save(any(Owner.class))).willAnswer((invocation) -> withId(invocation.getArgument(0), 12));
+
+		assertThat(post("/owners", valid())).hasStatus(HttpStatus.SEE_OTHER)
+			.hasRedirectedUrl("/owners/12.html")
+			.flash()
+			.containsEntry("message", "New Owner Created");
+		then(this.owners).should()
+			.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000", Set.of()));
+	}
+
+	@Test
+	void updatesAnOwnerAndRedirectsToTheirPage() {
+		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo")));
+
+		assertThat(post("/owners/1", valid())).hasStatus(HttpStatus.SEE_OTHER)
+			.hasRedirectedUrl("/owners/1.html")
+			.flash()
+			.containsEntry("message", "Owner Values Updated");
+		then(this.owners).should().update(1, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000");
+		then(this.owners).should(never()).save(any());
+	}
+
+	@Test
+	void trimsValuesBeforeSaving() {
+		given(this.owners.save(any(Owner.class))).willAnswer((invocation) -> withId(invocation.getArgument(0), 12));
+		Map<String, String> padded = valid();
+		padded.replaceAll((field, value) -> "  " + value + "\t ");
+
+		assertThat(post("/owners", padded)).hasStatus(HttpStatus.SEE_OTHER);
+		then(this.owners).should()
+			.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000", Set.of()));
+	}
+
+	@Test
+	void ignoresIdAndPetsInTheRequest() {
+		given(this.owners.save(any(Owner.class))).willAnswer((invocation) -> withId(invocation.getArgument(0), 12));
+		Map<String, String> extra = valid();
+		extra.put("id", "1");
+		extra.put("pets", "1");
+		extra.put("pets[0].name", "Rex");
+
+		assertThat(post("/owners", extra)).hasRedirectedUrl("/owners/12.html");
+		then(this.owners).should()
+			.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000", Set.of()));
+	}
+
+	@ParameterizedTest
+	@CsvSource(delimiter = '|', quoteCharacter = '"', textBlock = """
+			firstName | ""         | First Name is required.
+			firstName | "   "      | First Name is required.
+			firstName | 31         | First Name must be 30 characters or fewer.
+			lastName  | ""         | Last Name is required.
+			lastName  | "   "      | Last Name is required.
+			lastName  | 31         | Last Name must be 30 characters or fewer.
+			address   | ""         | Address is required.
+			address   | "   "      | Address is required.
+			address   | 256        | Address must be 255 characters or fewer.
+			city      | ""         | City is required.
+			city      | "   "      | City is required.
+			city      | 81         | City must be 80 characters or fewer.
+			telephone | ""         | Telephone is required.
+			telephone | "   "      | Telephone is required.
+			telephone | 123456789  | Telephone must be exactly 10 digits.
+			telephone | 12345678901 | Telephone must be exactly 10 digits.
+			telephone | 60855510ab | Telephone must be exactly 10 digits.
+			telephone | 6085551 23 | Telephone must be exactly 10 digits.
+			telephone | ٦٠٨٥٥٥١٠٢٣ | Telephone must be exactly 10 digits.
+			""")
+	void redisplaysTheFormWithOneMessageForAnInvalidField(String field, String value, String message) {
+		stubOwner(owner(1, "George", "Franklin"));
+		Map<String, String> params = valid();
+		params.put(field, value.matches("\\d{2,3}") ? "x".repeat(Integer.parseInt(value)) : value);
+
+		for (String path : List.of("/owners", "/owners/1")) {
+			MvcTestResult result = post(path, params);
+			assertThat(result).hasStatusOk().hasViewName("owners/ownerForm");
+			assertThat(result).model().extractingBindingResult("ownerForm").hasFieldErrors(field);
+			assertThat(result).bodyText()
+				.contains("<p class=\"pc-message\" role=\"alert\">Owner not saved: 1 field needs attention.</p>",
+						"<p id=\"" + field + "-error\" class=\"pc-field-error\">" + message + "</p>",
+						"aria-invalid=\"true\" aria-describedby=\"" + field + "-error\"")
+				.containsOnlyOnce("pc-field-error\"");
+		}
+		then(this.owners).should(never()).save(any());
+		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
+				anyString());
+	}
+
+	@Test
+	void countsEveryInvalidFieldInTheSummary() {
+		MvcTestResult result = post("/owners", Map.of());
+
+		assertThat(result).hasStatusOk()
+			.bodyText()
+			.contains("Owner not saved: 5 fields need attention.", "First Name is required.", "Last Name is required.",
+					"Address is required.", "City is required.", "Telephone is required.")
+			.doesNotContain("exactly 10 digits");
+		assertThat(result).bodyText().containsPattern("href=\"/owners.html\"\\s+aria-current=\"page\"");
+	}
+
+	@Test
+	void keepsTheTrimmedValuesOnARedisplay() {
+		Map<String, String> params = valid();
+		params.put("firstName", "  Ada  ");
+		params.put("telephone", "608");
+
+		assertThat(post("/owners", params)).hasStatusOk()
+			.bodyText()
+			.contains("value=\"Ada\"", "value=\"608\"", "<form method=\"post\" action=\"/owners\" novalidate");
+	}
+
+	@Test
+	void escapesValuesOnARedisplay() {
+		Map<String, String> params = valid();
+		params.put("firstName", "<script>alert(1)</script>");
+		params.put("lastName", "O'Neil & \"Sons\"");
+		params.put("telephone", "<b>");
+
+		assertThat(post("/owners", params)).hasStatusOk()
+			.bodyText()
+			.contains("value=\"&lt;script&gt;alert(1)&lt;/script&gt;\"", "value=\"O&#39;Neil &amp; &quot;Sons&quot;\"")
+			.doesNotContain("<script>alert(1)</script>", "<b>");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "/owners/999", "/owners/0", "/owners/-1" })
+	void returnsNotFoundWhenUpdatingAnUnknownOwner(String path) {
+		assertThat(post(path, valid())).hasStatus(HttpStatus.NOT_FOUND).bodyText().doesNotContain("Exception");
+		assertThat(post(path, Map.of())).hasStatus(HttpStatus.NOT_FOUND);
+		then(this.owners).should(never()).save(any());
+		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
+				anyString());
+	}
+
+	@Test
+	void rejectsANonNumericIdWhenUpdating() {
+		assertThat(post("/owners/abc", valid())).hasStatus(HttpStatus.BAD_REQUEST);
+		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
+				anyString());
+	}
+
+	@Test
+	void keepsTheJsonEndpointsAlongsideThePosts() {
+		stubOwner(owner(1, "George", "Franklin"));
+
+		assertThat(this.mvc.get().uri("/owners")).hasStatusOk().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
+		assertThat(this.mvc.get().uri("/owners/1")).hasStatusOk()
+			.hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
+	}
+
+	private MvcTestResult post(String path, Map<String, String> params) {
+		MockMvcTester.MockMvcRequestBuilder request = this.mvc.post().uri(path);
+		params.forEach((name, value) -> request.param(name, value));
+		return request.exchange();
+	}
+
+	private static Map<String, String> valid() {
+		Map<String, String> params = new LinkedHashMap<>();
+		params.put("firstName", "Ada");
+		params.put("lastName", "Lovelace");
+		params.put("address", "12 St James's Sq.");
+		params.put("city", "London");
+		params.put("telephone", "6085550000");
+		return params;
+	}
+
+	private static Owner withId(Owner owner, int id) {
+		return new Owner(id, owner.firstName(), owner.lastName(), owner.address(), owner.city(), owner.telephone(),
+				owner.pets());
 	}
 
 	private void stubOwner(Owner owner) {

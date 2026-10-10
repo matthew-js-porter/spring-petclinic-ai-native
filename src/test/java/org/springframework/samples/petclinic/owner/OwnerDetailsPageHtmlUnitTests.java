@@ -92,11 +92,16 @@ class OwnerDetailsPageHtmlUnitTests {
 	}
 
 	@Test
-	void offersNoEditAddOrVisitActions() throws IOException {
+	void offersEditOwnerAsTheOnlyAction() throws IOException {
 		HtmlPage page = this.webClient.getPage("/owners/1.html");
 
 		assertThat(page.querySelectorAll("main button, main form")).isEmpty();
-		assertThat(page.querySelectorAll("main a")).isEmpty();
+		assertThat(page.querySelectorAll("main a")).singleElement().satisfies((link) -> {
+			assertThat(link.asNormalizedText()).isEqualTo("Edit Owner");
+			assertThat(((HtmlAnchor) link).getHrefAttribute()).isEqualTo("/owners/1/edit.html");
+			assertThat(((HtmlAnchor) link).getAttribute("class")).isEqualTo("pc-action");
+		});
+		assertThat(page.querySelectorAll("[role=status]")).isEmpty();
 	}
 
 	@Test
