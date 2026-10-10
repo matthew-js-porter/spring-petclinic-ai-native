@@ -1,0 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Varela+Round&display=swap");
+
+body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 24px; background: var(--surface); color: var(--ink); }
+
+/* Navbar */
+.pc-navbar { display: flex; align-items: stretch; justify-content: space-between; height: var(--navbar-height); padding: 0 var(--space-6); background: var(--spring-brown); border-top: var(--border-accent) solid var(--spring-green); }
+.pc-brand { display: flex; align-items: center; gap: var(--space-3); color: var(--on-dark); text-decoration: none; font-family: var(--font-display); font-size: 20px; line-height: 24px; font-weight: 700; }
+.pc-brand img { width: var(--logo-size); height: var(--logo-size); }
+.pc-nav { display: flex; align-items: stretch; margin: 0; padding: 0; list-style: none; }
+.pc-nav a { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-4); color: var(--on-dark); text-decoration: none; font-family: var(--font-display); font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; border-radius: var(--radius-none); }
+.pc-nav a[aria-current="page"] { background: var(--spring-green-dark); }
+.pc-nav a:hover { background: var(--spring-green-dark); }
+.pc-nav svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.pc-navbar a:focus-visible { outline: 2px solid var(--focus-ring-on-dark); outline-offset: -2px; }
+
+/* Data table */
+.pc-table { width: 100%; border-collapse: collapse; }
+.pc-table caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.pc-table th { text-align: left; padding: var(--space-3) var(--space-4); font-family: var(--font-display); font-size: 14px; line-height: 20px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); border-bottom: var(--border-strong) solid var(--line-strong); }
+.pc-table td { padding: var(--space-3) var(--space-4); border-bottom: var(--border-hairline) solid var(--line); color: var(--ink); }
+.pc-table tbody tr:nth-child(odd) td { background: var(--surface-stripe); }
+.pc-muted { color: var(--ink-muted); }
+
+/* Pagination */
+.pc-pagination { display: flex; align-items: center; gap: var(--space-2); margin: 0; padding: 0; list-style: none; color: var(--ink-muted); }
+.pc-pagination .pc-label { margin-right: var(--space-2); }
+.pc-pagination a, .pc-pagination span[aria-current], .pc-pagination .pc-disabled { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; padding: 0 var(--space-2); }
+.pc-pagination a { color: var(--spring-green-dark); }
+.pc-pagination a.pc-step { text-decoration: none; }
+.pc-pagination span[aria-current] { color: var(--ink); }
+.pc-pagination .pc-disabled { color: var(--ink-disabled); }
+.pc-pagination a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Footer */
+.pc-footer { padding: var(--space-5) var(--space-4); border-top: var(--border-hairline) solid var(--line); text-align: center; font-size: 14px; line-height: 21px; color: var(--ink-muted); background: var(--surface); }
+
+.pc-pad { padding: var(--space-4) var(--space-6); }

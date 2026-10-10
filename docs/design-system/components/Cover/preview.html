@@ -1,0 +1,75 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spring PetClinic</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--surface); color:var(--ink); font-family:var(--font-body); overflow:hidden; }
+  .cover { position:relative; width:960px; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; }
+  .art svg { display:block; width:480px; height:288px; }
+  .brown { fill:var(--spring-brown); }
+  .green { fill:var(--spring-green); }
+  .dark { fill:var(--spring-green-dark); }
+  .tint { fill:var(--surface-stripe); }
+  .rule { fill:var(--line); }
+  .sq { rx:var(--radius-none); }
+  .words { position:absolute; left:48px; bottom:40px; max-width:440px; }
+  .name { margin:0; font-family:var(--font-display); font-size:80px; line-height:.95; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
+  .tag { margin:12px 0 0 2px; font-size:14px; line-height:20px; color:var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 480 288" width="480" height="288">
+<!--
+  blocks      spring-brown 288×288 slab bled top and bottom; spring-green 480×24 band across the top (the navbar's accent bar, scaled);
+              spring-green-dark 144×120 and surface-stripe 144×120 stacked beside the slab, with one line hairline between them
+  arrangement one tall slab with satellites, square-cut like the navbar and its active item; a strip of green above everything
+  pattern     a plus grid on the slab, cut from the logo's cross: PetClinic is a clinic, and its one mark is a cross inside a heart
+  scales      pitch space-6 (48px), arms space-3 (12px) by space-1 (4px), band 6×space-1, radius-none on every shape
+-->
+  <rect class="brown sq" x="0" y="24" width="288" height="264"/>
+  <rect class="green sq" x="0" y="0" width="480" height="24"/>
+  <rect class="dark sq" x="288" y="24" width="192" height="132"/>
+  <rect class="tint sq" x="288" y="157" width="192" height="131"/>
+  <rect class="rule" x="288" y="156" width="192" height="1"/>
+  <g class="green">
+    <rect x="42" y="66" width="12" height="4"/><rect x="46" y="62" width="4" height="12"/>
+    <rect x="90" y="66" width="12" height="4"/><rect x="94" y="62" width="4" height="12"/>
+    <rect x="138" y="66" width="12" height="4"/><rect x="142" y="62" width="4" height="12"/>
+    <rect x="186" y="66" width="12" height="4"/><rect x="190" y="62" width="4" height="12"/>
+    <rect x="234" y="66" width="12" height="4"/><rect x="238" y="62" width="4" height="12"/>
+    <rect x="42" y="114" width="12" height="4"/><rect x="46" y="110" width="4" height="12"/>
+    <rect x="90" y="114" width="12" height="4"/><rect x="94" y="110" width="4" height="12"/>
+    <rect x="138" y="114" width="12" height="4"/><rect x="142" y="110" width="4" height="12"/>
+    <rect x="186" y="114" width="12" height="4"/><rect x="190" y="110" width="4" height="12"/>
+    <rect x="234" y="114" width="12" height="4"/><rect x="238" y="110" width="4" height="12"/>
+    <rect x="42" y="162" width="12" height="4"/><rect x="46" y="158" width="4" height="12"/>
+    <rect x="90" y="162" width="12" height="4"/><rect x="94" y="158" width="4" height="12"/>
+    <rect x="138" y="162" width="12" height="4"/><rect x="142" y="158" width="4" height="12"/>
+    <rect x="186" y="162" width="12" height="4"/><rect x="190" y="158" width="4" height="12"/>
+    <rect x="234" y="162" width="12" height="4"/><rect x="238" y="158" width="4" height="12"/>
+    <rect x="42" y="210" width="12" height="4"/><rect x="46" y="206" width="4" height="12"/>
+    <rect x="90" y="210" width="12" height="4"/><rect x="94" y="206" width="4" height="12"/>
+    <rect x="138" y="210" width="12" height="4"/><rect x="142" y="206" width="4" height="12"/>
+    <rect x="186" y="210" width="12" height="4"/><rect x="190" y="206" width="4" height="12"/>
+    <rect x="234" y="210" width="12" height="4"/><rect x="238" y="206" width="4" height="12"/>
+    <rect x="42" y="258" width="12" height="4"/><rect x="46" y="254" width="4" height="12"/>
+    <rect x="90" y="258" width="12" height="4"/><rect x="94" y="254" width="4" height="12"/>
+    <rect x="138" y="258" width="12" height="4"/><rect x="142" y="254" width="4" height="12"/>
+    <rect x="186" y="258" width="12" height="4"/><rect x="190" y="254" width="4" height="12"/>
+    <rect x="234" y="258" width="12" height="4"/><rect x="238" y="254" width="4" height="12"/>
+  </g>
+</svg>
+</div>
+<div class="words">
+  <h1 class="name">Spring<br>PetClinic</h1>
+  <p class="tag">A Spring Boot sample application</p>
+</div>
+</div>
+</body>
+</html>
