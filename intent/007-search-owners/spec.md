@@ -1,6 +1,7 @@
 # Spec: Search Owners
 Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
+Visual reference: [PetClinic Search Owners.html](./PetClinic%20Search%20Owners.html) (blank search, "Davis" results, "zzz" not found and phone width, built with `docs/design-system/`)
 
 ## 1. Summary
 Add the upstream-style last-name search to the Find Owners list from intent 006, on the same page.
@@ -71,7 +72,7 @@ No hand-written SQL, so the term is always a bound parameter (no injection surfa
 Both methods share a small private helper that normalises and validates the term, so the two paths cannot diverge. The search term is never logged.
 
 ### 4.3 Templates
-`ownersList.html`:
+`ownersList.html` (visual reference: [PetClinic Search Owners.html](./PetClinic%20Search%20Owners.html)):
 - After the `h2`, add the search form (4.5). `th:value="${lastName}"` on the input (escaped).
 - Wrap the table region and pagination in `th:if="${listOwners.totalElements > 0}"`. Otherwise render the message element with `role="status"`. With no term and zero owners in the database the message reads `No owners found.`; this cannot happen with the seed data.
 - The pagination call becomes `pagination(${listOwners}, '/owners.html', 'Owners pages', ${lastName})`.
