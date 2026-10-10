@@ -35,7 +35,7 @@ INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES 
 INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (11, 'Helen', 'Ostrander', '4120 Monroe St.', 'Fitchburg', '6085554412');
 
 -- The seed sets explicit ids, so move the counter past them before the app inserts an
--- owner (intent 009). Bump it whenever a seed owner is added.
+-- owner. Bump it whenever a seed owner is added.
 ALTER TABLE owners ALTER COLUMN id RESTART WITH 12;
 
 INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (1, 'Leo', '2010-09-07', 1, 1);

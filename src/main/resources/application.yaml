@@ -4,5 +4,5 @@ spring:
 server:
   servlet:
     session:
-      # Flash messages (intent 009) create a session; never put its id in a redirect URL.
+      # Flash messages create a session; never put its id in a redirect URL.
       tracking-modes: cookie

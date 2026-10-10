@@ -20,6 +20,7 @@ curl -i localhost:8080/actuator/health
 - Keep the actuator surface minimal: Boot's default exposes only `health`. Don't add `management.endpoints` settings unless a spec asks for it.
 - UI follows the design system in `docs/design-system/` (tokens, components, usage rules); `static/resources/css/petclinic.css` implements it on Bootstrap 5.3.
 - Spring Data JDBC quotes explicit `@Table`/`@Column` names, so write them in UPPER CASE to match H2.
+- Never mention intents (e.g. "intent 009") in code, YAML, SQL or CSS comments; comments describe the code, and the `intent/` documents carry the history.
 - Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
 
 ## Design system

@@ -11,9 +11,9 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.Repository;
 
 /**
- * Access to owners: reads, plus the narrow write surface Add Owner and Edit Owner need
- * (intent 009). Extends {@link Repository} rather than {@code CrudRepository} so that no
- * other write method exists.
+ * Access to owners: reads, plus the narrow write surface Add Owner and Edit Owner need.
+ * Extends {@link Repository} rather than {@code CrudRepository} so that no other write
+ * method exists.
  */
 public interface OwnerRepository extends Repository<Owner, Integer> {
 

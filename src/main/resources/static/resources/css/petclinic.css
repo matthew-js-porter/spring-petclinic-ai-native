@@ -335,7 +335,7 @@ button:focus-visible,
 	}
 }
 
-/* Stacked form (intent 009): one field per row, button below, at most field-width wide */
+/* Stacked form: one field per row, button below, at most field-width wide */
 .pc-form-stacked .pc-form-help {
 	margin: 0;
 	color: var(--pc-ink-muted);
