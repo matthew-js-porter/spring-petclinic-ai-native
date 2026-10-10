@@ -1,0 +1,97 @@
+# F2: when an intent.md lands on main, have Claude draft spec.md beside it and open a PR.
+name: design-spec
+
+on:
+  push:
+    branches: [main]
+    paths: ["intent/*/intent.md"]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      folders: ${{ steps.find.outputs.folders }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Find intents that need a spec
+        id: find
+        env:
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            changed=$(git ls-files 'intent/*/intent.md')
+          elif [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            changed=$(git diff --name-only "$BEFORE" "$SHA")
+          else
+            changed=$(git diff-tree --no-commit-id --name-only -r "$SHA")
+          fi
+          folders=()
+          for f in $changed; do
+            [[ "$f" =~ ^intent/[0-9]{3}-[a-z0-9-]+/intent\.md$ ]] || continue
+            dir=$(dirname "$f")
+            [ -f "$dir/intent.md" ] || continue  # deleted
+            if [ -f "$dir/spec.md" ]; then echo "skip $dir: spec.md exists"; continue; fi
+            if git ls-remote --exit-code --heads origin "spec/$(basename "$dir")" >/dev/null; then
+              echo "skip $dir: branch spec/$(basename "$dir") already exists"; continue
+            fi
+            folders+=("$dir")
+          done
+          json=$(printf '%s\n' "${folders[@]}" | jq -R . | jq -cs 'map(select(length > 0))')
+          echo "folders=$json" >> "$GITHUB_OUTPUT"
+          echo "Intents needing a spec: $json"
+
+  spec:
+    needs: detect
+    if: needs.detect.outputs.folders != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        folder: ${{ fromJSON(needs.detect.outputs.folders) }}
+    concurrency:
+      group: design-spec-${{ matrix.folder }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      # Checkout first so .claude/skills/spec and CLAUDE.md are available.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Branch name
+        id: branch
+        env:
+          FOLDER: ${{ matrix.folder }}
+        run: echo "name=spec/$(basename "$FOLDER")" >> "$GITHUB_OUTPUT"
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            /spec @${{ matrix.folder }}/intent.md
+
+            You are running unattended in CI. Nobody can answer questions.
+            - Do not ask questions. Where the intent is ambiguous, choose the most reasonable option and list every such choice in an "Assumptions" section of the spec.
+            - Write only `${{ matrix.folder }}/spec.md`. Do not change any other file.
+            - Create branch `${{ steps.branch.outputs.name }}` from `main`, commit only that spec.md with message "Add spec for ${{ matrix.folder }}", and push the branch.
+            - Open a pull request into `main` with `gh pr create`. Use the title "Spec: ${{ matrix.folder }}". In the body, link the intent, summarise the spec, list the assumptions, and state that the spec needs full human review before a plan is written.
+            - Never push to `main`.
+          claude_args: >-
+            --max-turns 30
+            --allowedTools "Bash(git:*),Bash(gh pr create:*),Read,Write,Edit,Glob,Grep,Skill"

@@ -17,8 +17,18 @@ jobs:
     #   github.event.pull_request.user.login == 'external-contributor' ||
     #   github.event.pull_request.user.login == 'new-developer' ||
     #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    # intent 002 F3: skip drafts and fork PRs (no secrets on forks).
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Findings or Claude outages must never block merging.
+    continue-on-error: true
+    concurrency:
+      group: claude-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     permissions:
       contents: read
       pull-requests: read
@@ -27,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -36,10 +46,59 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Also review fix commits pushed by @claude (claude.yml), whose synchronize events have claude[bot] as actor.
+          allowed_bots: "claude"
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
-          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
+          # The plugin only reads CLAUDE.md, so REVIEW.md is added via the system prompt.
+          claude_args: >-
+            --max-turns 30
+            --allowedTools "mcp__github_inline_comment__create_inline_comment"
+            --append-system-prompt "Apply the review policy in REVIEW.md at the repository root in addition to CLAUDE.md. Prefix every inline comment with [critical], [major] or [minor] as REVIEW.md defines, and only report issues with a concrete failure scenario. Never approve or request changes."
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
+  # intent 002 F3: security pass via Claude Code's built-in /security-review instead of REVIEW.md.
+  claude-security-review:
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Findings or Claude outages must never block merging.
+    continue-on-error: true
+    concurrency:
+      group: claude-security-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # /security-review diffs against origin/HEAD, which actions/checkout does not set.
+      - name: Point origin/HEAD at the base branch
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: git remote set-head origin "$BASE_REF"
+
+      - name: Run Claude Code Security Review
+        id: claude-security-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Also review fix commits pushed by @claude (claude.yml), whose synchronize events have claude[bot] as actor.
+          allowed_bots: "claude"
+          prompt: '/security-review'
+          claude_args: >-
+            --max-turns 30
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(git diff:*),Bash(git status:*),Bash(git log:*),Bash(git show:*),Bash(git remote show:*),Read,Glob,Grep,LS,Task"
+            --append-system-prompt "After the review, post each finding as an inline comment on PR #${{ github.event.pull_request.number }} at the reported file and line, prefixed [critical] for HIGH and [major] for MEDIUM severity. If there are no findings, post nothing. Never approve or request changes."
