@@ -170,9 +170,9 @@ Adding, editing or deleting vets or specialties; owners, pets and visits and the
 Use Boot 4 test packages (for example `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); confirm imports from the generated starters.
 
 1. **Build:** `./mvnw clean verify` passes.
-2. **Seed data (`@DataJdbcTest` or `@SpringBootTest`):** the six vets exist with the expected names; vet 3 has dentistry and surgery, vets 1 and 6 have none; exactly three specialties. Fails if `schema.sql`/`data.sql` stop running.
+2. **Seed data (`@DataJdbcTest`):** the six vets exist with the expected names; vet 3 has dentistry and surgery, vets 1 and 6 have none; exactly three specialties. Fails if `schema.sql`/`data.sql` stop running.
 3. **Repository:** `findAll(PageRequest.of(0, 5, Sort.by("id")))` returns 5 vets with total 6; page index 1 returns 1 vet. Specialties are populated on the returned vets.
-4. **HTML page (MockMvc, `@SpringBootTest` + `@AutoConfigureMockMvc`):** `/vets.html` is 200, content type `text/html`, view `vets/vetList`; the body contains "James Carter", "Helen Leary", "radiology", "dentistry surgery" and `none`; exactly 5 rows on page 1, 1 on page 2; the body does not contain "Sharon Jenkins" on page 1; a pagination link to page 2 is present; the nav bar contains a link to `/vets.html`; the page references the Bootstrap CSS.
+4. **HTML page (MockMvc; `@WebMvcTest` with mocked repositories plus a `@SpringBootTest` check, see 5.1):** `/vets.html` is 200, content type `text/html`, view `vets/vetList`; the body contains "James Carter", "Helen Leary", "radiology", "dentistry surgery" and `none`; exactly 5 rows on page 1, 1 on page 2; the body does not contain "Sharon Jenkins" on page 1; a pagination link to page 2 is present; the nav bar contains a link to `/vets.html`; the page references the Bootstrap CSS.
 5. **Page edge cases:** `?page=0`, `?page=-1` and `?page=abc` give 400; `?page=3` gives 404; none leaks a stack trace.
 6. **Static assets:** `GET /webjars/bootstrap/css/bootstrap.min.css` and `/resources/css/petclinic.css` return 200.
 7. **JSON:** `/vets` with `Accept: application/json` is 200; `$.vetList.length()` is 6; vet 3's `specialties` has two entries; vet 1's is `[]`; no `nrOfSpecialties`.
@@ -182,6 +182,33 @@ Use Boot 4 test packages (for example `org.springframework.boot.webmvc.test.auto
 11. **Actuator (intent 001/003 carry-over):** `/actuator/health` is 200 and `status` is `UP`; `$.components` and `$.details` do not exist; `/actuator/info`, `/actuator/env` and `/h2-console` return 404.
 12. **Manual smoke (`run` skill):** start the app; open `http://localhost:8080/vets.html` and check the layout, table, nav and pagination in a browser at desktop and narrow width (navbar collapses and opens); `curl -i localhost:8080/vets -H 'Accept: application/json'`; `curl -i localhost:8080/actuator/health`; restart and confirm the data is still seeded and no `*.mv.db` file appears.
 13. `spring-tools:validate` shows no diagnostics; `build.yml` and `snyk.yml` pass on the PR. If Snyk reports `high` or above on Bootstrap, Thymeleaf or a transitive dependency, do not suppress it; raise it.
+
+### 5.1 Tests to be added
+Tests sit in `src/test/java/org/springframework/samples/petclinic/vet/` (and the root package for the application-wide ones), tab-indented, JUnit 5 with AssertJ. They use the narrowest slice that proves the behaviour, so most run without starting the full context. The numbers refer to the acceptance list above.
+
+| Test class | Annotation | Covers | Notes |
+|------------|------------|--------|-------|
+| `VetRepositoryTests` | `@DataJdbcTest` | 2, 3 | Runs `schema.sql` and `data.sql` against embedded H2. Asserts the six vets, vet 3's two specialties, vets 1 and 6 with none, three specialties. Asserts `findAll(PageRequest.of(0, 5, Sort.by("id")))` returns 5 of 6 and page index 1 returns 1, with specialties populated. Confirms the page is read with a bounded number of queries, not one per vet. |
+| `SpecialtyRepositoryTests` | `@DataJdbcTest` | 2 | `findAll()` returns radiology, surgery and dentistry. May be folded into `VetRepositoryTests` if it stays small. |
+| `VetControllerTests` | `@WebMvcTest(VetController.class)` with `@MockitoBean` `VetRepository` and `SpecialtyRepository` | 4, 5, 7, 8, 10 | See below. |
+| `RootRedirectTests` | `@WebMvcTest` (imports the redirect controller or `WebMvcConfigurer`) | 9 | `GET /` is 302 to `/vets.html`. |
+| `PetClinicApplicationTests` (existing) | `@SpringBootTest` | boot | Keeps `contextLoads()`. |
+| `VetsIntegrationTests` | `@SpringBootTest` + `@AutoConfigureMockMvc` | 4, 6, 7, 11 | A few end-to-end checks with the real database, Thymeleaf and WebJar: `/vets.html` page 1 has 5 rows and page 2 has 1, `/vets` returns six vets, Bootstrap and `petclinic.css` return 200, and the actuator checks. |
+
+**`@WebMvcTest` (`VetControllerTests`).** Repositories are mocked, so the tests do not depend on the seed data and run fast. They check:
+- `/vets.html` is 200, `text/html`, view `vets/vetList`, with the `Page` of `VetView`s in the model.
+- The body shows each vet's name, specialties separated by a space (`dentistry surgery`) and `none` for a vet without any; one table row per vet.
+- Pagination: with a mocked second page, a link to `?page=2` is present, the current page has `aria-current="page"`, and disabled controls are not links. The navbar links to `/vets.html` and is marked active.
+- `?page=0`, `?page=-1` and `?page=abc` give 400, and `?page=3` (beyond the mocked total) gives 404, with no stack trace in the body.
+- `/vets` with `Accept: application/json` gives a `vetList` array in id order, `specialties` as `[]` when empty, and no `nrOfSpecialties` or `new`. `Accept: text/html` gives 406.
+- `POST /vets` and `POST /vets.html` give 405.
+- Escaping: a vet named `<script>alert(1)</script>` is rendered as `&lt;script&gt;...` and never as a raw `<script>` tag.
+
+**`@DataJdbcTest` (`VetRepositoryTests`).** The annotation replaces the datasource with an embedded one and only loads Data JDBC components, so it exercises the real SQL scripts, the `Vet`/`VetSpecialty` mapping and paging, with no web layer. It would fail if `schema.sql`/`data.sql` stopped being applied or the `AggregateReference` mapping was wrong (concern 8).
+
+Naming: `@JdbcDataTest` is not a Spring Boot annotation. The slice for Spring Data JDBC is `@DataJdbcTest`, which this spec uses. (`@JdbcTest` is the plain-JDBC slice and does not load repositories.) In Boot 4 both slices live in modular packages, for example `org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest` and `org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest`; take the imports from the generated starters (`spring-boot-starter-webmvc-test`, `spring-boot-starter-data-jdbc-test`, already in `pom.xml`) rather than from Boot 3 memory. Mocks use `@MockitoBean`, not the removed `@MockBean`.
+
+Not tested: write operations (none exist), the browser rendering and responsive navbar (manual smoke, item 12), and intent 003's F5, which stays open.
 
 F5 of intent 003 (DB health feeding overall status) is still untested; this intent does not change that and does not claim to close it.
 
