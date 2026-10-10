@@ -15,7 +15,7 @@ The repo has no application code. It contains only `.claude/` (settings, `intent
 |----|-------------|
 | F1 | The project builds with `./mvnw clean verify` without errors. |
 | F2 | The application starts without errors (`./mvnw spring-boot:run` or `java -jar`). |
-| F3 | `GET /actuator/health` returns HTTP 200 with body `{"status":"UP"}`. |
+| F3 | `GET /actuator/health` returns HTTP 200 with `status` equal to `UP`. Boot 4.1 also adds a `groups` array (`liveness`, `readiness`) to the body; that is accepted. |
 | F4 | No other actuator endpoint is exposed over HTTP. |
 | F5 | No custom controllers, entities, views, or static content. |
 
@@ -23,16 +23,17 @@ The repo has no application code. It contains only `.claude/` (settings, `intent
 - Maven build, with the Maven wrapper.
 - Dependencies limited to `spring-boot-starter-webmvc` (web MVC; the artifact name may be `spring-boot-starter-web` depending on Boot version) and `spring-boot-starter-actuator`, plus the default `spring-boot-starter-test` that start.spring.io adds.
 - Spring Boot: the latest stable release, resolved to a concrete version number at generation time and pinned in `pom.xml` (never a `LATEST`/range specifier).
-- Java: the latest non-LTS Java version supported by that Boot release, pinned as a concrete `java.version`.
+- Java: Java 25 (LTS), pinned as `java.version` 25. **Deviation:** the intent asks for the latest Java the Boot release supports (Boot 4.1.1 supports 27), and this spec originally asked for the latest non-LTS. JDK 27 could not be installed through SDKMAN (its download broker returns 404 for every 27 build), so 25 was chosen. Revisit once JDK 27 is installable.
+- JDK is managed with SDKMAN: `.sdkmanrc` at the repo root pins `java=25.0.2-open` (Java.net build).
 - Configuration is YAML (`application.yaml`), not `.properties`.
-- Project name/artifact `spring-petclinic`, generated at the repo root.
+- Artifact `spring-petclinic` (Maven `<name>` is `PetClinic`, which gives the `PetClinicApplication` class), generated at the repo root.
 - Generated with the `spring-tools:create-spring-boot-project` skill (start.spring.io).
 
 ## 4. Design
 
 ### 4.1 Layout
 ```
-/pom.xml, mvnw, mvnw.cmd, .mvn/
+/pom.xml, mvnw, mvnw.cmd, .mvn/, .sdkmanrc
 /src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java
 /src/main/resources/application.yaml
 /src/test/java/org/springframework/samples/petclinic/PetClinicApplicationTests.java
@@ -40,10 +41,10 @@ The repo has no application code. It contains only `.claude/` (settings, `intent
 Group ID `org.springframework.samples.petclinic`, artifact `spring-petclinic`, base package `org.springframework.samples.petclinic`. Set the package name explicitly when generating, since start.spring.io would otherwise derive it from the group and artifact (`...petclinic.spring_petclinic`).
 
 ### 4.2 Configuration
-Take the Spring Boot defaults. `application.yaml` contains only what the generator emits (`spring.application.name`). Do not add exposure or health settings; Boot's default exposes only `health` over HTTP.
+Take the Spring Boot defaults. `application.yaml` contains only what the generator emits (`spring.application.name: PetClinic`). Do not add exposure or health settings; Boot's default exposes only `health` over HTTP.
 
 ### 4.3 Generation steps
-1. Generate the project at the repo root with the `spring-tools:create-spring-boot-project` skill, requesting Spring Web and Actuator, with the latest Boot release and latest non-LTS Java resolved to concrete versions. The generated `.gitignore` may overwrite the existing one.
+1. Generate the project at the repo root with the `spring-tools:create-spring-boot-project` skill, requesting Spring Web and Actuator, with the latest Boot release resolved to a concrete version and Java 25 (see constraints). The generated `.gitignore` may overwrite the existing one.
 2. Convert the generated `application.properties` to `application.yaml` (delete the `.properties` file). Do not overwrite `.claude/` or `intent/`.
 3. Verify per section 5.
 
@@ -54,7 +55,7 @@ Domain features, persistence/datasource, UI/templates, Spring Security, custom e
 - `./mvnw clean verify` succeeds.
 - A test (`@SpringBootTest` with `MockMvc` or a random-port web environment) asserts `/actuator/health` returns 200 and `status` is `UP`. `contextLoads` alone is not sufficient.
 - A test asserts a non-health actuator path, e.g. `/actuator/info` and `/actuator/env`, returns 404.
-- Manual smoke: start the app and `curl -i localhost:8080/actuator/health` gives `200` and `{"status":"UP"}`. Run via the `run` skill.
+- Manual smoke: start the app and `curl -i localhost:8080/actuator/health` gives `200` and a body with `"status":"UP"`. Run via the `run` skill.
 - Run the `spring-tools:validate` skill and confirm no diagnostics.
 
 ## 6. Policy conformance
