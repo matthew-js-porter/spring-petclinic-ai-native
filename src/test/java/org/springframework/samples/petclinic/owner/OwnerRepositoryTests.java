@@ -41,12 +41,13 @@ class OwnerRepositoryTests {
 	private JdbcClient jdbc;
 
 	@Test
-	void seedsTheTenUpstreamOwners() {
+	void seedsTheTenUpstreamOwnersAndOneWithoutPets() {
 		List<Owner> all = this.owners.findAll(Sort.by("id"));
 
 		assertThat(all).extracting((owner) -> owner.firstName() + " " + owner.lastName())
 			.containsExactly("George Franklin", "Betty Davis", "Eduardo Rodriquez", "Harold Davis", "Peter McTavish",
-					"Jean Coleman", "Jeff Black", "Maria Escobito", "David Schroeder", "Carlos Estaban");
+					"Jean Coleman", "Jeff Black", "Maria Escobito", "David Schroeder", "Carlos Estaban",
+					"Helen Ostrander");
 		assertThat(all.getFirst()).satisfies((george) -> {
 			assertThat(george.address()).isEqualTo("110 W. Liberty St.");
 			assertThat(george.city()).isEqualTo("Madison");
@@ -77,7 +78,8 @@ class OwnerRepositoryTests {
 			.containsEntry(7, List.of("Lucky"))
 			.containsEntry(8, List.of("Mulligan"))
 			.containsEntry(9, List.of("Freddy"))
-			.containsEntry(10, List.of("Lucky", "Sly"));
+			.containsEntry(10, List.of("Lucky", "Sly"))
+			.containsEntry(11, List.of());
 	}
 
 	@Test
@@ -92,11 +94,41 @@ class OwnerRepositoryTests {
 	void pagesOwnersByIdWithPetsPopulated() {
 		Page<Owner> first = this.owners.findAll(PageRequest.of(0, 5, Sort.by("id")));
 		Page<Owner> second = this.owners.findAll(PageRequest.of(1, 5, Sort.by("id")));
+		Page<Owner> third = this.owners.findAll(PageRequest.of(2, 5, Sort.by("id")));
 
 		assertThat(first.getContent()).extracting(Owner::id).containsExactly(1, 2, 3, 4, 5);
-		assertThat(first.getTotalElements()).isEqualTo(10);
+		assertThat(first.getTotalElements()).isEqualTo(11);
+		assertThat(first.getTotalPages()).isEqualTo(3);
 		assertThat(first.getContent()).allSatisfy((owner) -> assertThat(owner.pets()).isNotEmpty());
 		assertThat(second.getContent()).extracting(Owner::id).containsExactly(6, 7, 8, 9, 10);
+		assertThat(third.getContent()).extracting(Owner::id).containsExactly(11);
+	}
+
+	@Test
+	void findsAnOwnerByIdWithTheirPets() {
+		assertThat(this.owners.findById(1)).hasValueSatisfying((george) -> {
+			assertThat(george.firstName() + " " + george.lastName()).isEqualTo("George Franklin");
+			assertThat(george.pets()).extracting(Pet::name).containsExactly("Leo");
+		});
+		assertThat(this.owners.findById(6)).hasValueSatisfying(
+				(jean) -> assertThat(jean.pets()).extracting(Pet::name).containsExactlyInAnyOrder("Max", "Samantha"));
+	}
+
+	@Test
+	void findsTheOwnerWithoutPets() {
+		assertThat(this.owners.findById(11)).hasValueSatisfying((helen) -> {
+			assertThat(helen.firstName() + " " + helen.lastName()).isEqualTo("Helen Ostrander");
+			assertThat(helen.address()).isEqualTo("4120 Monroe St.");
+			assertThat(helen.city()).isEqualTo("Fitchburg");
+			assertThat(helen.telephone()).isEqualTo("6085554412");
+			assertThat(helen.pets()).isEmpty();
+		});
+	}
+
+	@ParameterizedTest
+	@ValueSource(ints = { 999, 0, -1 })
+	void findsNoOwnerForAnUnknownId(int id) {
+		assertThat(this.owners.findById(id)).isEmpty();
 	}
 
 	@Test

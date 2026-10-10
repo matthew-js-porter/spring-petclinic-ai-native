@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,8 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
 	Page<Owner> findAll(Pageable pageable);
 
 	List<Owner> findAll(Sort sort);
+
+	Optional<Owner> findById(Integer id);
 
 	Page<Owner> findByLastNameStartingWithIgnoreCase(String lastName, Pageable pageable);
 

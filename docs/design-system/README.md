@@ -1,4 +1,4 @@
-Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the seven components below (Navbar, DataTable, Pagination, Footer, FormField, Button, InlineMessage) on top of Bootstrap 5.3.
+Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the eight components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage) on top of Bootstrap 5.3.
 
 ## Content
 
@@ -6,7 +6,8 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 - Page titles are a single plural noun in Title Case: "Veterinarians", later "Owners". The one exception is the homepage, titled "Welcome".
 - Nav items and table headers are written in Title Case in the markup ("Specialties") and set UPPERCASE by CSS; never type them in capitals.
 - Data is shown as stored: lowercase specialty names (`radiology`, `dentistry surgery`), several values separated by a single space.
-- An empty value is the word `none` in `ink-muted`, never a dash or a blank cell.
+- An empty value is the word `none` in `ink-muted`, never a dash or a blank cell. An empty collection (an owner with no pets) is one plain sentence in `ink-muted` in place of its table: "This owner has no pets."
+- Detail pages are titled with upstream's wording, "Owner Information", as the one exception to the plural-noun rule besides "Welcome".
 - The footer always reads "Spring PetClinic · a Spring Boot sample application".
 - Form labels and button labels are short and in Title Case in the markup: "Last Name", "Find Owner". Buttons are set UPPERCASE by CSS, like nav items.
 - Messages are one plain sentence ending in a full stop that repeats what the person typed in straight double quotes: `No owners found with a last name starting with "Dav".`
@@ -15,7 +16,7 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 
 - `spring-brown` is the brand's dark: the navbar fill, and through `ink` and `line-strong`, all text and the header rule.
 - `spring-green` is the brand's signature but fails as text on white (2.6:1). Use it only for the 4px accent bar (`border-accent`), the logo, and focus rings inside the navbar.
-- `spring-green-dark` carries every interactive or current state: the active nav item fill, link text, enabled pagination chevrons, the primary button fill.
+- `spring-green-dark` carries every interactive or current state: the active nav item fill, link text (including record names in a DataTable that open the record's page), enabled pagination chevrons, the primary button fill.
 - Pages are `surface` white; tables stripe with `surface-stripe` and divide rows with `line`.
 - Secondary text (`none`, "Pages:", the footer) is `ink-muted`. `ink-disabled` is for disabled controls only.
 - One theme. The source has no dark mode; don't invent one in a page.
@@ -24,6 +25,7 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 
 - Two Google Fonts: Montserrat (`--font-display`) for the wordmark, page title, nav and table headers; Varela Round (`--font-body`) for everything else. Load them with `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Varela+Round&display=swap" rel="stylesheet">`.
 - `page-title` (32px/700) once per page as an `h2`, `ink`, `space-6` below the navbar.
+- `section-title` (24px/700) as an `h3` for a section under the page title, such as Pets; `space-6` above, `space-3` below.
 - `brand` (20px/700) only for the navbar wordmark.
 - `nav-item` (14px/600, 0.08em) and `table-head` (14px/700, 0.06em) are always UPPERCASE.
 - `body` (16px/24px) for table cells, pagination, form labels, input text, messages and other text; `small` (14px) for the footer.

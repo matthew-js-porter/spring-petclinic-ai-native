@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.owner;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import org.springframework.test.web.servlet.assertj.MvcTestResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -41,11 +43,16 @@ class OwnerControllerTests {
 	@MockitoBean
 	private OwnerRepository owners;
 
+	@MockitoBean
+	private PetTypeRepository petTypes;
+
 	@BeforeEach
 	void setUp() {
 		stubOwners(List.of(owner(1, "George", "Franklin", pet(1, "Leo")), owner(2, "Betty", "Davis"),
 				owner(3, "Eduardo", "Rodriquez", pet(3, "Rosy"), pet(4, "Jewel")), owner(4, "Harold", "Davis"),
 				owner(5, "Peter", "McTavish"), owner(6, "Jean", "Coleman", pet(7, "Samantha"), pet(8, "Max"))));
+		given(this.petTypes.findAll()).willReturn(List.of(new PetType(1, "cat"), new PetType(2, "dog")));
+		given(this.owners.findById(anyInt())).willReturn(Optional.empty());
 	}
 
 	@Test
@@ -58,7 +65,7 @@ class OwnerControllerTests {
 			.model()
 			.containsKey("listOwners");
 		assertThat(result).bodyText()
-			.contains("<td>George Franklin</td>", "<td>1 Main St.</td>", "<td>Madison</td>",
+			.contains("<td><a href=\"/owners/1.html\">George Franklin</a></td>", "<td>1 Main St.</td>", "<td>Madison</td>",
 					"<td class=\"text-nowrap\">6085550001</td>", "<td>Leo</td>", "<td>Jewel Rosy</td>")
 			.doesNotContain("Jean Coleman");
 	}
@@ -68,7 +75,7 @@ class OwnerControllerTests {
 		assertThat(rows(body("/owners.html"))).isEqualTo(5);
 		String page2 = body("/owners.html?page=2");
 		assertThat(rows(page2)).isEqualTo(1);
-		assertThat(page2).contains("<td>Jean Coleman</td>", "<td>Max Samantha</td>")
+		assertThat(page2).contains("<td><a href=\"/owners/6.html\">Jean Coleman</a></td>", "<td>Max Samantha</td>")
 			.contains("<span aria-current=\"page\">2</span>");
 	}
 
@@ -169,7 +176,8 @@ class OwnerControllerTests {
 
 		assertThat(result).hasStatusOk().model().containsEntry("lastName", "Dav");
 		assertThat(result).bodyText()
-			.contains("<td>Betty Davis</td>", "<td>Harold Davis</td>", "value=\"Dav\"",
+			.contains("<td><a href=\"/owners/2.html\">Betty Davis</a></td>",
+					"<td><a href=\"/owners/4.html\">Harold Davis</a></td>", "value=\"Dav\"",
 					"Owners with last name starting with &quot;Dav&quot;, page 1 of 1")
 			.doesNotContain("George Franklin", "pc-pagination");
 		then(this.owners).should()
@@ -302,6 +310,132 @@ class OwnerControllerTests {
 		then(this.owners).should(never()).findByLastNameStartingWithIgnoreCase(anyString(), any(Sort.class));
 	}
 
+	@Test
+	void linksOnlyTheNameCellToTheOwnersPage() {
+		String body = body("/owners.html");
+		String tbody = body.substring(body.indexOf("<tbody>"), body.indexOf("</tbody>"));
+
+		assertThat(tbody.split("<a ", -1)).hasSize(6);
+		assertThat(tbody).contains("<td><a href=\"/owners/1.html\">George Franklin</a></td>",
+				"<td><a href=\"/owners/5.html\">Peter McTavish</a></td>");
+	}
+
+	@Test
+	void showsTheOwnerDetailsPage() {
+		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo", LocalDate.of(2010, 9, 7), 1)));
+
+		MvcTestResult result = this.mvc.get().uri("/owners/1.html").exchange();
+
+		assertThat(result).hasStatusOk()
+			.hasContentTypeCompatibleWith(MediaType.TEXT_HTML)
+			.hasViewName("owners/ownerDetails")
+			.model()
+			.containsKey("owner");
+		assertThat(result).bodyText()
+			.contains("<title>Owner Information · Spring PetClinic</title>",
+					"<h2 class=\"pc-page-title\">Owner Information</h2>", "<dt>Name</dt>", "<dd>George Franklin</dd>",
+					"<dd>1 Main St.</dd>", "<dd>Madison</dd>", "<dd>6085550001</dd>",
+					"<h3 class=\"pc-section-title\">Pets</h3>",
+					"<caption class=\"visually-hidden\">Pets of George Franklin</caption>", "<td>Leo</td>",
+					"<td class=\"text-nowrap\">2010-09-07</td>", "<td>cat</td>")
+			.doesNotContain("This owner has no pets.");
+		then(this.owners).should().findById(1);
+	}
+
+	@Test
+	void sortsPetsByNameThenId() {
+		stubOwner(owner(6, "Jean", "Coleman", pet(7, "Samantha", LocalDate.of(2012, 9, 4), 1),
+				pet(9, "Max", LocalDate.of(2013, 1, 1), 2), pet(8, "Max", LocalDate.of(2012, 9, 4), 1)));
+
+		String body = body("/owners/6.html");
+
+		assertThat(body.indexOf("2012-09-04</td>")).isLessThan(body.indexOf("2013-01-01</td>"));
+		assertThat(body.indexOf("2013-01-01</td>")).isLessThan(body.indexOf("<td>Samantha</td>"));
+		assertThat(this.mvc.get().uri("/owners/6")).bodyJson()
+			.extractingPath("$.pets[*].id")
+			.asArray()
+			.containsExactly(8, 9, 7);
+	}
+
+	@Test
+	void showsAMessageInsteadOfAnEmptyPetsTable() {
+		stubOwner(owner(11, "Helen", "Ostrander"));
+
+		assertThat(body("/owners/11.html")).contains("<p class=\"pc-muted pc-empty\">This owner has no pets.</p>")
+			.doesNotContain("<table");
+	}
+
+	@Test
+	void marksFindOwnersActiveOnTheDetailsPage() {
+		stubOwner(owner(1, "George", "Franklin"));
+
+		assertThat(body("/owners/1.html")).containsPattern("href=\"/owners.html\"\\s+aria-current=\"page\"")
+			.doesNotContainPattern("href=\"/(vets.html)?\"\\s+aria-current");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "/owners/999.html", "/owners/0.html", "/owners/-1.html", "/owners/999", "/owners/0",
+			"/owners/-1" })
+	void returnsNotFoundForAnUnknownOwner(String path) {
+		assertThat(this.mvc.get().uri(path).accept(MediaType.ALL)).hasStatus(HttpStatus.NOT_FOUND)
+			.bodyText()
+			.doesNotContain("Exception");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "/owners/abc.html", "/owners/abc" })
+	void rejectsANonNumericOwnerId(String path) {
+		assertThat(this.mvc.get().uri(path).accept(MediaType.ALL)).hasStatus(HttpStatus.BAD_REQUEST)
+			.bodyText()
+			.doesNotContain("Exception");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.ALL_VALUE })
+	void returnsOneOwnerAsJsonWhateverTheAcceptHeader(String accept) {
+		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo", LocalDate.of(2010, 9, 7), 1)));
+
+		assertThat(this.mvc.get().uri("/owners/1").header("Accept", accept)).hasStatusOk()
+			.hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+			.bodyJson()
+			.isStrictlyEqualTo("""
+					{"id":1,"firstName":"George","lastName":"Franklin","address":"1 Main St.","city":"Madison",
+					 "telephone":"6085550001","pets":[{"id":1,"name":"Leo","birthDate":"2010-09-07","type":"cat"}]}
+					""");
+	}
+
+	@Test
+	void returnsAnEmptyPetsArrayForAnOwnerWithoutPets() {
+		stubOwner(owner(11, "Helen", "Ostrander"));
+
+		assertThat(this.mvc.get().uri("/owners/11")).hasStatusOk()
+			.bodyJson()
+			.extractingPath("$.pets")
+			.asArray()
+			.isEmpty();
+	}
+
+	@Test
+	void escapesOwnerDetails() {
+		stubOwner(new Owner(1, "<script>alert(1)</script>", "O'Neil & Sons", "<b>1 Main St.</b>", "Madison",
+				"6085550001", new LinkedHashSet<>(Set.of(pet(1, "<i>Rex</i>", LocalDate.of(2010, 1, 1), 1)))));
+
+		assertThat(body("/owners/1.html"))
+			.contains("&lt;script&gt;alert(1)&lt;/script&gt; O&#39;Neil &amp; Sons", "&lt;b&gt;1 Main St.&lt;/b&gt;",
+					"&lt;i&gt;Rex&lt;/i&gt;")
+			.doesNotContain("<script>alert(1)</script>", "<b>1 Main St.</b>", "<i>Rex</i>");
+	}
+
+	@Test
+	void detailsAreReadOnly() {
+		assertThat(this.mvc.post().uri("/owners/1")).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
+		assertThat(this.mvc.post().uri("/owners/1.html")).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
+	}
+
+	private void stubOwner(Owner owner) {
+		given(this.owners.findById(owner.id())).willReturn(Optional.of(owner));
+	}
+
 	private String body(String uri, Object... vars) {
 		return assertThat(this.mvc.get().uri(uri, vars)).hasStatusOk().bodyText().actual();
 	}
@@ -334,7 +468,11 @@ class OwnerControllerTests {
 	}
 
 	private static Pet pet(int id, String name) {
-		return new Pet(id, name, LocalDate.of(2010, 1, 1), AggregateReference.to(1));
+		return pet(id, name, LocalDate.of(2010, 1, 1), 1);
+	}
+
+	private static Pet pet(int id, String name, LocalDate birthDate, int typeId) {
+		return new Pet(id, name, birthDate, AggregateReference.to(typeId));
 	}
 
 }

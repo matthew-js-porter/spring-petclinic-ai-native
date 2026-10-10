@@ -32,6 +32,7 @@ INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES 
 INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683');
 INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435');
 INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487');
+INSERT INTO owners (id, first_name, last_name, address, city, telephone) VALUES (11, 'Helen', 'Ostrander', '4120 Monroe St.', 'Fitchburg', '6085554412');
 
 INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (1, 'Leo', '2010-09-07', 1, 1);
 INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (2, 'Basil', '2012-08-06', 6, 2);

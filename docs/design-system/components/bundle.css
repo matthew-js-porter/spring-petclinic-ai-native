@@ -54,3 +54,17 @@ body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 2
 
 /* Inline message */
 .pc-message { margin: 0 0 var(--space-5); padding: var(--space-2) var(--space-4); font-family: var(--font-body); font-size: 16px; line-height: 24px; color: var(--ink); border-left: var(--border-accent) solid var(--line-strong); }
+
+/* Section title */
+.pc-section-title { margin: var(--space-6) 0 var(--space-3); font-family: var(--font-display); font-size: 24px; line-height: 30px; font-weight: 700; color: var(--ink); }
+.pc-empty { margin: 0; padding: var(--space-3) 0; color: var(--ink-muted); }
+
+/* Detail list */
+.pc-detail { margin: 0; border-top: var(--border-strong) solid var(--line-strong); }
+.pc-detail > div { border-bottom: var(--border-hairline) solid var(--line); }
+.pc-detail dt { padding: var(--space-3) var(--space-4) 0; font-family: var(--font-display); font-size: 14px; line-height: 24px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.pc-detail dd { margin: 0; padding: var(--space-1) var(--space-4) var(--space-3); font-family: var(--font-body); font-size: 16px; line-height: 24px; color: var(--ink); overflow-wrap: anywhere; }
+@media (min-width: 768px) {
+  .pc-detail > div { display: grid; grid-template-columns: var(--detail-label-width) minmax(0, 1fr); }
+  .pc-detail dt, .pc-detail dd { padding: var(--space-3) var(--space-4); }
+}
