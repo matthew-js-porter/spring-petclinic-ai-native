@@ -451,6 +451,26 @@ input[type="date"].pc-input {
 	margin-bottom: 12px;
 }
 
+/* Error page: one sentence space-4 above its two action links, stacked space-3 apart */
+.pc-error-text {
+	margin: 0 0 16px;
+	overflow-wrap: anywhere;
+}
+
+.pc-error-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pc-error-actions .pc-action {
+	margin: 0;
+}
+
 /* Button: the system's only button style */
 .pc-button {
 	--bs-btn-padding-x: 16px;

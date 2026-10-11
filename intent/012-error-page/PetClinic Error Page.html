@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PetClinic Error Page</title>
+<!-- Visual reference for intent 012 (Custom Error Page): the error page for 404, 400, 405, 500 and any other 4xx,
+     at desktop and phone width (320px). No navbar item is current; the page shows no status code, path or internals.
+     Static copy of the design canvas https://claude.ai/artifact/Uk3MCsc34ym1S1TBWUEjG8, built from docs/design-system/. -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#3f7223}a:hover{color:#34302d}
+a:focus-visible,button:focus-visible{outline:2px solid #3f7223;outline-offset:2px}
+.pc-navbar{background:#34302d;border-top:4px solid #6db33f}
+.pc-navbar-inner{max-width:1140px;margin:0 auto;padding:0 12px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.pc-brand{display:flex;align-items:center;gap:8px;color:#ffffff;text-decoration:none;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:20px;line-height:24px;font-weight:700}
+.pc-brand:hover{color:#ffffff}
+.pc-nav{display:flex;height:64px;margin:0;padding:0;list-style:none}
+.pc-nav a{display:flex;align-items:center;gap:4px;height:64px;padding:0 16px;color:#ffffff;text-decoration:none;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:20px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+.pc-nav a[aria-current="page"],.pc-nav a:hover{background:#3f7223;color:#ffffff}
+.pc-nav a:focus-visible,.pc-toggle:focus-visible{outline:2px solid #6db33f;outline-offset:-2px}
+.pc-toggle{display:none;width:44px;height:44px;align-items:center;justify-content:center;background:transparent;border:1px solid #ffffff;border-radius:0;color:#ffffff}
+@media (max-width:991px){.pc-nav{display:none}.pc-toggle{display:inline-flex}}
+.pc-main{max-width:1140px;margin:0 auto;padding:48px 12px}
+.pc-page-title{margin:0 0 24px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:32px;line-height:38px;font-weight:700;color:#34302d}
+.pc-error-text{margin:0 0 16px;color:#34302d}
+.pc-error-actions{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.pc-footer{border-top:1px solid #e0dfdb;padding:24px 12px;text-align:center;font-size:14px;line-height:21px;color:#5c5752}
+/* Reference sheet */
+body{padding:40px 16px;background:#ebe9e6}
+.board-label{max-width:1280px;margin:0 auto 8px;font:600 13px/1.4 Montserrat,"Helvetica Neue",Arial,sans-serif;letter-spacing:0.04em;color:#5c5752}
+.board{max-width:1280px;margin:0 auto 56px;background:#ffffff;border:1px solid #e0dfdb}
+.board.phone,.board-label.phone{max-width:320px}
+/* Phone boards: the narrow-viewport rules, scoped to the board */
+.phone .pc-nav{display:none}
+.phone .pc-toggle{display:inline-flex}
+</style>
+</head>
+<body>
+<p class="board-label">Page Not Found · 404 (unknown owner, pet, page or path)</p>
+<div class="board">
+<div style="min-height: 720px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Page Not Found</h2>
+<p class="pc-error-text">We could not find the page you asked for. It may have moved, or the address may be mistyped.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Bad Request · 400</p>
+<div class="board">
+<div style="min-height: 720px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Bad Request</h2>
+<p class="pc-error-text">The address or the details sent could not be understood. Check the link and try again.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Method Not Allowed · 405</p>
+<div class="board">
+<div style="min-height: 720px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Method Not Allowed</h2>
+<p class="pc-error-text">This page cannot be used in that way. Go back and use the links on the page instead.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Something Went Wrong · 500, any other 5xx, or no status</p>
+<div class="board">
+<div style="min-height: 720px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Something Went Wrong</h2>
+<p class="pc-error-text">The clinic ran into a problem on its side. Try again in a moment.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Request Not Completed · Any other 4xx</p>
+<div class="board">
+<div style="min-height: 720px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Request Not Completed</h2>
+<p class="pc-error-text">The request could not be completed. Check the link and try again.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label phone">Page Not Found · 404 (unknown owner, pet, page or path) · 320px</p>
+<div class="board phone">
+<div style="min-height: 680px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Page Not Found</h2>
+<p class="pc-error-text">We could not find the page you asked for. It may have moved, or the address may be mistyped.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label phone">Bad Request · 400 · 320px</p>
+<div class="board phone">
+<div style="min-height: 680px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Bad Request</h2>
+<p class="pc-error-text">The address or the details sent could not be understood. Check the link and try again.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label phone">Method Not Allowed · 405 · 320px</p>
+<div class="board phone">
+<div style="min-height: 680px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Method Not Allowed</h2>
+<p class="pc-error-text">This page cannot be used in that way. Go back and use the links on the page instead.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label phone">Something Went Wrong · 500, any other 5xx, or no status · 320px</p>
+<div class="board phone">
+<div style="min-height: 680px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Something Went Wrong</h2>
+<p class="pc-error-text">The clinic ran into a problem on its side. Try again in a moment.</p>
+<ul class="pc-error-actions">
+<li><a href="#">Go to the Homepage</a></li>
+<li><a href="#">Find Owners</a></li>
+</ul>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+</body>
+</html>
