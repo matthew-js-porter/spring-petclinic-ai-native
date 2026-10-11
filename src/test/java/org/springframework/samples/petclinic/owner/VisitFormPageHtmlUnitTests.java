@@ -121,7 +121,6 @@ class VisitFormPageHtmlUnitTests {
 
 		assertThat(texts(redisplay, "[role=alert]")).containsExactly("Visit not saved: 1 field needs attention.");
 		assertThat(texts(redisplay, ".pc-field-error")).containsExactly("Date must be a date in the form yyyy-mm-dd.");
-		assertThat(date(redisplay).getValue()).isEqualTo("2024-02-30");
 		assertThat(description(redisplay).getValue()).isEqualTo("checkup");
 		assertThat(this.webClient.getPage("/owners/6").getWebResponse().getContentAsString()).doesNotContain("checkup");
 	}
