@@ -33,4 +33,5 @@ build/
 .vscode/
 
 ### Skill evals (skill-creator workspaces) ###
+skill-evals/
 .claude/skills/*-workspace/

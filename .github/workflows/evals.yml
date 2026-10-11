@@ -46,6 +46,8 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: "https://github.com/anthropics/claude-plugins-official.git"
           plugins: "skill-creator@claude-plugins-official"
+          # Writes Claude's report (steps, tool calls, denials) to the job summary.
+          display_report: true
           prompt: |
             You are running unattended in CI. Nobody can answer questions or open a browser.
 
@@ -57,7 +59,8 @@ jobs:
 
             - Run every eval once, comparing the skill as it is on `origin/main` (old_skill, snapshot it with `git show`) against the working copy (with_skill). If `origin/main` has no version of the skill, run with_skill only.
             - Do not change the skill or any other tracked file, and do not commit or push.
-            - Do not start the viewer server: write it with `--static .claude/skills/<skill>-workspace/review.html`, and keep every result under `.claude/skills/<skill>-workspace/`.
+            - Put the workspace at `skill-evals/<skill>-workspace/` in the repository root (not under `.claude/`, which is write-protected), and keep every result there. Read the skill and its evals from `.claude/skills/<skill>/`.
+            - Do not start the viewer server: write it with `--static skill-evals/<skill>-workspace/review.html`.
             ${{ github.event.pull_request.number && format('- When every skill is done, post one comment on PR #{0} with `gh pr comment {0} --body-file <file>`: a table per skill (eval, old_skill pass rate, with_skill pass rate, change), the expectations that failed with one line of evidence each, and a link to {1}/{2}/actions/runs/{3} for the full review pages. Say that the evals are advisory.', github.event.pull_request.number, github.server_url, github.repository, github.run_id) || '- Finish with the same table and failed expectations as your final message.' }}
           claude_args: >-
             --max-turns 200
@@ -68,7 +71,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         run: |
-          if grep -rqF -- "$TOKEN" .claude/skills/*-workspace 2>/dev/null; then
+          if grep -rqF -- "$TOKEN" skill-evals "$RUNNER_TEMP/claude-execution-output.json" 2>/dev/null; then
             echo "::error::The Claude token appears in the eval results; not uploading them."
             exit 1
           fi
@@ -76,7 +79,8 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: skill-evals
-          path: .claude/skills/*-workspace/
-          include-hidden-files: true
+          path: |
+            skill-evals/
+            ${{ runner.temp }}/claude-execution-output.json
           retention-days: 90
-          if-no-files-found: warn
+          if-no-files-found: error
