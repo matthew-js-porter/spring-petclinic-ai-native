@@ -57,7 +57,7 @@ jobs:
 
             /skill-creator:skill-creator eval <skill>
 
-            - Which copy is which: on a pull request the action restores `.claude/` and `CLAUDE.md` from `origin/main` and keeps the PR's versions in `.claude-pr/`. So when `.claude-pr/skills/<skill>/` exists, with_skill is `.claude-pr/skills/<skill>/` (the PR) and old_skill is `.claude/skills/<skill>/` (main). Otherwise with_skill is `.claude/skills/<skill>/` and old_skill is a snapshot from `origin/main` (`git show`); if `origin/main` has no such skill, run with_skill only.
+            - Which copy is which: on a pull request the action restores `.claude/` and `CLAUDE.md` from `origin/main` and keeps the PR's versions under `.claude-pr/`. So when `.claude-pr/.claude/skills/<skill>/` exists, with_skill is `.claude-pr/.claude/skills/<skill>/` (the PR) and old_skill is `.claude/skills/<skill>/` (main). Otherwise with_skill is `.claude/skills/<skill>/` and old_skill is a snapshot from `origin/main` (`git show`); if `origin/main` has no such skill, run with_skill only.
             - Take the evals, `evals.json` and fixtures from the with_skill copy. Where an eval prompt names a path under `.claude/skills/<skill>/`, give each run the same path under its own copy.
             - Run every eval once per configuration.
             - Do not change the skill or any other tracked file, and do not commit or push.
