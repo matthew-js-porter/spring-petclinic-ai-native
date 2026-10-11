@@ -133,3 +133,11 @@ Because MockMvc does not forward to `/error` (section 2), the error page is test
 9. The 500 path is proven with a test-only controller; nothing is added to `src/main` for it.
 10. No Java change: the template needs only the `status` attribute Boot already supplies.
 11. `ErrorPage` is documented as a page pattern, not a ninth component, so the "eight components" wording in the design system stays true.
+
+## 9. Implementation notes and deviations
+- **Design system landed first.** The §4.3 changes (ErrorPage README and preview, the README content and action-link rules, `tokens.json` usages, the `CLAUDE.md` page-pattern sentence) merged in their own PR before the implementation, so this PR changes no file under `docs/design-system/`. `petclinic.css` gains `.pc-error-text` and `.pc-error-actions`, ported from the design system's `bundle.css`.
+- **Test client.** Boot 4's `TestRestTemplate` and `RestTestClient` live in `spring-boot-resttestclient`, which the project does not depend on, and N2 rules out a new dependency. `ErrorPageIntegrationTests` therefore runs on `RANDOM_PORT` with `@LocalServerPort`, drives HTML requests with HtmlUnit's `WebClient` against the live server (so the same `querySelectorAll` assertions as the page tests apply) and JSON requests with Spring's `RestClient`.
+- **Template check.** The separate template rendering check in §6 is folded into the same parameterised test: it covers 404, 400, 405, 406 (`GET /vets` with `Accept: text/html`), 409 and 503 from a test-only controller, 500 from an unhandled exception and from a missing view, and a direct visit to `/error`.
+- **JSON 400 case.** `/vets?page=0` is not an error on the JSON endpoint (it ignores `page`), so the JSON 400 case is `GET /owners/abc`.
+- **Browser `Accept`.** A real browser's `Accept` ends in `*/*;q=0.8`, so `GET /vets` from a browser is the JSON list (200), as before; only `Accept: text/html` alone gets the 406 page. The tests send `Accept: text/html`.
+- Assumption 11's "eight components" now reads nine, since VisitList joined the system; ErrorPage is still a page pattern.
