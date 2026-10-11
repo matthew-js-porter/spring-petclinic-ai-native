@@ -200,6 +200,23 @@ class OwnersPageHtmlUnitTests {
 		assertThat(field(results).getValue()).isEqualTo("zzz");
 	}
 
+	@Test
+	void offersAddOwnerOnEveryPageAndSearchResult() throws IOException {
+		HtmlPage page1 = this.webClient.getPage("/owners.html");
+		HtmlPage page3 = this.webClient.getPage("/owners.html?page=3");
+		HtmlPage results = search("Davis");
+		HtmlPage none = search("zzz");
+
+		for (HtmlPage page : List.of(page1, page3, results, none)) {
+			assertThat(page.querySelectorAll("main a.pc-action")).singleElement().satisfies((link) -> {
+				assertThat(link.asNormalizedText()).isEqualTo("Add Owner");
+				assertThat(((HtmlAnchor) link).getHrefAttribute()).isEqualTo("/owners/new.html");
+			});
+		}
+		assertThat(page1.getAnchorByText("Add Owner").<HtmlPage>click().getTitleText())
+			.isEqualTo("New Owner · Spring PetClinic");
+	}
+
 	private HtmlPage search(String lastName) throws IOException {
 		HtmlPage page = this.webClient.getPage("/owners.html");
 		field(page).setValue(lastName);

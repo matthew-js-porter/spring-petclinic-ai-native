@@ -10,13 +10,16 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import org.springframework.test.web.servlet.assertj.MvcTestResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * End-to-end check of {@code GET /owners} and {@code GET /owners/{id}} with the real
  * database. The rendered pages are covered by {@link OwnersPageHtmlUnitTests} and
- * {@link OwnerDetailsPageHtmlUnitTests}.
+ * {@link OwnerDetailsPageHtmlUnitTests}. Tests that write roll back, so the seed count holds
+ * for every other test.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -64,6 +67,28 @@ class OwnersIntegrationTests {
 			.isLenientlyEqualTo("""
 					{"id":11,"firstName":"Helen","lastName":"Ostrander","pets":[]}
 					""");
+	}
+
+	@Test
+	@Transactional
+	void showsACreatedOwnerInTheJson() {
+		MvcTestResult created = this.mvc.post()
+			.uri("/owners")
+			.param("firstName", "Ada")
+			.param("lastName", "Lovelace")
+			.param("address", "12 St James's Sq.")
+			.param("city", "London")
+			.param("telephone", "6085550000")
+			.exchange();
+		assertThat(created).hasStatus(HttpStatus.SEE_OTHER);
+		String location = created.getResponse().getRedirectedUrl();
+		assertThat(location).matches("/owners/\\d+\\.html");
+		String json = location.replace(".html", "");
+
+		assertThat(this.mvc.get().uri("/owners")).bodyJson().extractingPath("$.ownerList").asArray().hasSize(12);
+		assertThat(this.mvc.get().uri(json)).hasStatusOk().bodyJson().isLenientlyEqualTo("""
+				{"firstName":"Ada","lastName":"Lovelace","city":"London","telephone":"6085550000","pets":[]}
+				""");
 	}
 
 	@Test

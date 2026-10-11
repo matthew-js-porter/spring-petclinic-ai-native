@@ -1,3 +1,8 @@
 spring:
   application:
     name: PetClinic
+server:
+  servlet:
+    session:
+      # Flash messages create a session; never put its id in a redirect URL.
+      tracking-modes: cookie

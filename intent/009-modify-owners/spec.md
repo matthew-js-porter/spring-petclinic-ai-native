@@ -232,3 +232,15 @@ Deleting owners; pets and visits; owner writes through JSON; duplicate-owner det
 - Do not widen the actuator, add `application.properties`, or add `management.endpoints`.
 - Resolve with a human before coding: concerns 1, 2, 3 and 4 (URLs, the dependency, the repository shape, the link and error treatment). Request design-owner review of the `preview.html` states before merge (concern 8).
 - Cross-check every write test for rollback (concern 6).
+
+## 10. Implementation notes and deviations
+- **Concern 1 (URLs):** as decided, option A. A `POST` to an owner's `.html` page (`/owners/1.html`, `/owners/new.html`) reaches `POST /owners/{id}` with a non-numeric id and is 400, not 405, and writes nothing. `POST /owners.html` and `POST /owners/{id}/edit.html` are 405. Tests pin all four.
+- **Concern 2 (dependency):** `spring-boot-starter-validation`, as chosen.
+- **Concern 3 (repository shape):** decided by engineering as the spec's default. `OwnerRepository` gains `save` (only for new owners with no pets) and a `@Modifying @Query` `update` that returns `false` for an unknown id. The class Javadoc says why `save` must not be used for existing owners, and `OwnerRepositoryTests` proves that owner 6's pets keep ids 7 and 8 after an update.
+- **Concern 4 (links and errors):** settled by the design-system change for this spec (PR #40). `.pc-action` links, `.pc-form-stacked`, `.pc-field-invalid` and `.pc-field-error`, and InlineMessage for both the confirmation and the summary. `petclinic.css` implements them with no new token.
+- **Concern 8 (design review):** still pending. The `preview.html` states are in `docs/design-system/components/{FormField,InlineMessage,Button,OwnerForm}`, and the design owner reviews them before merge.
+- **Concern 10 (intent 008 conflicts):** superseded as planned. `OwnerDetailsPageHtmlUnitTests` now expects exactly one link in `main`, "Edit Owner", and still expects no button or form. `OwnerControllerTests.isReadOnly` was removed because `POST /owners` now creates an owner.
+- **Telephone rule:** `@Pattern(regexp = "(\\d{10})?")` lets an empty value pass the pattern, so an empty telephone shows only "Telephone is required." (4.5) without a validation group.
+- **Form markup:** the five fields are rendered by one parameterised fragment, `field(...)`, in `owners/ownerForm.html`. The summary counts errors with `#fields.detailedErrors`, which is one per field.
+- **Redirect status:** `RedirectView` with `303 See Other`, returned in a `ModelAndView`, so a handler can either redisplay the form or redirect.
+- **Deviation, `application.yaml`:** the spec said config would not change. Running the app showed that the first save, when the browser has no session cookie yet, redirected to `/owners/{id}.html;jsessionid=…`, because Tomcat rewrites URLs when a session starts. A session id in a URL leaks through history, logs and `Referer`. `server.servlet.session.tracking-modes: cookie` turns URL rewriting off. MockMvc does not rewrite URLs, so the tests cannot cover this. It is checked by hand: the `Location` header is a clean `/owners/{id}.html`.

@@ -4,6 +4,7 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /**
  * Runs {@code schema.sql} and {@code data.sql} against embedded H2 and exercises the
@@ -180,6 +182,50 @@ class OwnerRepositoryTests {
 				PageRequest.of(0, OwnerController.PAGE_SIZE, Sort.by("id")));
 
 		assertThat(statements.get()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
+	}
+
+	@Test
+	void insertsANewOwnerWithAnIdAboveTheSeedAndNoPets() {
+		Owner saved = this.owners.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000",
+				Set.of()));
+
+		assertThat(saved.id()).isGreaterThan(11);
+		assertThat(this.owners.findById(saved.id())).hasValueSatisfying((ada) -> {
+			assertThat(ada.lastName()).isEqualTo("Lovelace");
+			assertThat(ada.pets()).isEmpty();
+		});
+		assertThat(this.owners.findAll(Sort.by("id"))).hasSize(12);
+	}
+
+	@Test
+	void updatesTheFiveColumnsOfAnOwner() {
+		assertThat(this.owners.update(1, "Georgia", "Frank", "1 Main St.", "Sun Prairie", "6085559876")).isTrue();
+
+		assertThat(this.owners.findById(1)).hasValueSatisfying((owner) -> {
+			assertThat(owner).extracting(Owner::firstName, Owner::lastName, Owner::address, Owner::city,
+					Owner::telephone)
+				.containsExactly("Georgia", "Frank", "1 Main St.", "Sun Prairie", "6085559876");
+			assertThat(owner.pets()).extracting(Pet::name).containsExactly("Leo");
+		});
+	}
+
+	@Test
+	void keepsThePetsAndTheirIdsWhenUpdatingAnOwner() {
+		this.owners.update(6, "Jean", "Coleman-Smith", "105 N. Lake St.", "Monona", "6085552654");
+
+		assertThat(this.owners.findById(6)).hasValueSatisfying((jean) -> assertThat(jean.pets())
+			.extracting(Pet::id, Pet::name)
+			.containsExactlyInAnyOrder(tuple(7, "Samantha"),
+					tuple(8, "Max")));
+		assertThat(this.jdbc.sql("SELECT COUNT(*) FROM PETS").query(Integer.class).single()).isEqualTo(13);
+	}
+
+	@Test
+	void updatesNothingForAnUnknownId() {
+		assertThat(this.owners.update(999, "Nobody", "Here", "Nowhere", "None", "0000000000")).isFalse();
+
+		assertThat(this.owners.findById(999)).isEmpty();
+		assertThat(this.owners.findAll(Sort.by("id"))).hasSize(11);
 	}
 
 	@TestConfiguration
