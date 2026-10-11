@@ -1,5 +1,6 @@
-# Advisory evals of the pipeline's skills with the skill-creator plugin. Each skill keeps
-# its cases in .claude/skills/<skill>/evals/evals.json. Results never block a merge.
+# Evals of the pipeline's skills with the skill-creator plugin. Each skill keeps its cases
+# in .claude/skills/<skill>/evals/evals.json. The job fails when a PR's skill scores lower
+# than main's on any eval.
 name: skill-evals
 
 on:
@@ -26,8 +27,6 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # Eval results or Claude outages must never block merging.
-    continue-on-error: true
     concurrency:
       group: skill-evals-${{ github.event.pull_request.number || github.ref }}
       cancel-in-progress: true
@@ -41,7 +40,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Keep going on a Claude error so the results so far are still summarised and uploaded;
+      # the last step then fails because no benchmark exists.
       - uses: anthropics/claude-code-action@v1
+        continue-on-error: true
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: "https://github.com/anthropics/claude-plugins-official.git"
@@ -67,7 +69,7 @@ jobs:
             - Use exactly this layout, which skill-creator's `aggregate_benchmark.py` reads: `skill-evals/<skill>-workspace/iteration-1/eval-<name>/eval_metadata.json`, and per configuration (`with_skill`, `old_skill`) `eval-<name>/<config>/run-1/` holding `outputs/`, `timing.json` (from the subagent's completion notice: total_tokens, duration_ms, total_duration_seconds) and `grading.json`. Leave the `timing` block out of `grading.json` so the script reads `timing.json`.
             - After `aggregate_benchmark.py`, set `executor_model` and `analyzer_model` in `benchmark.json` to your model ID and `runs_per_configuration` to 1, and correct the same two facts in the header of `benchmark.md`.
             - Do not start the viewer server: write it with `--static skill-evals/<skill>-workspace/review.html`.
-            ${{ github.event.pull_request.number && format('- When every skill is done, post one comment on PR #{0} with `gh pr comment {0} --body-file <file>`: a table per skill (eval, old_skill pass rate, with_skill pass rate, change), the expectations that failed with one line of evidence each, and a link to {1}/{2}/actions/runs/{3} for the full review pages. Say that the evals are advisory.', github.event.pull_request.number, github.server_url, github.repository, github.run_id) || '- Finish with the same table and failed expectations as your final message.' }}
+            ${{ github.event.pull_request.number && format('- When every skill is done, post one comment on PR #{0} with `gh pr comment {0} --body-file <file>`: a table per skill (eval, old_skill pass rate, with_skill pass rate, change), the expectations that failed with one line of evidence each, and a link to {1}/{2}/actions/runs/{3} for the full review pages. Say that the check fails when the PR''s version scores lower than main''s on any eval.', github.event.pull_request.number, github.server_url, github.repository, github.run_id) || '- Finish with the same table and failed expectations as your final message.' }}
           claude_args: >-
             --max-turns 200
             --add-dir /home/runner/.claude/plugins
@@ -103,3 +105,30 @@ jobs:
             ${{ runner.temp }}/claude-execution-output.json
           retention-days: 90
           if-no-files-found: error
+
+      # Fails the check when the PR's skill scores lower than main's on any eval, or, with
+      # no main version to compare against, below 100%. A run with no benchmark also fails.
+      - name: Fail on a regression
+        run: |
+          files=$(find skill-evals -name benchmark.json 2>/dev/null | sort)
+          if [ -z "$files" ]; then
+            echo "::error::No skill-creator benchmark was produced, so the skill was not evaluated."
+            exit 1
+          fi
+          status=0
+          for f in $files; do
+            failing=$(jq -r '
+              [.runs[] | {e: .eval_id, c: .configuration, p: .result.pass_rate}] as $r
+              | ([$r[] | select(.c == "old_skill")] | length > 0) as $compare
+              | $r[] | select(.c == "with_skill") | . as $w
+              | (if $compare then ([$r[] | select(.c == "old_skill" and .e == $w.e) | .p][0] // 0) else 1 end) as $base
+              | select($w.p < $base)
+              | "eval \($w.e): \($w.p * 100 | round)% (main: \($base * 100 | round)%)"' "$f")
+            if [ -n "$failing" ]; then
+              while IFS= read -r line; do
+                echo "::error file=$f::Skill eval below baseline, $line"
+              done <<< "$failing"
+              status=1
+            fi
+          done
+          exit $status
