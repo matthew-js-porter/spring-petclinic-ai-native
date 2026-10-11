@@ -253,3 +253,13 @@ Deleting pets; visits and Add Visit; pet JSON writes (create, update); persisten
 - Writing tests are `@Transactional` and assert ids "above 13", never "equal to 14".
 - Request design-owner review of the new previews (concern 8) before merge, and record the outcome in section 10. Do not add a back link or Cancel without a design-system update.
 - Run `actionlint` only if workflows change (they should not).
+
+## 10. Implementation notes and deviations
+- **Concern 1 (dependency on 009):** resolved. 009 shipped before this work (PR #43) and the names match this spec: `OwnerForm`, `owners/ownerForm.html` and its `field(...)` fragment (reused here for Name), the flash `message`, `.pc-form-stacked`, `.pc-field-invalid`, `.pc-field-error`, `.pc-action`, `pc-message`. The design-system docs for the select, date and actions column landed in PR #42, so this PR only implements them in `petclinic.css` (select padding and chevron position, date height, `.pc-field-help`, `.pc-col-actions`, `.pc-section-title + .pc-action`); no token added.
+- **Concern 4 (write surface):** as specified, a separate `PetRepository` with `@Modifying @Query` `insert` and `update`. `update` returns `boolean` (as `OwnerRepository.update` does) rather than `int`; `false` is a 404.
+- **Concern 10 / assumption 15 (controller):** the pet handlers live in a new package-private `PetController`, with its own owner and pet lookups and `seeOther` helper; `OwnerController` is unchanged.
+- **Form context:** the view gets `ownerName` (a string) rather than an owner object, so no entity reaches the form view.
+- **Birth date parsing:** the value must match `\d{4}-\d{2}-\d{2}` and then parse with `ISO_LOCAL_DATE` (strict resolver). The shape check is needed because `ISO_LOCAL_DATE` alone accepts signed and five-digit years (`-0001-01-01`); `2024-02-30` and `2023-13-01` are rejected by the resolver.
+- **Select prompt:** on a blank form Thymeleaf marks the empty "Select a type" option `selected`, which is the intended default.
+- **Concern 8 (design review):** still pending. The previews in `docs/design-system/components/{FormField,DataTable,PetForm}` are the board for the design owner before merge.
+- Spec 5.2's manual check, as far as it was run: health `UP`, a create gives 303 to a clean `/owners/1.html` and pet id 14, `leo` on owner 1 gets the duplicate message, `/owners/1/pets/2/edit.html` and `/owners/999/pets/new.html` are 404. The 320px layout, the date picker in different browsers and keyboard focus still need checking in a real browser.

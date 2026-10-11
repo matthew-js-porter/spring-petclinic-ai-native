@@ -55,18 +55,20 @@ class OwnerDetailsPageHtmlUnitTests {
 
 		assertThat(texts(page, "h3")).containsExactly("Pets");
 		assertThat(texts(page, "#pets caption")).containsExactly("Pets of George Franklin");
-		assertThat(texts(page, "#pets thead th")).containsExactly("Name", "Birth Date", "Type");
+		assertThat(texts(page, "#pets thead th")).containsExactly("Name", "Birth Date", "Type", "Actions");
 		assertThat(page.querySelectorAll("#pets thead th"))
 			.allSatisfy((th) -> assertThat(((DomElement) th).getAttribute("scope")).isEqualTo("col"));
-		assertThat(pets(page)).containsExactly(List.of("Leo", "2010-09-07", "cat"));
+		assertThat(pets(page)).containsExactly(List.of("Leo", "2010-09-07", "cat", "Edit Pet Leo"));
+		assertThat(page.querySelectorAll(".pc-table-region[role=region][tabindex='0'] > #pets")).hasSize(1);
 	}
 
 	@Test
 	void sortsPetsByName() throws IOException {
 		assertThat(pets(this.webClient.getPage("/owners/6.html"))).containsExactly(
-				List.of("Max", "2012-09-04", "cat"), List.of("Samantha", "2012-09-04", "cat"));
+				List.of("Max", "2012-09-04", "cat", "Edit Pet Max"),
+				List.of("Samantha", "2012-09-04", "cat", "Edit Pet Samantha"));
 		assertThat(pets(this.webClient.getPage("/owners/3.html"))).containsExactly(
-				List.of("Jewel", "2010-03-07", "dog"), List.of("Rosy", "2011-04-17", "dog"));
+				List.of("Jewel", "2010-03-07", "dog", "Edit Pet Jewel"), List.of("Rosy", "2011-04-17", "dog", "Edit Pet Rosy"));
 	}
 
 	@Test
@@ -78,6 +80,10 @@ class OwnerDetailsPageHtmlUnitTests {
 		assertThat(texts(page, "h3")).containsExactly("Pets");
 		assertThat(texts(page, "p.pc-muted")).containsExactly("This owner has no pets.");
 		assertThat(page.querySelectorAll("table")).isEmpty();
+		assertThat(page.<HtmlAnchor>querySelector("h3 + a.pc-action")).satisfies((add) -> {
+			assertThat(add.asNormalizedText()).isEqualTo("Add New Pet");
+			assertThat(add.getHrefAttribute()).isEqualTo("/owners/11/pets/new.html");
+		});
 	}
 
 	@Test
@@ -92,15 +98,18 @@ class OwnerDetailsPageHtmlUnitTests {
 	}
 
 	@Test
-	void offersEditOwnerAsTheOnlyAction() throws IOException {
-		HtmlPage page = this.webClient.getPage("/owners/1.html");
+	void offersEditOwnerAddNewPetAndEditPetOnly() throws IOException {
+		HtmlPage page = this.webClient.getPage("/owners/6.html");
 
 		assertThat(page.querySelectorAll("main button, main form")).isEmpty();
-		assertThat(page.querySelectorAll("main a")).singleElement().satisfies((link) -> {
-			assertThat(link.asNormalizedText()).isEqualTo("Edit Owner");
-			assertThat(((HtmlAnchor) link).getHrefAttribute()).isEqualTo("/owners/1/edit.html");
-			assertThat(((HtmlAnchor) link).getAttribute("class")).isEqualTo("pc-action");
-		});
+		assertThat(page.querySelectorAll("main a")).extracting((link) -> ((HtmlAnchor) link).getHrefAttribute())
+			.containsExactly("/owners/6/edit.html", "/owners/6/pets/new.html", "/owners/6/pets/8/edit.html",
+					"/owners/6/pets/7/edit.html");
+		assertThat(texts(page, "main a")).containsExactly("Edit Owner", "Add New Pet", "Edit Pet Max",
+				"Edit Pet Samantha");
+		assertThat(page.<HtmlAnchor>querySelector("h3 + a.pc-action").asNormalizedText()).isEqualTo("Add New Pet");
+		assertThat(texts(page, "#pets td.pc-col-actions .visually-hidden")).containsExactly("Max", "Samantha");
+		assertThat(page.asNormalizedText()).doesNotContain("Visit");
 		assertThat(page.querySelectorAll("[role=status]")).isEmpty();
 	}
 

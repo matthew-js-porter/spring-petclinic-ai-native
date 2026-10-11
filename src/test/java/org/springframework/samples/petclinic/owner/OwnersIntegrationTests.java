@@ -92,6 +92,42 @@ class OwnersIntegrationTests {
 	}
 
 	@Test
+	@Transactional
+	void showsAddedAndEditedPetsInTheJson() {
+		assertThat(this.mvc.post()
+			.uri("/owners/11/pets")
+			.param("name", "Biscuit")
+			.param("birthDate", "2024-05-01")
+			.param("typeId", "6")).hasStatus(HttpStatus.SEE_OTHER).hasRedirectedUrl("/owners/11.html");
+		assertThat(this.mvc.post()
+			.uri("/owners/6/pets/8")
+			.param("name", "Maximus")
+			.param("birthDate", "2012-09-05")
+			.param("typeId", "2")).hasStatus(HttpStatus.SEE_OTHER).hasRedirectedUrl("/owners/6.html");
+
+		assertThat(this.mvc.get().uri("/owners/11")).bodyJson().isLenientlyEqualTo("""
+				{"id":11,"pets":[{"name":"Biscuit","birthDate":"2024-05-01","type":"hamster"}]}
+				""");
+		assertThat(this.mvc.get().uri("/owners/11")).bodyJson()
+			.extractingPath("$.pets[0].id")
+			.asNumber()
+			.satisfies((id) -> assertThat(id.intValue()).isGreaterThan(13));
+		assertThat(this.mvc.get().uri("/owners/6")).bodyJson().isLenientlyEqualTo("""
+				{"id":6,"pets":[
+				  {"id":8,"name":"Maximus","birthDate":"2012-09-05","type":"dog"},
+				  {"id":7,"name":"Samantha","birthDate":"2012-09-04","type":"cat"}]}
+				""");
+		assertThat(this.mvc.get().uri("/owners")).bodyJson()
+			.extractingPath("$.ownerList[*].pets[*]")
+			.asArray()
+			.hasSize(14);
+		assertThat(this.mvc.get().uri("/owners?lastName=Ostrander")).bodyJson()
+			.extractingPath("$.ownerList[0].pets[*].name")
+			.asArray()
+			.containsExactly("Biscuit");
+	}
+
+	@Test
 	void returnsNotFoundForAnUnknownOwner() {
 		assertThat(this.mvc.get().uri("/owners/999")).hasStatus(HttpStatus.NOT_FOUND);
 		assertThat(this.mvc.get().uri("/owners/999.html")).hasStatus(HttpStatus.NOT_FOUND);

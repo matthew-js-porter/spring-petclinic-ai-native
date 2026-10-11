@@ -51,3 +51,7 @@ INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (10, 'Mulligan
 INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (11, 'Freddy', '2010-03-09', 5, 9);
 INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (12, 'Lucky', '2010-06-24', 2, 10);
 INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (13, 'Sly', '2012-06-08', 1, 10);
+
+-- The seed sets explicit ids, so move the counter past them before the app inserts a
+-- pet. Bump it whenever a seed pet is added.
+ALTER TABLE pets ALTER COLUMN id RESTART WITH 14;

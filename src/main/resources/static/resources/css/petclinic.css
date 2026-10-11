@@ -250,6 +250,11 @@ button:focus-visible,
 	width: 50%;
 }
 
+/* Actions column: one link per row that opens another page */
+.pc-col-actions {
+	white-space: nowrap;
+}
+
 /* Wide tables scroll inside their region at narrow widths instead of the page */
 .pc-table-region > .pc-table {
 	width: max-content;
@@ -335,6 +340,30 @@ button:focus-visible,
 	}
 }
 
+/* Select: Bootstrap's form-select chevron, kept clear of long options; the open list is the browser's */
+select.pc-input {
+	padding-right: 36px;
+	background-position: right 16px center;
+}
+
+.pc-field-invalid select.pc-input,
+.pc-field-invalid select.pc-input:focus {
+	padding-right: 35px;
+}
+
+/* Date: the text input's height; the picker is the browser's */
+input[type="date"].pc-input {
+	min-height: 42px;
+}
+
+/* Helper line under a field, such as a date's format */
+.pc-field-help {
+	margin: 0;
+	font-size: 14px;
+	line-height: 21px;
+	color: var(--pc-ink-muted);
+}
+
 /* Stacked form: one field per row, button below, at most field-width wide */
 .pc-form-stacked .pc-form-help {
 	margin: 0;
@@ -382,6 +411,11 @@ button:focus-visible,
 /* Edit Owner sits space-3 below the owner's DetailList */
 .pc-detail + .pc-action {
 	margin-top: 12px;
+}
+
+/* Add New Pet sits space-3 above the pets table or the empty sentence */
+.pc-section-title + .pc-action {
+	margin-bottom: 12px;
 }
 
 /* Button: the system's only button style */
