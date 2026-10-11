@@ -65,14 +65,16 @@ Give the pipeline's skill-driven AI steps a small, repeatable eval that produces
   maintain-scan/SKILL.md
   maintain-scan/evals/evals.json
   maintain-scan/evals/files/          tree/ (fixture project), scan-mixed/, scan-false-positives/
-  <skill>-workspace/                  skill-creator output, gitignored
+  <skill>-workspace/                  skill-creator output from local runs, gitignored
 .github/workflows/evals.yml
+skill-evals/<skill>-workspace/        skill-creator output in CI, gitignored
 ```
 
 ### 4.2 Workflow (`evals.yml`)
 - Triggers: `pull_request` (opened, synchronize, reopened, ready_for_review) on `.claude/skills/**` or `CLAUDE.md`; `workflow_dispatch` with a `skill` input. Drafts and forks are skipped. Concurrency per PR with `cancel-in-progress`.
 - One job: `actions/checkout` with `fetch-depth: 0` (for `origin/main`), then `anthropics/claude-code-action@v1` with `plugin_marketplaces: https://github.com/anthropics/claude-plugins-official.git` and `plugins: skill-creator@claude-plugins-official`. The prompt names the skills, runs `/skill-creator:skill-creator eval <skill>` for each, and adds the CI rules: unattended, compare with `origin/main`, change no tracked file, static viewer, then the PR comment (F8).
-- Then the token scan and `upload-artifact` of `.claude/skills/*-workspace/`.
+- In CI the workspace is `skill-evals/<skill>-workspace/` at the repository root: Claude Code write-protects `.claude/`, so a workspace beside the skill is denied in an unattended run (the first dispatch after merge wrote nothing for this reason). The action's `display_report` puts Claude's steps and any permission denials in the job summary.
+- Then the token scan and `upload-artifact` of `skill-evals/` plus the action's execution log (`claude-execution-output.json`, the full transcript), failing the step if nothing was produced.
 - `evals.yml` uses `claude-code-action`, so it cannot run on the PR that adds or changes it. Its first proof is a dispatch on `main` after merge.
 
 ### 4.3 Alignment with Anthropic's eval guidance
