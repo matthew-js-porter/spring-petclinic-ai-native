@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Snyk Open Source",
+          "rules": [
+            {
+              "id": "SNYK-EVAL-OSS-1002",
+              "shortDescription": {
+                "text": "Arbitrary File Read in org.example.fixture:test-data-loader"
+              },
+              "help": {
+                "text": "test-data-loader before 1.0.2 follows symbolic links when loading fixtures (CVE-2099-10002). Upgrade to 1.0.2.",
+                "markdown": "test-data-loader before 1.0.2 follows symbolic links when loading fixtures (CVE-2099-10002). Upgrade to 1.0.2."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "high"
+                ],
+                "security-severity": "7.5"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SNYK-EVAL-OSS-1002",
+          "level": "error",
+          "message": {
+            "text": "High severity: org.example.fixture:test-data-loader@1.0.0 is vulnerable to arbitrary file read, CVE-2099-10002. Introduced through org.example:clinic@0.0.1-SNAPSHOT."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pom.xml"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

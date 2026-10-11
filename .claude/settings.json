@@ -13,6 +13,7 @@
     ]
   },
   "enabledPlugins": {
-    "spring-tools@spring-tools-marketplace": true
+    "spring-tools@spring-tools-marketplace": true,
+    "skill-creator@claude-plugins-official": true
   }
 }

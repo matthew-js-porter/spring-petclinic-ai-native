@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Snyk Open Source",
+          "rules": [
+            {
+              "id": "SNYK-EVAL-OSS-1001",
+              "shortDescription": {
+                "text": "Deserialization of Untrusted Data in org.example.fixture:record-mapper"
+              },
+              "help": {
+                "text": "record-mapper before 2.3.4 instantiates arbitrary classes named in untrusted input (CVE-2099-10001). Upgrade to 2.3.4.",
+                "markdown": "record-mapper before 2.3.4 instantiates arbitrary classes named in untrusted input (CVE-2099-10001). Upgrade to 2.3.4."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "high"
+                ],
+                "security-severity": "8.1"
+              }
+            },
+            {
+              "id": "SNYK-EVAL-OSS-1002",
+              "shortDescription": {
+                "text": "Arbitrary File Read in org.example.fixture:test-data-loader"
+              },
+              "help": {
+                "text": "test-data-loader before 1.0.2 follows symbolic links when loading fixtures (CVE-2099-10002). Upgrade to 1.0.2.",
+                "markdown": "test-data-loader before 1.0.2 follows symbolic links when loading fixtures (CVE-2099-10002). Upgrade to 1.0.2."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "high"
+                ],
+                "security-severity": "7.5"
+              }
+            },
+            {
+              "id": "SNYK-EVAL-OSS-1003",
+              "shortDescription": {
+                "text": "HTTP Request Smuggling in org.apache.tomcat.embed:tomcat-embed-core"
+              },
+              "help": {
+                "text": "tomcat-embed-core 11.0.0 mishandles some chunked requests. Upgrade to a fixed release.",
+                "markdown": "tomcat-embed-core 11.0.0 mishandles some chunked requests. Upgrade to a fixed release."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "high"
+                ],
+                "security-severity": "7.5"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SNYK-EVAL-OSS-1001",
+          "level": "error",
+          "message": {
+            "text": "High severity: org.example.fixture:record-mapper@2.3.1 (compile scope) is vulnerable to deserialization of untrusted data, CVE-2099-10001. Introduced through org.example:clinic@0.0.1-SNAPSHOT."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pom.xml"
+                },
+                "region": {
+                  "startLine": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SNYK-EVAL-OSS-1002",
+          "level": "error",
+          "message": {
+            "text": "High severity: org.example.fixture:test-data-loader@1.0.0 is vulnerable to arbitrary file read, CVE-2099-10002. Introduced through org.example:clinic@0.0.1-SNAPSHOT."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pom.xml"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SNYK-EVAL-OSS-1003",
+          "level": "error",
+          "message": {
+            "text": "High severity: org.apache.tomcat.embed:tomcat-embed-core@11.0.0 is vulnerable to HTTP request smuggling. Introduced through org.example:clinic@0.0.1-SNAPSHOT."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pom.xml"
+                },
+                "region": {
+                  "startLine": 11
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

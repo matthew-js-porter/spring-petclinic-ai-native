@@ -1,0 +1,64 @@
+{
+  "skill_name": "spec",
+  "evals": [
+    {
+      "id": 1,
+      "name": "delete-pet",
+      "prompt": "/spec @.claude/skills/spec/evals/files/delete-pet/intent.md\n\nYou are running unattended. Nobody can answer questions.\n- Do not ask questions. Where the intent is ambiguous, choose the most reasonable option and list every such choice in an \"Assumptions\" section of the spec.\n- Do not change any file in the repository and do not commit.\n\n(Test run: save spec.md under your outputs directory instead of next to the intent.)",
+      "expected_output": "A spec.md for deleting a pet from Owner Information, grounded in this codebase, that avoids its known traps.",
+      "files": ["evals/files/delete-pet/intent.md"],
+      "expectations": [
+        "spec.md was written, and no file in the repository was created or changed (git status is clean apart from the outputs directory).",
+        "The spec has sections for: summary, existing codebase context, requirements, design, testing or acceptance, areas of concern, and assumptions.",
+        "The spec has no Status field.",
+        "Every row of the requirements table(s) starts with an ID such as F1 or N1.",
+        "The spec requires a confirmation page naming the pet and owner before deleting, and the confirmation 'Pet has been deleted' on the owner's details page.",
+        "The spec makes deleting a state-changing POST (or DELETE) to a resource path, never a GET link, and not to a .html page URL.",
+        "Trap: the delete is restricted to that owner's pet (for example the delete matches on both pet id and owner id), and an unknown pet or another owner's pet is 'not found' with nothing changed.",
+        "Trap: the spec deals with the pet's visits, which reference the pet by foreign key, by deleting them first or in the same transaction.",
+        "Trap: the spec does not delete the pet by saving the whole Owner aggregate (which deletes and re-inserts the remaining pets and renumbers their ids).",
+        "The spec does not add undo, deleting owners, deleting single visits, or JSON delete endpoints as requirements.",
+        "The spec references docs/design-system/ for the confirmation page and action."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "edit-visit",
+      "prompt": "/spec @.claude/skills/spec/evals/files/edit-visit/intent.md\n\nYou are running unattended. Nobody can answer questions.\n- Do not ask questions. Where the intent is ambiguous, choose the most reasonable option and list every such choice in an \"Assumptions\" section of the spec.\n- Do not change any file in the repository and do not commit.\n\n(Test run: save spec.md under your outputs directory instead of next to the intent.)",
+      "expected_output": "A spec.md for editing a visit that reuses the New Visit validation and pattern and avoids this codebase's known traps.",
+      "files": ["evals/files/edit-visit/intent.md"],
+      "expectations": [
+        "spec.md was written, and no file in the repository was created or changed (git status is clean apart from the outputs directory).",
+        "The spec has sections for: summary, existing codebase context, requirements, design, testing or acceptance, areas of concern, and assumptions, and has no Status field.",
+        "Every row of the requirements table(s) starts with an ID such as F1 or N1.",
+        "The spec requires the same validation and messages as New Visit (date required and yyyy-mm-dd; description required, at most 255 characters) and keeps typed input on redisplay.",
+        "The spec requires the confirmation 'Visit has been updated' on the owner's details page.",
+        "Trap: the form POSTs to a resource path such as /owners/{ownerId}/pets/{petId}/visits/{visitId}, not to a .html page URL.",
+        "Trap: the update is restricted to a visit of that pet of that owner (for example the update matches visit id and pet id, and the pet is checked against the owner); any mismatch is 'not found' with nothing changed.",
+        "Trap: the date is bound as text and parsed by the controller (or otherwise avoids Spring's generic type-mismatch message), as New Visit does.",
+        "The spec keeps the visit's id and does not rewrite the owner's pets or other visits (no save of the whole Owner aggregate).",
+        "The spec does not add deleting visits, moving visits between pets, or visit JSON as requirements.",
+        "The spec references docs/design-system/ and reuses the VisitForm pattern."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "vet-specialty-filter",
+      "prompt": "/spec @.claude/skills/spec/evals/files/vet-specialty-filter/intent.md\n\nYou are running unattended. Nobody can answer questions.\n- Do not ask questions. Where the intent is ambiguous, choose the most reasonable option and list every such choice in an \"Assumptions\" section of the spec.\n- Do not change any file in the repository and do not commit.\n\n(Test run: save spec.md under your outputs directory instead of next to the intent.)",
+      "expected_output": "A spec.md for filtering the Veterinarians page by specialty, keeping the filter in the URL, following the design system closely.",
+      "files": ["evals/files/vet-specialty-filter/intent.md"],
+      "expectations": [
+        "spec.md was written, and no file in the repository was created or changed (git status is clean apart from the outputs directory).",
+        "The spec has sections for: summary, existing codebase context, requirements, design, testing or acceptance, areas of concern, and assumptions, and has no Status field.",
+        "Every row of the requirements table(s) starts with an ID such as F1 or N1.",
+        "The spec keeps the chosen specialty in the URL (for example a query parameter on /vets.html) and keeps it across pagination links.",
+        "The spec requires 'All' to include vets with no specialty, and a one-sentence message when no vet has the chosen specialty.",
+        "The spec states that the vets JSON (/vets) is unchanged.",
+        "The spec defines what happens for an unknown or malformed specialty value in the URL.",
+        "The filter works without JavaScript (a plain GET form or links).",
+        "The spec references docs/design-system/ and applies at least three of its rules (for example Title Case labels set UPPERCASE by CSS, square corners, spring-green-dark for current state, 'none' or empty sentence in ink-muted, aria-current or labelled controls).",
+        "The spec does not add searching by name, editing vets or specialties, or appointments as requirements."
+      ]
+    }
+  ]
+}
