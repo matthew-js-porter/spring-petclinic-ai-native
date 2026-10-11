@@ -89,7 +89,7 @@ class PetFormPageHtmlUnitTests {
 		assertThat(texts(details, "[role=status]")).containsExactly("New Pet has been Added");
 		assertThat(texts(details, "#pets tbody td:first-child")).containsExactly("Leo", "Rex");
 		assertThat(texts(details, "#pets tbody tr:last-child td")).containsExactly("Rex", "2023-04-12", "dog",
-				"Edit Pet Rex");
+				"Edit Pet Rex" + "Add Visit Rex");
 		assertThat(((HtmlPage) details.refresh()).querySelectorAll("[role=status]")).isEmpty();
 
 		String json = this.webClient.getPage("/owners/1").getWebResponse().getContentAsString();
@@ -106,9 +106,9 @@ class PetFormPageHtmlUnitTests {
 
 		HtmlPage details = submit(page);
 
-		assertThat(details.querySelectorAll(".pc-empty")).isEmpty();
+		assertThat(texts(details, ".pc-empty")).containsExactly("This pet has no visits.");
 		assertThat(texts(details, "#pets tbody td:first-child")).containsExactly("Biscuit");
-		int id = Integer.parseInt(details.<HtmlAnchor>querySelector("#pets .pc-col-actions a")
+		int id = Integer.parseInt(details.<HtmlAnchor>querySelector("#pets .pc-col-actions a:first-child")
 			.getHrefAttribute()
 			.replaceAll("/owners/11/pets/(\\d+)/edit.html", "$1"));
 		assertThat(id).isGreaterThan(13);
@@ -132,8 +132,9 @@ class PetFormPageHtmlUnitTests {
 
 		assertThat(updated.getUrl().getPath()).isEqualTo("/owners/6.html");
 		assertThat(texts(updated, "[role=status]")).containsExactly("Pet details has been edited");
-		assertThat(rows(updated)).containsExactly(List.of("Maximus", "2012-09-05", "dog", "Edit Pet Maximus"),
-				List.of("Samantha", "2012-09-04", "cat", "Edit Pet Samantha"));
+		assertThat(rows(updated)).containsExactly(
+				List.of("Maximus", "2012-09-05", "dog", "Edit Pet Maximus" + "Add Visit Maximus"),
+				List.of("Samantha", "2012-09-04", "cat", "Edit Pet Samantha" + "Add Visit Samantha"));
 		assertThat(editLinks(updated)).containsExactly("/owners/6/pets/8/edit.html", "/owners/6/pets/7/edit.html");
 	}
 
@@ -259,7 +260,7 @@ class PetFormPageHtmlUnitTests {
 	}
 
 	private static List<String> editLinks(HtmlPage page) {
-		return page.querySelectorAll("#pets .pc-col-actions a")
+		return page.querySelectorAll("#pets .pc-col-actions a:first-child")
 			.stream()
 			.map((link) -> ((HtmlAnchor) link).getHrefAttribute())
 			.toList();

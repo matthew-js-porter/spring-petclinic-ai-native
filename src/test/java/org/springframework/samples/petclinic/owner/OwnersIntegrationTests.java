@@ -1,5 +1,7 @@
 package org.springframework.samples.petclinic.owner;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -53,15 +55,27 @@ class OwnersIntegrationTests {
 	}
 
 	@Test
-	void returnsOneOwnerWithPetBirthDatesAndTypesAsJson() {
+	void returnsOneOwnerWithPetBirthDatesTypesAndVisitsAsJson() {
 		assertThat(this.mvc.get().uri("/owners/6").accept(MediaType.APPLICATION_JSON)).hasStatusOk()
 			.bodyJson()
-			.isLenientlyEqualTo("""
+			.isStrictlyEqualTo("""
 					{"id":6,"firstName":"Jean","lastName":"Coleman","address":"105 N. Lake St.","city":"Monona",
 					 "telephone":"6085552654","pets":[
-					  {"id":8,"name":"Max","birthDate":"2012-09-04","type":"cat"},
-					  {"id":7,"name":"Samantha","birthDate":"2012-09-04","type":"cat"}]}
+					  {"id":8,"name":"Max","birthDate":"2012-09-04","type":"cat","visits":[
+					   {"id":3,"date":"2013-01-03","description":"neutered"},
+					   {"id":2,"date":"2013-01-02","description":"rabies shot"}]},
+					  {"id":7,"name":"Samantha","birthDate":"2012-09-04","type":"cat","visits":[
+					   {"id":4,"date":"2013-01-04","description":"spayed"},
+					   {"id":1,"date":"2013-01-01","description":"rabies shot"}]}]}
 					""");
+		assertThat(this.mvc.get().uri("/owners/3")).bodyJson()
+			.extractingPath("$.pets[*].visits")
+			.asArray()
+			.containsExactly(List.of(), List.of());
+		assertThat(this.mvc.get().uri("/owners")).bodyJson()
+			.extractingPath("$.ownerList[*].pets[*].visits")
+			.asArray()
+			.isEmpty();
 		assertThat(this.mvc.get().uri("/owners/11")).hasStatusOk()
 			.bodyJson()
 			.isLenientlyEqualTo("""
@@ -125,6 +139,25 @@ class OwnersIntegrationTests {
 			.extractingPath("$.ownerList[0].pets[*].name")
 			.asArray()
 			.containsExactly("Biscuit");
+	}
+
+	@Test
+	@Transactional
+	void showsAnAddedVisitInTheJson() {
+		assertThat(this.mvc.post()
+			.uri("/owners/6/pets/8/visits")
+			.param("date", "2013-01-03")
+			.param("description", "<script>alert(1)</script> & \"x\" 'y'")).hasStatus(HttpStatus.SEE_OTHER)
+			.hasRedirectedUrl("/owners/6.html");
+
+		assertThat(this.mvc.get().uri("/owners/6")).bodyJson()
+			.extractingPath("$.pets[0].visits[*].description")
+			.asArray()
+			.containsExactly("<script>alert(1)</script> & \"x\" 'y'", "neutered", "rabies shot");
+		assertThat(this.mvc.get().uri("/owners/6")).bodyJson()
+			.extractingPath("$.pets[0].visits[0].id")
+			.asNumber()
+			.satisfies((id) -> assertThat(id.intValue()).isGreaterThan(4));
 	}
 
 	@Test

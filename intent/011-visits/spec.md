@@ -179,3 +179,10 @@ Write tests are `@Transactional` (MockMvc and HtmlUnit-over-MockMvc run on the t
 - Confirm the shared date-parsing helper against `PetController` before extracting; do not change birth-date behaviour.
 - Do not add Cancel or back links without a design-system update. Request design-owner review of the previews (concern 5) before merge.
 - The full spec needs human review before a plan is written.
+
+## 10. Deviations
+- **Visit list fragment signature.** `owners/visitList.html :: visits(petName, list)` instead of `visits(list)`: the hidden caption names the pet ("Visits of Samantha"), which the VisitList component asks the consumer to provide.
+- **`VisitController` dependencies.** It also takes `PetTypeRepository`, to name the pet's type in the context block. `PetTypeRepository` has only `findAll()`, so the controller filters its six rows rather than widening the repository.
+- **Shared date helper.** The date rule moved from `PetController` into a package-private `IsoDates.parse(String)`, used by both controllers; birth-date behaviour is unchanged.
+- **Two links in the actions cell.** Written with no whitespace between them, as in the DataTable example; `.pc-col-actions a + a` supplies the `space-3` gap. Text extraction (HtmlUnit, copy and paste) therefore runs the two link texts together; screen readers still announce two links.
+- **Design review.** The design-system half of 4.6 landed separately (PR #52). VisitForm and VisitList still note that the design owner has not reviewed them (concern 5).

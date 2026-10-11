@@ -52,9 +52,12 @@ class OwnerController {
 
 	private final PetTypeRepository petTypes;
 
-	OwnerController(OwnerRepository owners, PetTypeRepository petTypes) {
+	private final VisitRepository visits;
+
+	OwnerController(OwnerRepository owners, PetTypeRepository petTypes, VisitRepository visits) {
 		this.owners = owners;
 		this.petTypes = petTypes;
+		this.visits = visits;
 	}
 
 	/**
@@ -145,17 +148,22 @@ class OwnerController {
 	}
 
 	/**
-	 * Looks up one owner for the details page and its JSON, naming each pet's type.
-	 * Unknown ids are 404.
+	 * Looks up one owner for the details page and its JSON, naming each pet's type and
+	 * loading all their pets' visits in one query. Unknown ids are 404.
 	 */
 	private OwnerDetailView ownerDetails(Integer id) {
 		Owner owner = findOwner(id);
 		Map<Integer, String> typeNames = this.petTypes.findAll()
 			.stream()
 			.collect(Collectors.toMap(PetType::id, PetType::name));
+		Map<Integer, List<Visit>> visitsByPet = owner.pets().isEmpty() ? Map.of()
+				: this.visits.findByPetIds(owner.pets().stream().map(Pet::id).toList())
+					.stream()
+					.collect(Collectors.groupingBy(Visit::petId));
 		List<PetDetailView> pets = owner.pets()
 			.stream()
-			.map((pet) -> new PetDetailView(pet.id(), pet.name(), pet.birthDate(), typeNames.get(pet.type().getId())))
+			.map((pet) -> new PetDetailView(pet.id(), pet.name(), pet.birthDate(), typeNames.get(pet.type().getId()),
+					VisitView.mostRecentFirst(visitsByPet.getOrDefault(pet.id(), List.of()))))
 			.sorted(DETAIL_BY_NAME)
 			.toList();
 		return new OwnerDetailView(owner.id(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),

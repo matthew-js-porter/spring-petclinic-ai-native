@@ -2,13 +2,10 @@ package org.springframework.samples.petclinic.owner;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import jakarta.validation.Valid;
 
@@ -36,12 +33,6 @@ import org.springframework.web.servlet.view.RedirectView;
 class PetController {
 
 	private static final String FORM_VIEW = "owners/petForm";
-
-	// ISO_LOCAL_DATE resolves strictly, so 2024-02-30 is rejected rather than adjusted. It
-	// also reads signed and five-digit years, which the pattern rules out first.
-	private static final DateTimeFormatter BIRTH_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
-
-	private static final Pattern BIRTH_DATE_SHAPE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
 
 	private static final Comparator<PetType> TYPE_BY_NAME = Comparator.comparing(PetType::name);
 
@@ -85,7 +76,7 @@ class PetController {
 		if (result.hasErrors()) {
 			return new ModelAndView(form(model, owner, null, types));
 		}
-		this.pets.insert(ownerId, form.name(), parseBirthDate(form.birthDate()).orElseThrow(),
+		this.pets.insert(ownerId, form.name(), IsoDates.parse(form.birthDate()).orElseThrow(),
 				Integer.valueOf(form.typeId()));
 		flash.addFlashAttribute("message", "New Pet has been Added");
 		return seeOther(ownerId);
@@ -109,7 +100,7 @@ class PetController {
 		if (result.hasErrors()) {
 			return new ModelAndView(form(model, owner, petId, types));
 		}
-		if (!this.pets.update(ownerId, petId, form.name(), parseBirthDate(form.birthDate()).orElseThrow(),
+		if (!this.pets.update(ownerId, petId, form.name(), IsoDates.parse(form.birthDate()).orElseThrow(),
 				Integer.valueOf(form.typeId()))) {
 			throw petNotFound(petId);
 		}
@@ -124,7 +115,7 @@ class PetController {
 	 */
 	private void checkContext(PetForm form, BindingResult result, Owner owner, Integer petId, List<PetType> types) {
 		if (!result.hasFieldErrors("birthDate")) {
-			Optional<LocalDate> birthDate = parseBirthDate(form.birthDate());
+			Optional<LocalDate> birthDate = IsoDates.parse(form.birthDate());
 			if (birthDate.isEmpty()) {
 				result.rejectValue("birthDate", "format", "Birth Date must be a date in the form yyyy-mm-dd.");
 			}
@@ -139,18 +130,6 @@ class PetController {
 			.stream()
 			.anyMatch((pet) -> !Objects.equals(pet.id(), petId) && pet.name().equalsIgnoreCase(form.name()))) {
 			result.rejectValue("name", "duplicate", "This owner already has a pet with this name.");
-		}
-	}
-
-	private static Optional<LocalDate> parseBirthDate(String text) {
-		if (!BIRTH_DATE_SHAPE.matcher(text).matches()) {
-			return Optional.empty();
-		}
-		try {
-			return Optional.of(LocalDate.parse(text, BIRTH_DATE));
-		}
-		catch (DateTimeParseException ex) {
-			return Optional.empty();
 		}
 	}
 
