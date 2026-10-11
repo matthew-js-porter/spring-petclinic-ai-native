@@ -1,6 +1,7 @@
 # Spec: Custom Error Page
 Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
+Visual reference: [PetClinic Error Page.html](./PetClinic%20Error%20Page.html) (404, 400, 405, 500 and other 4xx at desktop; 404, 400, 405 and 500 at 320px; built with `docs/design-system/`). The wording awaits design-owner review (concern 5).
 
 ## 1. Summary
 Replace Spring Boot's default error output for browser requests with one designed error page in the shared layout, keeping the HTTP status of the failed request.
