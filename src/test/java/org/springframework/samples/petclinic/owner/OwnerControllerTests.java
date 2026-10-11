@@ -36,6 +36,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 @WebMvcTest(OwnerController.class)
 class OwnerControllerTests {
@@ -48,6 +49,9 @@ class OwnerControllerTests {
 
 	@MockitoBean
 	private PetTypeRepository petTypes;
+
+	@MockitoBean
+	private VisitRepository visits;
 
 	@BeforeEach
 	void setUp() {
@@ -355,11 +359,66 @@ class OwnerControllerTests {
 	}
 
 	@Test
+	void listsEachPetsVisitsMostRecentFirst() {
+		stubOwner(owner(6, "Jean", "Coleman", pet(7, "Samantha"), pet(8, "Max"), pet(9, "Lucky")));
+		given(this.visits.findByPetIds(any())).willReturn(List.of(visit(1, 7, "2013-01-01", "rabies shot"),
+				visit(2, 8, "2013-01-02", "rabies shot"), visit(3, 8, "2013-01-03", "neutered"),
+				visit(4, 7, "2013-01-04", "spayed"), visit(5, 7, "2013-01-04", "checkup")));
+
+		String body = body("/owners/6.html");
+
+		assertThat(body).contains("<h3 class=\"pc-section-title\">Visits</h3>",
+				"<caption class=\"visually-hidden\">Visits of Samantha</caption>",
+				"<td class=\"pc-col-date\">2013-01-04</td>", "<p class=\"pc-muted pc-empty\">This pet has no visits.</p>");
+		String visitsSection = body.substring(body.indexOf(">Visits</h3>"));
+		assertThat(visitsSection.indexOf(">Lucky</h4>")).isLessThan(visitsSection.indexOf(">Max</h4>"));
+		assertThat(visitsSection.indexOf(">Max</h4>")).isLessThan(visitsSection.indexOf(">Samantha</h4>"));
+		assertThat(visitsSection.indexOf("checkup")).isLessThan(visitsSection.indexOf("spayed"));
+		assertThat(visitsSection.indexOf("spayed")).isLessThan(visitsSection.indexOf("2013-01-01"));
+		assertThat(this.mvc.get().uri("/owners/6")).bodyJson().isStrictlyEqualTo("""
+				{"id":6,"firstName":"Jean","lastName":"Coleman","address":"6 Main St.","city":"Madison",
+				 "telephone":"6085550006","pets":[
+				  {"id":9,"name":"Lucky","birthDate":"2010-01-01","type":"cat","visits":[]},
+				  {"id":8,"name":"Max","birthDate":"2010-01-01","type":"cat","visits":[
+				   {"id":3,"date":"2013-01-03","description":"neutered"},
+				   {"id":2,"date":"2013-01-02","description":"rabies shot"}]},
+				  {"id":7,"name":"Samantha","birthDate":"2010-01-01","type":"cat","visits":[
+				   {"id":5,"date":"2013-01-04","description":"checkup"},
+				   {"id":4,"date":"2013-01-04","description":"spayed"},
+				   {"id":1,"date":"2013-01-01","description":"rabies shot"}]}]}
+				""");
+		then(this.visits).should(times(2)).findByPetIds(any());
+	}
+
+	@Test
+	void linksEachPetToEditPetThenAddVisit() {
+		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo")));
+
+		assertThat(body("/owners/1.html")).containsPattern("<td class=\"pc-col-actions\"><a href=\"/owners/1/pets/1/edit.html\">"
+				+ "Edit Pet<span\\s+class=\"visually-hidden\"> Leo</span></a><a\\s+href=\"/owners/1/pets/1/visits/new.html\">"
+				+ "Add Visit<span\\s+class=\"visually-hidden\"> Leo</span></a></td>");
+	}
+
+	@Test
+	void escapesVisitDescriptions() {
+		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo")));
+		given(this.visits.findByPetIds(any()))
+			.willReturn(List.of(visit(5, 1, "2020-01-01", "<script>alert(1)</script> & \"x\" 'y'")));
+
+		assertThat(body("/owners/1.html")).contains("&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;x&quot; &#39;y&#39;")
+			.doesNotContain("<script>alert(1)</script>");
+		assertThat(this.mvc.get().uri("/owners/1")).bodyJson()
+			.extractingPath("$.pets[0].visits[0].description")
+			.isEqualTo("<script>alert(1)</script> & \"x\" 'y'");
+	}
+
+	@Test
 	void showsAMessageInsteadOfAnEmptyPetsTable() {
 		stubOwner(owner(11, "Helen", "Ostrander"));
 
 		assertThat(body("/owners/11.html")).contains("<p class=\"pc-muted pc-empty\">This owner has no pets.</p>")
-			.doesNotContain("<table");
+			.doesNotContain("<table", ">Visits</h3>");
+		then(this.visits).should(never()).findByPetIds(any());
 	}
 
 	@Test
@@ -397,7 +456,7 @@ class OwnerControllerTests {
 			.bodyJson()
 			.isStrictlyEqualTo("""
 					{"id":1,"firstName":"George","lastName":"Franklin","address":"1 Main St.","city":"Madison",
-					 "telephone":"6085550001","pets":[{"id":1,"name":"Leo","birthDate":"2010-09-07","type":"cat"}]}
+					 "telephone":"6085550001","pets":[{"id":1,"name":"Leo","birthDate":"2010-09-07","type":"cat","visits":[]}]}
 					""");
 	}
 
@@ -716,6 +775,10 @@ class OwnerControllerTests {
 	private static Owner owner(int id, String firstName, String lastName, Pet... pets) {
 		return new Owner(id, firstName, lastName, id + " Main St.", "Madison", "608555000" + id,
 				new LinkedHashSet<>(Set.of(pets)));
+	}
+
+	private static Visit visit(int id, int petId, String date, String description) {
+		return new Visit(id, petId, LocalDate.parse(date), description);
 	}
 
 	private static Pet pet(int id, String name) {

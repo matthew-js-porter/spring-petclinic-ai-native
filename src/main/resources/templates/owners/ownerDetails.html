@@ -52,11 +52,22 @@
 				<td class="text-nowrap" th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}">2010-09-07</td>
 				<td th:text="${pet.type}">cat</td>
 				<td class="pc-col-actions"><a th:href="@{/owners/{ownerId}/pets/{petId}/edit.html(ownerId=${owner.id},petId=${pet.id})}">Edit Pet<span
+						class="visually-hidden" th:text="| ${pet.name}|"> Leo</span></a><a
+						th:href="@{/owners/{ownerId}/pets/{petId}/visits/new.html(ownerId=${owner.id},petId=${pet.id})}">Add Visit<span
 						class="visually-hidden" th:text="| ${pet.name}|"> Leo</span></a></td>
 			</tr>
 			</tbody>
 		</table>
 	</div>
+
+	<th:block th:unless="${#lists.isEmpty(owner.pets)}">
+		<h3 class="pc-section-title">Visits</h3>
+
+		<th:block th:each="pet : ${owner.pets}">
+			<h4 class="pc-subsection-title" th:text="${pet.name}">Leo</h4>
+			<th:block th:replace="~{owners/visitList :: visits(${pet.name}, ${pet.visits})}"></th:block>
+		</th:block>
+	</th:block>
 </th:block>
 </body>
 </html>

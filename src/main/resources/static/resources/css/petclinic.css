@@ -174,6 +174,20 @@ button:focus-visible,
 	color: var(--pc-ink);
 }
 
+/* Subsection title: an h4 under a section title, such as one pet's name under "Visits" */
+.pc-subsection-title {
+	margin: 24px 0 8px;
+	font-family: var(--pc-font-display);
+	font-size: 18px;
+	line-height: 24px;
+	font-weight: 700;
+	color: var(--pc-ink);
+}
+
+.pc-section-title + .pc-subsection-title {
+	margin-top: 0;
+}
+
 /* Empty collection: one muted sentence in place of a table */
 .pc-empty {
 	margin: 0;
@@ -205,6 +219,11 @@ button:focus-visible,
 	margin: 0;
 	padding: 4px 16px 12px;
 	overflow-wrap: anywhere;
+}
+
+/* Context block: read-only facts above a form, such as the pet and owner on New Visit */
+.pc-detail.pc-context {
+	margin-bottom: 24px;
 }
 
 @media (min-width: 768px) {
@@ -250,9 +269,23 @@ button:focus-visible,
 	width: 50%;
 }
 
-/* Actions column: one link per row that opens another page */
+/* Actions column: the row's links that open another page, on one line, space-3 apart */
 .pc-col-actions {
 	white-space: nowrap;
+}
+
+.pc-col-actions a + a {
+	margin-left: 12px;
+}
+
+/* Visit list: a two-column table whose description wraps, so it never scrolls the page */
+.pc-visits .pc-col-date {
+	width: 1%;
+	white-space: nowrap;
+}
+
+.pc-visits td:last-child {
+	overflow-wrap: anywhere;
 }
 
 /* Wide tables scroll inside their region at narrow widths instead of the page */
