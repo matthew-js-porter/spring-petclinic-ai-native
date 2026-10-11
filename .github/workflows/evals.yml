@@ -76,6 +76,18 @@ jobs:
             exit 1
           fi
 
+      # skill-creator's benchmark.md per skill: pass rates, time and tokens per configuration.
+      - name: Add results to the job summary
+        run: |
+          found=0
+          while IFS= read -r f; do
+            found=1
+            { cat "$f"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          done < <(find skill-evals -name benchmark.md 2>/dev/null | sort)
+          if [ "$found" = 0 ]; then
+            echo "No skill-creator benchmark was produced; see the Claude Code Report above." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - uses: actions/upload-artifact@v7
         with:
           name: skill-evals
