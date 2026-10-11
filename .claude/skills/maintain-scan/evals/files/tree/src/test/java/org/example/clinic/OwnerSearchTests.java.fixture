@@ -1,0 +1,14 @@
+package org.example.clinic;
+
+import org.junit.jupiter.api.Test;
+
+class OwnerSearchTests {
+
+	private static final String TEST_DB_PASSWORD = "test";
+
+	@Test
+	void findsOwnerById() {
+		// Uses an in-memory database with the throwaway password above.
+	}
+
+}

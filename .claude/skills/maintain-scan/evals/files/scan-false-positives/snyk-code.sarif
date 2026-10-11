@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SnykCode",
+          "rules": [
+            {
+              "id": "SNYK-EVAL-CODE-2002",
+              "shortDescription": {
+                "text": "Use of Hardcoded Credentials"
+              },
+              "help": {
+                "text": "Credentials are hardcoded in source. Load them from configuration.",
+                "markdown": "Credentials are hardcoded in source. Load them from configuration."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "high"
+                ],
+                "security-severity": "7.4"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SNYK-EVAL-CODE-2002",
+          "level": "error",
+          "message": {
+            "text": "High severity: a hardcoded password is assigned to TEST_DB_PASSWORD."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "src/test/java/org/example/clinic/OwnerSearchTests.java"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

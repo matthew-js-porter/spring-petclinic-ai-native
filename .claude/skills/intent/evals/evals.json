@@ -1,0 +1,48 @@
+{
+  "skill_name": "intent",
+  "evals": [
+    {
+      "id": 1,
+      "name": "detailed-vet-filter",
+      "prompt": "/intent The Veterinarians page lists every vet with their specialties, but front-desk staff can't narrow it down. When an owner phones about a dental problem they scroll through the whole list looking for 'dentistry'. I'd like staff to pick a specialty and see only the vets who have it, with a way to go back to all vets. Vets with no specialty should still show up under 'all'. The JSON for vets should stay as it is. Out of scope: searching vets by name, editing vets, and anything about appointments. It's for the front-desk staff. I don't know yet whether the chosen specialty should be kept in the page address so it can be bookmarked, so leave that open. Same constraints as the other pages: server-rendered, follows the design system, works at phone width. Don't ask me more questions, I've told you all I know; just write it, I accept it, but don't commit.\n\n(Test run: save the file under your outputs directory as <NNN>-<kebab-name>/intent.md instead of under intent/.)",
+      "expected_output": "One intent.md in a folder numbered one above the highest existing intent/ folder, following the template, about a page, with the bookmarking question under Open questions, and no git commit.",
+      "files": [],
+      "expectations": [
+        "Exactly one intent.md was written, in a folder named <NNN>-<kebab-name> where NNN is one above the highest numbered folder in the repository's intent/ directory.",
+        "The file has these level-2 headings in this order: Problem, Proposed outcome, Affected users and systems, Constraints, Open questions.",
+        "The file has at most 70 non-blank lines (count them with a script).",
+        "None of these strings appear in the file: VetController, VetRepository, vetList.html, @Query, jQuery, React, JavaScript.",
+        "The Open questions section mentions whether the chosen specialty is kept in the page address or URL (bookmarking).",
+        "The Proposed outcome lists searching vets by name, editing vets and appointments as out of scope.",
+        "The Proposed outcome states that the vets JSON stays unchanged.",
+        "The transcript shows no git commit or git push."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "vague-owners",
+      "prompt": "/intent the owners part of the app is kind of annoying to use, can you write up an intent to make it better",
+      "expected_output": "One short round of focused clarifying questions (2 to 4) about what is annoying, who is affected and what better looks like; no intent.md written yet because nothing concrete is known.",
+      "files": [],
+      "expectations": [
+        "The final response asks clarifying questions about the problem (for example what is annoying, who is affected, or what better looks like).",
+        "The final response asks at most 4 questions (count the question marks with a script).",
+        "No intent.md was written anywhere.",
+        "The transcript shows no git commit or git push."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "two-ideas",
+      "prompt": "/intent Two things. Owners keep forgetting their pets' visits, so we should email them a reminder the day before. And the vets page looks bare, it should show a photo of each vet. Write it up; I've got nothing more to add right now, and don't commit.\n\n(Test run: save any intent under your outputs directory as <NNN>-<kebab-name>/intent.md instead of under intent/.)",
+      "expected_output": "The two unrelated ideas are not merged into one intent: either the skill asks which to capture first, or it writes one intent per idea, or one intent with the other idea recorded as out of scope or an open question for a separate intent.",
+      "files": [],
+      "expectations": [
+        "No single intent.md treats both the visit email reminders and the vet photos as in-scope outcomes of the same intent.",
+        "Either the final response asks which idea to capture first, or every intent.md written covers exactly one of the two ideas and any idea without its own intent is named as out of scope, an open question, or a separate intent.",
+        "Every intent.md written has these level-2 headings in this order: Problem, Proposed outcome, Affected users and systems, Constraints, Open questions.",
+        "The transcript shows no git commit or git push."
+      ]
+    }
+  ]
+}
