@@ -28,7 +28,7 @@ Prerequisites: JDK 25. With [SDKMAN](https://sdkman.io), run `sdk env install` i
 
 ## Skill evals
 
-The pipeline's skills (`/intent`, `/spec`, `/maintain-scan` in [`.claude/skills/`](.claude/skills)) each have eval cases in `evals/evals.json`, run with Anthropic's [skill-creator](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator) plugin. CI runs them on PRs that change a skill and comments the results; they are advisory and never block a merge.
+The pipeline's skills (`/intent`, `/spec`, `/maintain-scan` in [`.claude/skills/`](.claude/skills)) each have eval cases in `evals/evals.json`, run with Anthropic's [skill-creator](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator) plugin. CI runs them on PRs that change a skill, comments the results, and fails the check when the PR's version scores lower than `main`'s on any eval.
 
 To run them locally:
 

@@ -5,13 +5,13 @@ Author: matthew-js-porter
 > **Revision.** The first version of this spec (commit `1027dd1`) designed a custom Python harness for all six AI steps. Planning replaced it with Anthropic's skill-creator plugin, invoked as `/skill-creator eval <skill>` with no runner scripts of our own, and narrowed the scope to the steps that are skills. Code review, spec-to-code and `@claude` fixes are deferred (section 7). The intent's scope note ("all six AI steps are in scope") is therefore only partly met, deliberately.
 
 ## 1. Summary
-Give the pipeline's skill-driven AI steps a small, repeatable eval that produces a score, so a change to a skill, `CLAUDE.md` or the model shows whether that step got better or worse. Evals are advisory, version-controlled, cheap, and never touch `main`.
+Give the pipeline's skill-driven AI steps a small, repeatable eval that produces a score, so a change to a skill, `CLAUDE.md` or the model shows whether that step got better or worse. Evals are version-controlled, cheap, never touch `main`, and fail the PR check on a regression.
 
 - **Three steps, one skill each:** `/intent`, `/spec` and `/maintain-scan`. Maintain-scan's triage instructions moved out of `maintain-scan.yml` into a project skill so it can be evaluated the same way; the workflow calls the skill and keeps only the publishing steps.
 - **Runner:** the [skill-creator plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator), enabled for the project in `.claude/settings.json`. Each skill carries `evals/evals.json` in skill-creator's format, with fixtures in `evals/files/`. `/skill-creator eval <skill>` runs every eval in its own subagent, grades each expectation with evidence, aggregates pass rate, time and tokens, and renders a review page.
 - **Baseline:** skill-creator's version comparison. The skill as on `origin/main` (`old_skill`) and the working copy (`with_skill`) run the same evals, so the change in pass rate is the edit's effect.
 - **Where it runs:** locally by typing `/skill-creator eval <skill>`, and in `.github/workflows/evals.yml`, which runs the same command through `claude-code-action` on PRs that change a skill or `CLAUDE.md`, and on dispatch. Claude posts the results as a PR comment; the review pages are a run artifact.
-- **Out of scope** (as in the intent): blocking merges, evaluating the PetClinic app, deploy/rollback/monitoring, comparing models or providers. Also out of scope now: evals for code review, spec-to-code and `@claude` fixes, a weekly run and a stored history (section 7).
+- **Out of scope** (as in the intent): making the evals block merges (the check fails on a regression, F9, but is not a required check; making it one is the owner's branch-protection decision), evaluating the PetClinic app, deploy/rollback/monitoring, comparing models or providers. Also out of scope now: evals for code review, spec-to-code and `@claude` fixes, a weekly run and a stored history (section 7).
 
 | Skill | Evals | Score |
 |---|---|---|
@@ -40,7 +40,7 @@ Give the pipeline's skill-driven AI steps a small, repeatable eval that produces
 | F6 | **Format.** Evals use skill-creator's `evals.json` (`id`, `name`, `prompt`, `expected_output`, `files`, `expectations`). Prompts that would make a skill write into the repo ask it, as a test run, to save under skill-creator's outputs directory instead. Expectations are phrased so the grader can check them from outputs, `git status`, the transcript or the final response. |
 | F7 | **Invocation.** Locally: `/skill-creator eval <skill>`. In CI, `evals.yml` runs the same command, unattended, for each skill that has `evals/evals.json` and changed in the PR (all of them when `CLAUDE.md` changed), or for the skill named in a `workflow_dispatch`. It compares `origin/main`'s version of the skill with the working copy. No runner script, wrapper or report generator exists outside skill-creator. |
 | F8 | **Reporting.** On a PR, Claude posts one comment with `gh pr comment`: a table per skill (eval, `old_skill` pass rate, `with_skill` pass rate, change), the failed expectations with one line of evidence each, and a link to the run, whose `skill-evals` artifact holds skill-creator's workspaces (benchmark, gradings, outputs, `review.html`) for 90 days. GitHub cannot render the HTML report inline, so the comment links to the artifact. On dispatch the same summary is the job's final message. Every run also appends each skill's `benchmark.md` (pass rate, time and tokens per configuration) to the job summary, after the token check. |
-| F9 | **Advisory.** No eval result fails a required check or blocks a merge. The job uses `continue-on-error: true`. |
+| F9 | **Regression gate.** After the results are uploaded, the job fails when any eval's `with_skill` pass rate is lower than its `old_skill` pass rate, or below 100% when there is no `old_skill` to compare, or when no benchmark was produced (including a Claude error, which is otherwise tolerated so partial results are still uploaded). The failing evals are listed as annotations. The check blocks merging only if branch protection makes it required. (Revised from "advisory" after the first PR runs.) |
 | F10 | **Adding a case.** A new eval is one entry in the skill's `evals.json`, plus any fixture under its `evals/files/`. `CLAUDE.md`'s Evals section says when and how. |
 
 ### Non-functional
@@ -115,7 +115,7 @@ Deliberate departures:
 ## 7. Areas of concern
 1. **Scope is narrower than the intent.** Code review runs through the `code-review` plugin and `REVIEW.md`, not a project skill; spec-to-code is interactive work; `@claude` fixes are built by the action from event context. Covering them needs a runner of our own, which was rejected. Deferred to a follow-up intent, as are a weekly run and a stored history.
 2. **Executors share the repository.** A skill under test could write into the real `intent/` despite the test-run instruction. In CI the checkout is thrown away; locally, `git status` shows it. Expectations check that the repository is unchanged.
-3. **Non-determinism.** Model graders, a model orchestrator, one run per eval and an unpinned model mean a score can move on noise. Marks are advisory; the paired `old_skill` comparison on the same PR run is the main signal.
+3. **Non-determinism.** Model graders, a model orchestrator, one run per eval and an unpinned model mean a score can move on noise. The paired `old_skill` comparison on the same PR run is the signal the gate uses, so a noisy run can fail a check that a re-run passes; re-run before changing a skill because of a single failure.
 4. **Small samples.** 2 or 3 evals per skill: one flipped expectation moves a pass rate by several points.
 5. **`/intent` is interactive.** skill-creator runs are single-shot, so the detailed case carries its answers in the prompt and the vague case checks the questions themselves.
 6. **Subscription allowance** (intent 002, C2). Eval runs share a personal allowance with review, spec and maintain. If they crowd out the real pipeline, move to an API key; that decision is the owner's.
@@ -129,6 +129,6 @@ Deliberate departures:
 5. The step model is not pinned.
 
 ## 9. Open questions (carried from the intent)
-- Score thresholds that count as a regression worth flagging, and when evals might become blocking. Owner: Matthew.
+- Score thresholds: the check now fails on any per-eval drop below `main` (F9). Whether that is too strict given run-to-run noise, and whether to make the check required, is open. Owner: Matthew.
 - Whether a Pro subscription may be used for automated runs at this volume, and when to move to an API key. Owner: Matthew (concern 6).
 - Evals for code review, spec-to-code and `@claude` fixes, and a weekly run with history. Owner: Matthew, as a follow-up intent.
