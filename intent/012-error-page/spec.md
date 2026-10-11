@@ -9,7 +9,7 @@ Replace Spring Boot's default error output for browser requests with one designe
 - The page shows the shared navbar (no item current) and footer, an `h2` naming the error, one plain sentence appropriate to the status, and two action links: the homepage and Find Owners.
 - Statuses with their own wording: 404, 400, 405, 500. Every other 4xx or 5xx gets a generic sentence for its class.
 - Nothing from the exception, request or error attributes is rendered: no message, exception class, trace, SQL or path. The page is chosen by status alone.
-- JSON clients keep getting Boot's JSON error body (`timestamp`, `status`, `error`, `path`). `server.error.include-*` is pinned to `never` in YAML so that stays true.
+- JSON clients keep getting Boot's JSON error body (`timestamp`, `status`, `error`, `path`). Boot's defaults already leave out the message, exception, trace and binding errors, and no `server.error.*` settings are added.
 - The design system gains an **ErrorPage** page pattern (README and `preview.html`), in the same PR. No new colour, radius, shadow or asset.
 - Upstream's deliberate-error demo and its illustration are left out (concern 1).
 - Out of scope: changing which requests fail or their status codes, error logging or monitoring, i18n, login.
@@ -54,16 +54,7 @@ Replace Spring Boot's default error output for browser requests with one designe
 - Add `src/main/resources/templates/error.html`. Boot's `DefaultErrorViewResolver` tries `error/<status>`, then `error/4xx` or `error/5xx`, then `error`; with only `error.html` present, all statuses use it. `BasicErrorController.errorHtml` sets the response status from the original request, so the status is kept (F2).
 - The template reads one model attribute, `status` (an `Integer`, set by `BasicErrorController`), and switches on it with `th:switch`/`th:case` or a `th:with` lookup. It does not read `error`, `message`, `path`, `exception`, `trace` or `errors`. Do not use `#request`/`#httpServletRequest` to read the original URI or exception.
 - No new Java is needed for the page. Content negotiation stays Boot's: `errorHtml` is `produces=text/html`; everything else goes to `error()` (JSON).
-- `application.yaml` gains an explicit block so no future default change can leak internals:
-  ```yaml
-  server:
-    error:
-      include-message: never
-      include-exception: false
-      include-stacktrace: never
-      include-binding-errors: never
-  ```
-  (Merged into the existing `server:` mapping, alongside `servlet.session`.) Each of these is already the default; pinning them makes F7 and F8 a stated, tested contract. `include-path` is left at its default (the JSON body keeps `path`, as today). Do not set `management.*`.
+- `application.yaml` is not changed. No `server.error.*` properties are added: Boot's defaults already omit the message, exception, trace and binding errors, and the tests below pin that behaviour (F7, F8). Do not set `management.*`.
 - No `@ExceptionHandler`/`@ControllerAdvice`: the status and exceptions stay each feature's own decision (intent: out of scope). An unhandled exception still logs through Spring's usual path; logging is unchanged.
 
 ### 4.2 Content
@@ -95,11 +86,11 @@ Layout, in `main`:
 
 ### 4.4 Files touched
 - New: `src/main/resources/templates/error.html`, `docs/design-system/components/ErrorPage/{README.md,preview.html}`, new tests (section 6).
-- Changed: `src/main/resources/application.yaml`, `src/main/resources/static/resources/css/petclinic.css` (only if 4.2 needs the list rule), `docs/design-system/README.md`, `CLAUDE.md`.
+- Changed: `src/main/resources/static/resources/css/petclinic.css` (only if 4.2 needs the list rule), `docs/design-system/README.md`, `CLAUDE.md`.
 - No change to controllers, repositories or other templates.
 
 ## 5. Security
-- Information disclosure is the point of the intent (Snyk and `/security-review` check for it). Controls: the template renders status-keyed static text only (4.1); `include-*` is pinned (4.1); tests assert absence of internals (6).
+- Information disclosure is the point of the intent (Snyk and `/security-review` check for it). Controls: the template renders status-keyed static text only (4.1); Boot's defaults omit message, exception and trace; tests assert absence of internals (6).
 - The HTML never echoes the request path or any input, so there is no reflected-content or XSS surface on the page. Thymeleaf's `th:text` escaping would apply regardless.
 - The JSON body still carries `path` and the reason phrase (`error`), as today. Neither is an internal; the path is the caller's own request. It is not rendered in HTML.
 - A direct visit to `/error` renders the 500 page with status 500 and reveals nothing. Left as Boot's behaviour.
@@ -135,7 +126,7 @@ Because MockMvc does not forward to `/error` (section 2), the error page is test
 3. The page never shows the numeric status, the reason phrase from Boot, or the request path; the intent only requires "plain words".
 4. Headings and sentences are as in 4.2; "Go to the Homepage" and "Find Owners" are the two ways on. Find Owners links to `/owners.html`, as the navbar does.
 5. No illustration (concern 1); no icon.
-6. `server.error.include-*` is pinned to its defaults purely as a guard; `include-path` is not changed.
+6. No `server.error.*` properties are added; Boot's defaults are relied on and tested.
 7. "JSON clients" means requests whose `Accept` is `application/json` or `*/*`; a request with `Accept: text/html` always gets HTML, including on `/owners/{id}`.
 8. A direct visit to `/error` is not treated specially.
 9. The 500 path is proven with a test-only controller; nothing is added to `src/main` for it.
