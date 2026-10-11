@@ -1,0 +1,93 @@
+<!-- @dsCard group="Patterns" height=1180 subtitle="404 in the full layout; 400, 405, 500 and another 4xx; 404 at 320px" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ErrorPage — preview</title>
+<style>
+  .cap { margin: 0 0 var(--space-3); font-size: 14px; line-height: 21px; color: var(--ink-muted); border-bottom: var(--border-hairline) solid var(--line); padding-bottom: var(--space-1); }
+  .pc-page-title { margin: 0 0 var(--space-5); font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; color: var(--ink); }
+  .page { border: var(--border-hairline) solid var(--line); }
+  .page main { padding: var(--space-6) var(--space-6); }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-6); align-items: start; margin-top: var(--space-6); }
+  .phone { width: 320px; box-sizing: border-box; padding: var(--space-5) var(--space-4); border: var(--border-hairline) solid var(--line); }
+  .phone .pc-page-title { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<div class="pc-pad">
+  <section aria-labelledby="t404">
+    <p class="cap">/owners/999.html, 404, in the shared layout: no navbar item is current</p>
+    <div class="page">
+      <header>
+        <nav class="pc-navbar" aria-label="Main">
+          <a class="pc-brand" href="#"><img src="../../assets/Logos/petclinic-mark.png" alt="">Spring PetClinic</a>
+          <ul class="pc-nav">
+            <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7.5 8 2.5l5.5 5V13.5h-11z"/></svg> Home</a></li>
+            <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.2 10.2 13.5 13.5M11 6.75a4.25 4.25 0 1 1-8.5 0 4.25 4.25 0 0 1 8.5 0z"/></svg> Find Owners</a></li>
+            <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.5M2.5 8h.5M2.5 12h.5"/></svg> Veterinarians</a></li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <h2 class="pc-page-title" id="t404">Page Not Found</h2>
+        <p class="pc-error-text">We could not find the page you asked for. It may have moved, or the address may be mistyped.</p>
+        <ul class="pc-error-actions">
+          <li><a class="pc-action" href="#">Go to the Homepage</a></li>
+          <li><a class="pc-action" href="#">Find Owners</a></li>
+        </ul>
+      </main>
+      <footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+    </div>
+  </section>
+
+  <div class="board">
+    <section aria-labelledby="t400">
+      <p class="cap">/owners/abc.html or ?page=0, 400</p>
+      <h2 class="pc-page-title" id="t400">Bad Request</h2>
+      <p class="pc-error-text">The address or the details sent could not be understood. Check the link and try again.</p>
+      <ul class="pc-error-actions">
+        <li><a class="pc-action" href="#">Go to the Homepage</a></li>
+        <li><a class="pc-action" href="#">Find Owners</a></li>
+      </ul>
+    </section>
+    <section aria-labelledby="t405">
+      <p class="cap">POST /vets.html, 405</p>
+      <h2 class="pc-page-title" id="t405">Method Not Allowed</h2>
+      <p class="pc-error-text">This page cannot be used in that way. Go back and use the links on the page instead.</p>
+      <ul class="pc-error-actions">
+        <li><a class="pc-action" href="#">Go to the Homepage</a></li>
+        <li><a class="pc-action" href="#">Find Owners</a></li>
+      </ul>
+    </section>
+    <section aria-labelledby="t500">
+      <p class="cap">An unhandled exception, 500: no message, class or trace</p>
+      <h2 class="pc-page-title" id="t500">Something Went Wrong</h2>
+      <p class="pc-error-text">The clinic ran into a problem on its side. Try again in a moment.</p>
+      <ul class="pc-error-actions">
+        <li><a class="pc-action" href="#">Go to the Homepage</a></li>
+        <li><a class="pc-action" href="#">Find Owners</a></li>
+      </ul>
+    </section>
+    <section aria-labelledby="t4xx">
+      <p class="cap">Any other 4xx, for example 406 or 415</p>
+      <h2 class="pc-page-title" id="t4xx">Request Not Completed</h2>
+      <p class="pc-error-text">The request could not be completed. Check the link and try again.</p>
+      <ul class="pc-error-actions">
+        <li><a class="pc-action" href="#">Go to the Homepage</a></li>
+        <li><a class="pc-action" href="#">Find Owners</a></li>
+      </ul>
+    </section>
+    <section aria-labelledby="t320">
+      <p class="cap">404 at 320px: text wraps, links stack, nothing scrolls sideways</p>
+      <div class="phone">
+        <h2 class="pc-page-title" id="t320">Page Not Found</h2>
+        <p class="pc-error-text">We could not find the page you asked for. It may have moved, or the address may be mistyped.</p>
+        <ul class="pc-error-actions">
+          <li><a class="pc-action" href="#">Go to the Homepage</a></li>
+          <li><a class="pc-action" href="#">Find Owners</a></li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

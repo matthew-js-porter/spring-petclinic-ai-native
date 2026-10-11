@@ -59,8 +59,8 @@
   },
   "lastChange": {
     "by": "matthew-js-porter",
-    "at": "2026-10-11T03:10:00Z",
+    "at": "2026-10-11T03:40:00Z",
     "via": "Claude Code",
-    "note": "Visits (spec 011 §4.6): VisitList component, VisitForm pattern board, DetailList context block, subsection-title type style, two links (Edit Pet, Add Visit) in a DataTable actions cell, visit messages and Add Visit button"
+    "note": "Custom error page (spec 012 §4.3): ErrorPage page pattern with wording table and previews (404, 400, 405, 500, other 4xx, 320px), error content rules, pc-error-actions list"
   }
 }
