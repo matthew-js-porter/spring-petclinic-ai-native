@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New Visit, phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Varela+Round&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#3f7223}a:hover{color:#34302d}
+a:focus-visible,button:focus-visible{outline:2px solid #3f7223;outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.pc-table{width:100%;border-collapse:collapse}
+.pc-table th{padding:12px 16px;text-align:left;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid #34302d}
+.pc-table td{padding:12px 16px;border-bottom:1px solid #e0dfdb;vertical-align:top}
+.pc-table tbody tr:nth-child(odd) td{background:#f4f2f0}
+.pc-detail{margin:0;border-top:2px solid #34302d}
+.pc-detail > div{border-bottom:1px solid #e0dfdb}
+.pc-detail dt{padding:12px 16px 0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:24px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.pc-detail dd{margin:0;padding:4px 16px 12px;overflow-wrap:anywhere}
+.pc-input{box-sizing:border-box;width:100%;min-height:42px;padding:8px 12px;font:inherit;font-size:16px;line-height:24px;color:#34302d;background:#ffffff;border:1px solid #34302d;border-radius:0}
+.pc-input:focus{outline:2px solid #3f7223;outline-offset:2px}
+.pc-input[aria-invalid="true"]{padding:7px 11px;border-width:2px}
+.pc-field-error{margin:0;padding:0 0 0 12px;border-left:4px solid #34302d}
+.pc-button{padding:8px 16px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:24px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#ffffff;background:#3f7223;border:1px solid #3f7223;border-radius:0;cursor:pointer}
+.pc-button:hover{background:#34302d;border-color:#34302d}
+</style>
+</helmet>
+<div style="width: 320px; min-height: 1500px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header style="background: #34302d; border-top: 4px solid #6db33f;">
+<nav aria-label="Main" style="padding: 0 12px; display: flex; justify-content: space-between; align-items: center;">
+<a href="#" style="display: flex; align-items: center; gap: 8px; min-height: 64px; color: #ffffff; text-decoration: none; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 20px; line-height: 24px; font-weight: 700;"><img src="/_blob/d1233400bd84d4e3b675d43b87a2593c" alt="" style="width: 24px; height: 24px;">Spring PetClinic</a>
+<button type="button" aria-expanded="false" aria-label="Toggle navigation" style="width: 48px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid rgba(255,255,255,0.5); border-radius: 0; color: #ffffff;"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h16M3 11h16M3 16h16"></path></svg></button>
+</nav>
+</header>
+<main style="flex-grow: 1; box-sizing: border-box; padding: 48px 12px;">
+<h2 style="margin: 0 0 24px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 32px; line-height: 38px; font-weight: 700;">New Visit</h2>
+<dl class="pc-detail" style="margin-bottom: 24px;">
+<div><dt>Pet</dt><dd>Samantha</dd></div>
+<div><dt>Type</dt><dd>cat</dd></div>
+<div><dt>Owner</dt><dd>Jean Coleman</dd></div>
+</dl>
+<p role="alert" style="margin: 0 0 24px; padding: 8px 16px; border-left: 4px solid #34302d;">Visit not saved: 2 fields need attention.</p>
+<form method="post" action="#" novalidate style="display: flex; flex-direction: column; gap: 12px; margin: 0 0 24px;">
+<p style="margin: 0; color: #5c5752;">All fields are required.</p>
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<label for="date" style="margin: 0;">Date</label>
+<input class="pc-input" id="date" name="date" type="date" value="" required autocomplete="off" aria-invalid="true" aria-describedby="date-help date-error">
+<p id="date-help" style="margin: 0; font-size: 14px; line-height: 21px; color: #5c5752;">yyyy-mm-dd</p>
+<p id="date-error" class="pc-field-error">Date is required.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<label for="description" style="margin: 0;">Description</label>
+<input class="pc-input" id="description" name="description" type="text" value="" maxlength="255" required autocomplete="off" aria-invalid="true" aria-describedby="description-error">
+<p id="description-error" class="pc-field-error">Description is required.</p>
+</div>
+<button type="submit" class="pc-button" style="align-self: flex-start;">Add Visit</button>
+</form>
+<h3 style="margin: 48px 0 12px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 24px; line-height: 30px; font-weight: 700;">Previous Visits</h3>
+<table class="pc-table">
+<caption class="vh">Visits of Samantha</caption>
+<thead><tr><th scope="col" style="width: 1%; white-space: nowrap;">Date</th><th scope="col">Description</th></tr></thead>
+<tbody>
+<tr><td style="white-space: nowrap;">2013-01-04</td><td style="overflow-wrap: anywhere;">spayed</td></tr>
+<tr><td style="white-space: nowrap;">2013-01-01</td><td style="overflow-wrap: anywhere;">rabies shot</td></tr>
+</tbody>
+</table>
+</main>
+<footer style="padding: 24px 12px; border-top: 1px solid #e0dfdb; text-align: center; font-size: 14px; line-height: 21px; color: #5c5752;">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":320,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

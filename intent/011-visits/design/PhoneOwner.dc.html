@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Owner Information, phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Varela+Round&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#ffffff}
+a{color:#3f7223}a:hover{color:#34302d}
+a:focus-visible,button:focus-visible{outline:2px solid #3f7223;outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.pc-table{width:100%;border-collapse:collapse}
+.pc-table th{padding:12px 16px;text-align:left;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid #34302d}
+.pc-table td{padding:12px 16px;border-bottom:1px solid #e0dfdb;vertical-align:top}
+.pc-table tbody tr:nth-child(odd) td{background:#f4f2f0}
+.pc-detail{margin:0;border-top:2px solid #34302d}
+.pc-detail > div{border-bottom:1px solid #e0dfdb}
+.pc-detail dt{padding:12px 16px 0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:24px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.pc-detail dd{margin:0;padding:4px 16px 12px;overflow-wrap:anywhere}
+</style>
+</helmet>
+<div style="width: 320px; min-height: 2240px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header style="background: #34302d; border-top: 4px solid #6db33f;">
+<nav aria-label="Main" style="padding: 0 12px; display: flex; justify-content: space-between; align-items: center;">
+<a href="#" style="display: flex; align-items: center; gap: 8px; min-height: 64px; color: #ffffff; text-decoration: none; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 20px; line-height: 24px; font-weight: 700;"><img src="/_blob/d1233400bd84d4e3b675d43b87a2593c" alt="" style="width: 24px; height: 24px;">Spring PetClinic</a>
+<button type="button" aria-expanded="false" aria-label="Toggle navigation" style="width: 48px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid rgba(255,255,255,0.5); border-radius: 0; color: #ffffff;"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h16M3 11h16M3 16h16"></path></svg></button>
+</nav>
+</header>
+<main style="flex-grow: 1; box-sizing: border-box; padding: 48px 12px;">
+<h2 style="margin: 0 0 24px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 32px; line-height: 38px; font-weight: 700;">Owner Information</h2>
+<p role="status" style="margin: 0 0 24px; padding: 8px 16px; border-left: 4px solid #34302d;">Your visit has been booked</p>
+<dl class="pc-detail">
+<div><dt>Name</dt><dd>Jean Coleman</dd></div>
+<div><dt>Address</dt><dd>105 N. Lake St.</dd></div>
+<div><dt>City</dt><dd>Monona</dd></div>
+<div><dt>Telephone</dt><dd>6085552654</dd></div>
+</dl>
+<a href="#" style="display: inline-block; margin: 12px 0 0;">Edit Owner</a>
+<h3 style="margin: 48px 0 12px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 24px; line-height: 30px; font-weight: 700;">Pets</h3>
+<a href="#" style="display: inline-block; margin: 0 0 12px;">Add New Pet</a>
+<div tabindex="0" role="region" aria-label="Pets of Jean Coleman" style="overflow-x: auto;">
+<table class="pc-table" style="width: max-content; min-width: 100%;">
+<caption class="vh">Pets of Jean Coleman</caption>
+<thead><tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr></thead>
+<tbody>
+<tr><td>Max</td><td style="white-space: nowrap;">2012-09-04</td><td>cat</td><td style="white-space: nowrap;"><span style="display: inline-flex; gap: 12px;"><a href="#">Edit Pet<span class="vh"> Max</span></a><a href="#">Add Visit<span class="vh"> Max</span></a></span></td></tr>
+<tr><td>Samantha</td><td style="white-space: nowrap;">2012-09-04</td><td>cat</td><td style="white-space: nowrap;"><span style="display: inline-flex; gap: 12px;"><a href="#">Edit Pet<span class="vh"> Samantha</span></a><a href="#">Add Visit<span class="vh"> Samantha</span></a></span></td></tr>
+</tbody>
+</table>
+</div>
+<h3 style="margin: 48px 0 12px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 24px; line-height: 30px; font-weight: 700;">Visits</h3>
+<h4 style="margin: 24px 0 8px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; line-height: 24px; font-weight: 700;">Max</h4>
+<table class="pc-table">
+<caption class="vh">Visits of Max</caption>
+<thead><tr><th scope="col" style="width: 1%; white-space: nowrap;">Date</th><th scope="col">Description</th></tr></thead>
+<tbody>
+<tr><td style="white-space: nowrap;">2026-10-11</td><td style="overflow-wrap: anywhere;">annual check-up, weight 4.6 kg, dental scale recommended within six months</td></tr>
+<tr><td style="white-space: nowrap;">2013-01-03</td><td style="overflow-wrap: anywhere;">neutered</td></tr>
+<tr><td style="white-space: nowrap;">2013-01-02</td><td style="overflow-wrap: anywhere;">rabies shot</td></tr>
+</tbody>
+</table>
+<h4 style="margin: 24px 0 8px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; line-height: 24px; font-weight: 700;">Samantha</h4>
+<table class="pc-table">
+<caption class="vh">Visits of Samantha</caption>
+<thead><tr><th scope="col" style="width: 1%; white-space: nowrap;">Date</th><th scope="col">Description</th></tr></thead>
+<tbody>
+<tr><td style="white-space: nowrap;">2013-01-04</td><td style="overflow-wrap: anywhere;">spayed</td></tr>
+<tr><td style="white-space: nowrap;">2013-01-01</td><td style="overflow-wrap: anywhere;">rabies shot</td></tr>
+</tbody>
+</table>
+</main>
+<footer style="padding: 24px 12px; border-top: 1px solid #e0dfdb; text-align: center; font-size: 14px; line-height: 21px; color: #5c5752;">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":320,"height":2240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
