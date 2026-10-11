@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PetClinic Pet Forms</title>
+<!-- Visual reference for intent 010 (Add or Edit a Pet): Add New Pet and Edit Pet links and the Actions column on
+     Owner Information, the New Pet and Edit Pet form (blank, filled, errors), the confirmations, and phone width (320px).
+     Static copy of the design canvas https://claude.ai/artifact/BYXmuouzMnmZ4cN7bkJ9QE, built from docs/design-system/. -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#3f7223}a:hover{color:#34302d}
+a:focus-visible,button:focus-visible{outline:2px solid #3f7223;outline-offset:2px}
+.pc-navbar{background:#34302d;border-top:4px solid #6db33f}
+.pc-navbar-inner{max-width:1140px;margin:0 auto;padding:0 12px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.pc-brand{display:flex;align-items:center;gap:8px;color:#ffffff;text-decoration:none;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:20px;line-height:24px;font-weight:700}
+.pc-brand:hover{color:#ffffff}
+.pc-nav{display:flex;height:64px;margin:0;padding:0;list-style:none}
+.pc-nav a{display:flex;align-items:center;gap:4px;height:64px;padding:0 16px;color:#ffffff;text-decoration:none;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:20px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase}
+.pc-nav a[aria-current="page"],.pc-nav a:hover{background:#3f7223;color:#ffffff}
+.pc-nav a:focus-visible,.pc-toggle:focus-visible{outline:2px solid #6db33f;outline-offset:-2px}
+.pc-toggle{display:none;width:44px;height:44px;align-items:center;justify-content:center;background:transparent;border:1px solid #ffffff;border-radius:0;color:#ffffff}
+@media (max-width:991px){.pc-nav{display:none}.pc-toggle{display:inline-flex}}
+.pc-main{max-width:1140px;margin:0 auto;padding:48px 12px}
+.pc-page-title{margin:0 0 24px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:32px;line-height:38px;font-weight:700;color:#34302d}
+.pc-section-title{margin:48px 0 12px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:24px;line-height:30px;font-weight:700}
+.pc-muted{color:#5c5752}
+.pc-action-row{margin:0 0 24px}
+.pc-action-row-after{margin:12px 0 0}
+.pc-message{margin:0 0 24px;padding:8px 16px;color:#34302d;border-left:4px solid #34302d}
+.pc-table-region{overflow-x:auto}
+.pc-table{width:100%;border-collapse:collapse}
+.pc-table th{padding:12px 16px;text-align:left;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid #34302d;white-space:nowrap}
+.pc-table td{padding:12px 16px;border-bottom:1px solid #e0dfdb}
+.pc-table tbody tr:nth-child(odd) td{background:#f4f2f0}
+.pc-nowrap{white-space:nowrap}
+.pc-detail{margin:0;border-top:2px solid #34302d}
+.pc-detail > div{border-bottom:1px solid #e0dfdb}
+.pc-detail dt{padding:12px 16px 0;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:24px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.pc-detail dd{margin:0;padding:4px 16px 12px;overflow-wrap:anywhere}
+@media (min-width:768px){.pc-detail > div{display:grid;grid-template-columns:12rem minmax(0,1fr)}.pc-detail dt,.pc-detail dd{padding:12px 16px}}
+.pc-footer{border-top:1px solid #e0dfdb;padding:24px 12px;text-align:center;font-size:14px;line-height:21px;color:#5c5752}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pc-context{margin:0 0 24px}
+.pc-form-stacked{display:flex;flex-direction:column;align-items:stretch;gap:16px;margin:0 0 24px;max-width:20rem}
+.pc-form-help{margin:0}
+.pc-field{display:flex;flex-direction:column;gap:4px}
+.pc-field label{color:#34302d}
+.pc-input{display:block;width:100%;min-height:42px;padding:8px 12px;font:inherit;color:#34302d;background:#ffffff;border:1px solid #34302d;border-radius:0}
+.pc-input:focus{outline:2px solid #3f7223;outline-offset:2px}
+.pc-select-wrap{position:relative}
+.pc-select{appearance:none;-webkit-appearance:none;padding-right:40px;cursor:pointer}
+.pc-select-wrap svg{position:absolute;right:12px;top:13px;pointer-events:none}
+.pc-field-invalid .pc-input{border-width:2px;padding:7px 11px}
+.pc-field-invalid .pc-select{padding-right:39px}
+.pc-field-help{margin:0;color:#5c5752}
+.pc-field-error{margin:4px 0 0;padding:0 0 0 12px;border-left:4px solid #34302d;color:#34302d}
+.pc-button{align-self:flex-start;min-height:44px;padding:8px 16px;font-family:Montserrat,"Helvetica Neue",Arial,sans-serif;font-size:14px;line-height:24px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#ffffff;background:#3f7223;border:1px solid #3f7223;border-radius:0;cursor:pointer}
+.pc-button:hover{background:#34302d;border-color:#34302d}
+/* Reference sheet */
+body{padding:40px 16px;background:#ebe9e6}
+.board-label{max-width:1280px;margin:0 auto 8px;font:600 13px/1.4 Montserrat,"Helvetica Neue",Arial,sans-serif;letter-spacing:0.04em;color:#5c5752}
+.board{max-width:1280px;margin:0 auto 56px;background:#ffffff;border:1px solid #e0dfdb}
+.board.phone,.board-label.phone{max-width:320px}
+.board > div{min-height:0 !important}
+/* Phone boards: the narrow-viewport rules, scoped to the board */
+.phone .pc-nav{display:none}
+.phone .pc-toggle{display:inline-flex}
+.phone .pc-detail > div{display:block}
+.phone .pc-detail dt{padding:12px 16px 0}
+.phone .pc-detail dd{padding:4px 16px 12px}
+.phone .pc-button{align-self:stretch}
+</style>
+</head>
+<body>
+<p class="board-label">Owner Information · Add New Pet and Edit Pet links</p>
+<div class="board">
+<div style="min-height: 900px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Owner Information</h2>
+<dl class="pc-detail">
+<div><dt>Name</dt><dd>George Franklin</dd></div>
+<div><dt>Address</dt><dd>110 W. Liberty St.</dd></div>
+<div><dt>City</dt><dd>Madison</dd></div>
+<div><dt>Telephone</dt><dd>6085551023</dd></div>
+</dl>
+<p class="pc-action-row-after"><a href="#">Edit Owner</a></p>
+<h3 class="pc-section-title">Pets</h3>
+<p class="pc-action-row"><a href="#">Add New Pet</a></p>
+<div class="pc-table-region">
+<table class="pc-table">
+<caption class="visually-hidden">Pets of George Franklin</caption>
+<thead>
+<tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr>
+</thead>
+<tbody>
+<tr><td>Leo</td><td class="pc-nowrap">2010-09-07</td><td>cat</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Leo</span></a></td></tr>
+</tbody>
+</table>
+</div>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Owner Information · no pets yet (owner 11)</p>
+<div class="board">
+<div style="min-height: 900px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.700 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.850 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Owner Information</h2>
+<dl class="pc-detail">
+<div><dt>Name</dt><dd>Helen Ostrander</dd></div>
+<div><dt>Address</dt><dd>4120 Monroe St.</dd></div>
+<div><dt>City</dt><dd>Fitchburg</dd></div>
+<div><dt>Telephone</dt><dd>6085554412</dd></div>
+</dl>
+<p class="pc-action-row-after"><a href="#">Edit Owner</a></p>
+<h3 class="pc-section-title">Pets</h3>
+<p class="pc-action-row"><a href="#">Add New Pet</a></p>
+<p class="pc-muted" style="margin: 0;">This owner has no pets.</p>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Owner Information · after Add Pet</p>
+<div class="board">
+<div style="min-height: 900px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Owner Information</h2>
+<p class="pc-message" role="status">New Pet has been Added</p>
+<dl class="pc-detail">
+<div><dt>Name</dt><dd>George Franklin</dd></div>
+<div><dt>Address</dt><dd>110 W. Liberty St.</dd></div>
+<div><dt>City</dt><dd>Madison</dd></div>
+<div><dt>Telephone</dt><dd>6085551023</dd></div>
+</dl>
+<p class="pc-action-row-after"><a href="#">Edit Owner</a></p>
+<h3 class="pc-section-title">Pets</h3>
+<p class="pc-action-row"><a href="#">Add New Pet</a></p>
+<div class="pc-table-region">
+<table class="pc-table">
+<caption class="visually-hidden">Pets of George Franklin</caption>
+<thead>
+<tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr>
+</thead>
+<tbody>
+<tr><td>Leo</td><td class="pc-nowrap">2010-09-07</td><td>cat</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Leo</span></a></td></tr>
+<tr><td>Rex</td><td class="pc-nowrap">2023-04-12</td><td>dog</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Rex</span></a></td></tr>
+</tbody>
+</table>
+</div>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Owner Information · after Update Pet</p>
+<div class="board">
+<div style="min-height: 900px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.850a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Owner Information</h2>
+<p class="pc-message" role="status">Pet details has been edited</p>
+<dl class="pc-detail">
+<div><dt>Name</dt><dd>Jean Coleman</dd></div>
+<div><dt>Address</dt><dd>105 N. Lake St.</dd></div>
+<div><dt>City</dt><dd>Monona</dd></div>
+<div><dt>Telephone</dt><dd>6085552654</dd></div>
+</dl>
+<p class="pc-action-row-after"><a href="#">Edit Owner</a></p>
+<h3 class="pc-section-title">Pets</h3>
+<p class="pc-action-row"><a href="#">Add New Pet</a></p>
+<div class="pc-table-region">
+<table class="pc-table">
+<caption class="visually-hidden">Pets of Jean Coleman</caption>
+<thead>
+<tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr>
+</thead>
+<tbody>
+<tr><td>Max</td><td class="pc-nowrap">2012-09-04</td><td>dog</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Max</span></a></td></tr>
+<tr><td>Samantha</td><td class="pc-nowrap">2012-09-04</td><td>cat</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Samantha</span></a></td></tr>
+</tbody>
+</table>
+</div>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">New Pet · blank</p>
+<div class="board">
+<div style="min-height: 880px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">New Pet</h2>
+<p class="pc-context pc-muted">Owner: <span>George Franklin</span></p>
+<form method="post" action="/owners/1/pets" novalidate="novalidate" class="pc-form-stacked">
+<p class="pc-form-help pc-muted">All fields are required.</p>
+<div class="pc-field">
+<label for="name">Name</label>
+<input type="text" id="name" name="name" value="" maxlength="30" autocomplete="off" required="required" aria-required="true" class="pc-input">
+</div>
+<div class="pc-field">
+<label for="birthDate">Birth Date</label>
+<input type="date" id="birthDate" name="birthDate" value="" max="2026-10-10" autocomplete="off" required="required" aria-required="true" aria-describedby="birthDate-help" class="pc-input">
+<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
+</div>
+<div class="pc-field">
+<label for="typeId">Type</label>
+<div class="pc-select-wrap">
+<select id="typeId" name="typeId" value="" required="required" aria-required="true" class="pc-input pc-select">
+<option value="" selected="selected">Select a type</option>
+<option value="5">bird</option>
+<option value="1">cat</option>
+<option value="2">dog</option>
+<option value="6">hamster</option>
+<option value="3">lizard</option>
+<option value="4">snake</option>
+</select>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#34302d" stroke-width="1.5" aria-hidden="true"><path d="M2 5l6 6 6-6"></path></svg>
+</div>
+</div>
+<button type="submit" class="pc-button">Add Pet</button>
+</form>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">Edit Pet · filled</p>
+<div class="board">
+<div style="min-height: 880px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">Edit Pet</h2>
+<p class="pc-context pc-muted">Owner: <span>George Franklin</span></p>
+<form method="post" action="/owners/1/pets/1" novalidate="novalidate" class="pc-form-stacked">
+<p class="pc-form-help pc-muted">All fields are required.</p>
+<div class="pc-field">
+<label for="name">Name</label>
+<input type="text" id="name" name="name" value="Leo" maxlength="30" autocomplete="off" required="required" aria-required="true" class="pc-input">
+</div>
+<div class="pc-field">
+<label for="birthDate">Birth Date</label>
+<input type="date" id="birthDate" name="birthDate" value="2010-09-07" max="2026-10-10" autocomplete="off" required="required" aria-required="true" aria-describedby="birthDate-help" class="pc-input">
+<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
+</div>
+<div class="pc-field">
+<label for="typeId">Type</label>
+<div class="pc-select-wrap">
+<select id="typeId" name="typeId" value="1" required="required" aria-required="true" class="pc-input pc-select">
+<option value="">Select a type</option>
+<option value="5">bird</option>
+<option value="1" selected="selected">cat</option>
+<option value="2">dog</option>
+<option value="6">hamster</option>
+<option value="3">lizard</option>
+<option value="4">snake</option>
+</select>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#34302d" stroke-width="1.5" aria-hidden="true"><path d="M2 5l6 6 6-6"></path></svg>
+</div>
+</div>
+<button type="submit" class="pc-button">Update Pet</button>
+</form>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">New Pet · several errors (empty submit)</p>
+<div class="board">
+<div style="min-height: 960px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">New Pet</h2>
+<p class="pc-context pc-muted">Owner: <span>George Franklin</span></p>
+<p class="pc-message" role="alert">Pet not saved: 3 fields need attention.</p>
+<form method="post" action="/owners/1/pets" novalidate="novalidate" class="pc-form-stacked">
+<p class="pc-form-help pc-muted">All fields are required.</p>
+<div class="pc-field pc-field-invalid">
+<label for="name">Name</label>
+<input type="text" id="name" name="name" value="" maxlength="30" autocomplete="off" required="required" aria-required="true" aria-invalid="true" aria-describedby="name-error" class="pc-input">
+<p id="name-error" class="pc-field-error">Name is required.</p>
+</div>
+<div class="pc-field pc-field-invalid">
+<label for="birthDate">Birth Date</label>
+<input type="date" id="birthDate" name="birthDate" value="" max="2026-10-10" autocomplete="off" required="required" aria-required="true" aria-invalid="true" aria-describedby="birthDate-help birthDate-error" class="pc-input">
+<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
+<p id="birthDate-error" class="pc-field-error">Birth Date is required.</p>
+</div>
+<div class="pc-field pc-field-invalid">
+<label for="typeId">Type</label>
+<div class="pc-select-wrap">
+<select id="typeId" name="typeId" value="" required="required" aria-required="true" aria-invalid="true" aria-describedby="typeId-error" class="pc-input pc-select">
+<option value="" selected="selected">Select a type</option>
+<option value="5">bird</option>
+<option value="1">cat</option>
+<option value="2">dog</option>
+<option value="6">hamster</option>
+<option value="3">lizard</option>
+<option value="4">snake</option>
+</select>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#34302d" stroke-width="1.5" aria-hidden="true"><path d="M2 5l6 6 6-6"></path></svg>
+</div>
+<p id="typeId-error" class="pc-field-error">Type is required.</p>
+</div>
+<button type="submit" class="pc-button">Add Pet</button>
+</form>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label">New Pet · one error (duplicate name)</p>
+<div class="board">
+<div style="min-height: 920px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+<ul class="pc-nav">
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"></path></svg><span>Home</span></a></li>
+<li><a href="#" aria-current="page"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"></path></svg><span>Find Owners</span></a></li>
+<li><a href="#"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"></path></svg><span>Veterinarians</span></a></li>
+</ul>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; width: 100%;">
+<h2 class="pc-page-title">New Pet</h2>
+<p class="pc-context pc-muted">Owner: <span>George Franklin</span></p>
+<p class="pc-message" role="alert">Pet not saved: 1 field needs attention.</p>
+<form method="post" action="/owners/1/pets" novalidate="novalidate" class="pc-form-stacked">
+<p class="pc-form-help pc-muted">All fields are required.</p>
+<div class="pc-field pc-field-invalid">
+<label for="name">Name</label>
+<input type="text" id="name" name="name" value="leo" maxlength="30" autocomplete="off" required="required" aria-required="true" aria-invalid="true" aria-describedby="name-error" class="pc-input">
+<p id="name-error" class="pc-field-error">This owner already has a pet with this name.</p>
+</div>
+<div class="pc-field">
+<label for="birthDate">Birth Date</label>
+<input type="date" id="birthDate" name="birthDate" value="2023-04-12" max="2026-10-10" autocomplete="off" required="required" aria-required="true" aria-describedby="birthDate-help" class="pc-input">
+<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
+</div>
+<div class="pc-field">
+<label for="typeId">Type</label>
+<div class="pc-select-wrap">
+<select id="typeId" name="typeId" value="2" required="required" aria-required="true" class="pc-input pc-select">
+<option value="">Select a type</option>
+<option value="5">bird</option>
+<option value="1">cat</option>
+<option value="2" selected="selected">dog</option>
+<option value="6">hamster</option>
+<option value="3">lizard</option>
+<option value="4">snake</option>
+</select>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#34302d" stroke-width="1.5" aria-hidden="true"><path d="M2 5l6 6 6-6"></path></svg>
+</div>
+</div>
+<button type="submit" class="pc-button">Add Pet</button>
+</form>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label phone">New Pet · errors at 320px</p>
+<div class="board phone">
+<div style="width: 100%; max-width: 320px; min-height: 1180px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px; overflow: hidden;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto;">
+<h2 class="pc-page-title">New Pet</h2>
+<p class="pc-context pc-muted">Owner: <span>George Franklin</span></p>
+<p class="pc-message" role="alert">Pet not saved: 2 fields need attention.</p>
+<form method="post" action="/owners/1/pets" novalidate="novalidate" class="pc-form-stacked">
+<p class="pc-form-help pc-muted">All fields are required.</p>
+<div class="pc-field">
+<label for="name">Name</label>
+<input type="text" id="name" name="name" value="Rex" maxlength="30" autocomplete="off" required="required" aria-required="true" class="pc-input">
+</div>
+<div class="pc-field pc-field-invalid">
+<label for="birthDate">Birth Date</label>
+<input type="date" id="birthDate" name="birthDate" value="2027-01-01" max="2026-10-10" autocomplete="off" required="required" aria-required="true" aria-invalid="true" aria-describedby="birthDate-help birthDate-error" class="pc-input">
+<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
+<p id="birthDate-error" class="pc-field-error">Birth Date cannot be in the future.</p>
+</div>
+<div class="pc-field pc-field-invalid">
+<label for="typeId">Type</label>
+<div class="pc-select-wrap">
+<select id="typeId" name="typeId" value="" required="required" aria-required="true" aria-invalid="true" aria-describedby="typeId-error" class="pc-input pc-select">
+<option value="" selected="selected">Select a type</option>
+<option value="5">bird</option>
+<option value="1">cat</option>
+<option value="2">dog</option>
+<option value="6">hamster</option>
+<option value="3">lizard</option>
+<option value="4">snake</option>
+</select>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#34302d" stroke-width="1.5" aria-hidden="true"><path d="M2 5l6 6 6-6"></path></svg>
+</div>
+<p id="typeId-error" class="pc-field-error">Type is required.</p>
+</div>
+<button type="submit" class="pc-button">Add Pet</button>
+</form>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+<p class="board-label phone">Owner Information at 320px</p>
+<div class="board phone">
+<div style="width: 100%; max-width: 320px; min-height: 1180px; display: flex; flex-direction: column; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 24px; overflow: hidden;">
+<header>
+<nav class="pc-navbar" aria-label="Main">
+<div class="pc-navbar-inner">
+<a class="pc-brand" href="#">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.2 4.5 6.8 4.5c2.1 0 3.7 1.1 5.2 3 1.5-1.9 3.1-3 5.2-3 3.6 0 5.8 3.7 4.3 7.2C19.5 16.4 12 21 12 21z" fill="#6db33f"></path><path d="M10.6 8.5h2.8v2.6H16v2.8h-2.6v2.6h-2.8v-2.6H8v-2.8h2.6z" fill="#34302d"></path></svg>
+<span>Spring PetClinic</span>
+</a>
+<button class="pc-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg></button>
+</div>
+</nav>
+</header>
+<main class="pc-main" style="flex: 1 0 auto; min-width: 0;">
+<h2 class="pc-page-title">Owner Information</h2>
+<p class="pc-message" role="status">New Pet has been Added</p>
+<dl class="pc-detail">
+<div><dt>Name</dt><dd>Jean Coleman</dd></div>
+<div><dt>Address</dt><dd>105 N. Lake St.</dd></div>
+<div><dt>City</dt><dd>Monona</dd></div>
+<div><dt>Telephone</dt><dd>6085552654</dd></div>
+</dl>
+<p class="pc-action-row-after"><a href="#">Edit Owner</a></p>
+<h3 class="pc-section-title">Pets</h3>
+<p class="pc-action-row"><a href="#">Add New Pet</a></p>
+<div class="pc-table-region">
+<table class="pc-table">
+<caption class="visually-hidden">Pets of Jean Coleman</caption>
+<thead>
+<tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr>
+</thead>
+<tbody>
+<tr><td>Max</td><td class="pc-nowrap">2012-09-04</td><td>cat</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Max</span></a></td></tr>
+<tr><td>Pip</td><td class="pc-nowrap">2025-06-30</td><td>hamster</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Pip</span></a></td></tr>
+<tr><td>Samantha</td><td class="pc-nowrap">2012-09-04</td><td>cat</td><td class="pc-nowrap"><a href="#">Edit Pet<span class="visually-hidden"> Samantha</span></a></td></tr>
+</tbody>
+</table>
+</div>
+</main>
+<footer class="pc-footer">Spring PetClinic · a Spring Boot sample application</footer>
+</div>
+</div>
+</body>
+</html>
