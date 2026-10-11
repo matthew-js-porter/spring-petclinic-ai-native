@@ -1,0 +1,191 @@
+<!-- @dsCard group="Patterns" height=1240 subtitle="New Visit blank; redisplayed with one and with two errors; Owner Information after booking; New Visit at 320px" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>VisitForm — preview</title>
+<style>
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: var(--space-6); align-items: start; }
+  .cap { margin: 0 0 var(--space-3); font-size: 14px; line-height: 21px; color: var(--ink-muted); border-bottom: var(--border-hairline) solid var(--line); padding-bottom: var(--space-1); }
+  h2 { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; color: var(--ink); }
+  .stack > * + * { margin-top: var(--space-6); }
+  .phone { width: 320px; box-sizing: border-box; padding: var(--space-3) var(--space-4); border: var(--border-hairline) solid var(--line); }
+  .phone .pc-form { flex-direction: column; align-items: stretch; max-width: none; }
+  .phone .pc-field { width: auto; }
+  .phone .pc-detail > div { display: block; }
+  .phone .pc-detail dt { padding: var(--space-3) var(--space-4) 0; }
+  .phone .pc-detail dd { padding: var(--space-1) var(--space-4) var(--space-3); }
+</style>
+</head>
+<body>
+<div class="pc-pad board">
+  <div class="stack">
+    <section aria-labelledby="t1">
+      <p class="cap">/owners/6/pets/7/visits/new.html, blank</p>
+      <h2 id="t1">New Visit</h2>
+      <dl class="pc-detail pc-context">
+        <div><dt>Pet</dt><dd>Samantha</dd></div>
+        <div><dt>Type</dt><dd>cat</dd></div>
+        <div><dt>Owner</dt><dd>Jean Coleman</dd></div>
+      </dl>
+      <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+        <p class="pc-form-help">All fields are required.</p>
+        <div class="pc-field">
+          <label for="a-date">Date</label>
+          <input class="pc-input" type="date" id="a-date" name="date" value="2026-10-10" autocomplete="off" required aria-required="true" aria-describedby="a-date-help">
+          <p class="pc-field-help" id="a-date-help">yyyy-mm-dd</p>
+        </div>
+        <div class="pc-field">
+          <label for="a-description">Description</label>
+          <input class="pc-input" type="text" id="a-description" name="description" maxlength="255" autocomplete="off" required aria-required="true">
+        </div>
+        <button class="pc-button" type="submit">Add Visit</button>
+      </form>
+      <h3 class="pc-section-title">Previous Visits</h3>
+      <table class="pc-table pc-visits">
+        <caption>Visits of Samantha</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+        <tbody>
+          <tr><td class="pc-col-date">2013-01-04</td><td>spayed</td></tr>
+          <tr><td class="pc-col-date">2013-01-01</td><td>rabies shot</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section aria-labelledby="t2">
+      <p class="cap">POST /owners/6/pets/8/visits, both fields empty</p>
+      <h2 id="t2">New Visit</h2>
+      <dl class="pc-detail pc-context">
+        <div><dt>Pet</dt><dd>Max</dd></div>
+        <div><dt>Type</dt><dd>cat</dd></div>
+        <div><dt>Owner</dt><dd>Jean Coleman</dd></div>
+      </dl>
+      <p class="pc-message" role="alert">Visit not saved: 2 fields need attention.</p>
+      <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+        <p class="pc-form-help">All fields are required.</p>
+        <div class="pc-field pc-field-invalid">
+          <label for="b-date">Date</label>
+          <input class="pc-input" type="date" id="b-date" name="date" value="" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="b-date-help b-date-error">
+          <p class="pc-field-help" id="b-date-help">yyyy-mm-dd</p>
+          <p class="pc-field-error" id="b-date-error">Date is required.</p>
+        </div>
+        <div class="pc-field pc-field-invalid">
+          <label for="b-description">Description</label>
+          <input class="pc-input" type="text" id="b-description" name="description" maxlength="255" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="b-description-error">
+          <p class="pc-field-error" id="b-description-error">Description is required.</p>
+        </div>
+        <button class="pc-button" type="submit">Add Visit</button>
+      </form>
+      <h3 class="pc-section-title">Previous Visits</h3>
+      <table class="pc-table pc-visits">
+        <caption>Visits of Max</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+        <tbody>
+          <tr><td class="pc-col-date">2013-01-03</td><td>neutered</td></tr>
+          <tr><td class="pc-col-date">2013-01-02</td><td>rabies shot</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <div class="stack">
+    <section aria-labelledby="t3">
+      <p class="cap">POST /owners/1/pets/1/visits, a bad date typed where the browser has no date picker; the description is kept</p>
+      <h2 id="t3">New Visit</h2>
+      <dl class="pc-detail pc-context">
+        <div><dt>Pet</dt><dd>Leo</dd></div>
+        <div><dt>Type</dt><dd>cat</dd></div>
+        <div><dt>Owner</dt><dd>George Franklin</dd></div>
+      </dl>
+      <p class="pc-message" role="alert">Visit not saved: 1 field needs attention.</p>
+      <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+        <p class="pc-form-help">All fields are required.</p>
+        <div class="pc-field pc-field-invalid">
+          <label for="c-date">Date</label>
+          <input class="pc-input" type="text" id="c-date" name="date" value="2024-02-30" autocomplete="off" required aria-required="true" aria-invalid="true" aria-describedby="c-date-help c-date-error">
+          <p class="pc-field-help" id="c-date-help">yyyy-mm-dd</p>
+          <p class="pc-field-error" id="c-date-error">Date must be a date in the form yyyy-mm-dd.</p>
+        </div>
+        <div class="pc-field">
+          <label for="c-description">Description</label>
+          <input class="pc-input" type="text" id="c-description" name="description" maxlength="255" autocomplete="off" required aria-required="true" value="dental cleaning">
+        </div>
+        <button class="pc-button" type="submit">Add Visit</button>
+      </form>
+      <h3 class="pc-section-title">Previous Visits</h3>
+      <p class="pc-empty">This pet has no visits.</p>
+    </section>
+    <section aria-labelledby="t4">
+      <p class="cap">/owners/6.html, after booking a visit for Max</p>
+      <h2 id="t4">Owner Information</h2>
+      <p class="pc-message" role="status">Your visit has been booked</p>
+      <dl class="pc-detail">
+        <div><dt>Name</dt><dd>Jean Coleman</dd></div>
+        <div><dt>City</dt><dd>Monona</dd></div>
+      </dl>
+      <h3 class="pc-section-title">Pets</h3>
+      <a class="pc-action" href="#">Add New Pet</a>
+      <div class="table-responsive pc-table-region" tabindex="0" role="region" aria-label="Pets table">
+      <table class="pc-table">
+        <caption>Pets of Jean Coleman</caption>
+        <thead><tr><th scope="col">Name</th><th scope="col">Birth Date</th><th scope="col">Type</th><th scope="col">Actions</th></tr></thead>
+        <tbody>
+          <tr><td>Max</td><td class="text-nowrap">2012-09-04</td><td>cat</td><td class="pc-col-actions"><a href="#">Edit Pet<span class="pc-visually-hidden"> Max</span></a><a href="#">Add Visit<span class="pc-visually-hidden"> Max</span></a></td></tr>
+          <tr><td>Samantha</td><td class="text-nowrap">2012-09-04</td><td>cat</td><td class="pc-col-actions"><a href="#">Edit Pet<span class="pc-visually-hidden"> Samantha</span></a><a href="#">Add Visit<span class="pc-visually-hidden"> Samantha</span></a></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <h3 class="pc-section-title">Visits</h3>
+      <h4 class="pc-subsection-title">Max</h4>
+      <table class="pc-table pc-visits">
+        <caption>Visits of Max</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+        <tbody>
+          <tr><td class="pc-col-date">2026-10-10</td><td>annual check-up</td></tr>
+          <tr><td class="pc-col-date">2013-01-03</td><td>neutered</td></tr>
+          <tr><td class="pc-col-date">2013-01-02</td><td>rabies shot</td></tr>
+        </tbody>
+      </table>
+      <h4 class="pc-subsection-title">Samantha</h4>
+      <table class="pc-table pc-visits">
+        <caption>Visits of Samantha</caption>
+        <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+        <tbody>
+          <tr><td class="pc-col-date">2013-01-04</td><td>spayed</td></tr>
+          <tr><td class="pc-col-date">2013-01-01</td><td>rabies shot</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section aria-labelledby="t5">
+      <p class="cap">New Visit at 320px: the context stacks, the form is full width</p>
+      <div class="phone">
+        <h2 id="t5">New Visit</h2>
+        <dl class="pc-detail pc-context">
+          <div><dt>Pet</dt><dd>Samantha</dd></div>
+          <div><dt>Type</dt><dd>cat</dd></div>
+          <div><dt>Owner</dt><dd>Jean Coleman</dd></div>
+        </dl>
+        <form class="pc-form pc-form-stacked" method="post" action="#" novalidate>
+          <p class="pc-form-help">All fields are required.</p>
+          <div class="pc-field">
+            <label for="d-date">Date</label>
+            <input class="pc-input" type="date" id="d-date" name="date" value="2026-10-10" autocomplete="off" required aria-required="true" aria-describedby="d-date-help">
+            <p class="pc-field-help" id="d-date-help">yyyy-mm-dd</p>
+          </div>
+          <div class="pc-field">
+            <label for="d-description">Description</label>
+            <input class="pc-input" type="text" id="d-description" name="description" maxlength="255" autocomplete="off" required aria-required="true">
+          </div>
+          <button class="pc-button" type="submit">Add Visit</button>
+        </form>
+        <h3 class="pc-section-title">Previous Visits</h3>
+        <table class="pc-table pc-visits">
+          <caption>Visits of Samantha</caption>
+          <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><td class="pc-col-date">2013-01-04</td><td>spayed</td></tr>
+            <tr><td class="pc-col-date">2013-01-01</td><td>rabies shot</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

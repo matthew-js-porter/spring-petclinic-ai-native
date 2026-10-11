@@ -1,0 +1,55 @@
+<!-- @dsCard group="Data" height=760 subtitle="A pet's visits, newest first; the empty sentence; the Visits section on Owner Information at 320px" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>VisitList — preview</title>
+<style>
+  .cap { margin: 0 0 var(--space-2); font-size: 14px; line-height: 21px; color: var(--ink-muted); }
+  .block + .block { margin-top: var(--space-6); }
+  .phone { width: 320px; box-sizing: border-box; padding: 0 var(--space-4) var(--space-3); border: var(--border-hairline) solid var(--line); }
+</style>
+</head>
+<body>
+<div class="pc-pad">
+<div class="block">
+<p class="cap">With rows: Samantha, newest first</p>
+<table class="pc-table pc-visits">
+  <caption>Visits of Samantha</caption>
+  <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+  <tbody>
+    <tr><td class="pc-col-date">2013-01-04</td><td>spayed</td></tr>
+    <tr><td class="pc-col-date">2013-01-01</td><td>rabies shot</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="block">
+<p class="cap">Empty</p>
+<p class="pc-empty">This pet has no visits.</p>
+</div>
+<div class="block">
+<p class="cap">The Visits section of /owners/6.html at 320px: one h4 per pet, the description wraps</p>
+<div class="phone">
+<h3 class="pc-section-title" style="margin-top:var(--space-3)">Visits</h3>
+<h4 class="pc-subsection-title">Max</h4>
+<table class="pc-table pc-visits">
+  <caption>Visits of Max</caption>
+  <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+  <tbody>
+    <tr><td class="pc-col-date">2026-10-10</td><td>annual check-up, weight 4.2 kg, booster for feline leukaemia due next spring</td></tr>
+    <tr><td class="pc-col-date">2013-01-03</td><td>neutered</td></tr>
+    <tr><td class="pc-col-date">2013-01-02</td><td>rabies shot</td></tr>
+  </tbody>
+</table>
+<h4 class="pc-subsection-title">Samantha</h4>
+<table class="pc-table pc-visits">
+  <caption>Visits of Samantha</caption>
+  <thead><tr><th scope="col">Date</th><th scope="col">Description</th></tr></thead>
+  <tbody>
+    <tr><td class="pc-col-date">2013-01-04</td><td>spayed</td></tr>
+    <tr><td class="pc-col-date">2013-01-01</td><td>rabies shot</td></tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>

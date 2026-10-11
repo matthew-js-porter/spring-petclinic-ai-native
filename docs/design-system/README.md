@@ -1,4 +1,4 @@
-Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the eight components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage) on top of Bootstrap 5.3. OwnerForm (New Owner, Edit Owner) and PetForm (New Pet, Edit Pet) are page patterns composed from them, not further components.
+Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the nine components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage, VisitList) on top of Bootstrap 5.3. OwnerForm (New Owner, Edit Owner), PetForm (New Pet, Edit Pet) and VisitForm (New Visit) are page patterns composed from them, not further components.
 
 ## Content
 
@@ -6,15 +6,16 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 - Page titles are a single plural noun in Title Case: "Veterinarians", later "Owners". The one exception is the homepage, titled "Welcome".
 - Nav items and table headers are written in Title Case in the markup ("Specialties") and set UPPERCASE by CSS; never type them in capitals.
 - Data is shown as stored: lowercase specialty names (`radiology`, `dentistry surgery`), several values separated by a single space.
-- An empty value is the word `none` in `ink-muted`, never a dash or a blank cell. An empty collection (an owner with no pets) is one plain sentence in `ink-muted` in place of its table: "This owner has no pets."
+- An empty value is the word `none` in `ink-muted`, never a dash or a blank cell. An empty collection is one plain sentence in `ink-muted` in place of its table: "This owner has no pets.", "This pet has no visits."
 - Detail pages are titled with upstream's wording, "Owner Information", as the one exception to the plural-noun rule besides "Welcome".
 - The footer always reads "Spring PetClinic · a Spring Boot sample application".
 - Form labels and button labels are short and in Title Case in the markup: "Last Name", "Find Owner". Buttons are set UPPERCASE by CSS, like nav items.
 - Messages are one plain sentence ending in a full stop that repeats what the person typed in straight double quotes: `No owners found with a last name starting with "Dav".`
 - Confirmations after a save use upstream's wording in Title Case, without a full stop: "New Owner Created", "Owner Values Updated".
 - Field errors name the field and say what is needed: "First Name is required.", "Telephone must be exactly 10 digits.", "Address must be 255 characters or fewer." A form summary counts them: "Owner not saved: 2 fields need attention."
-- Record form headings are "New Owner", "Edit Owner", "New Pet" and "Edit Pet"; their buttons are "Add Owner", "Update Owner", "Add Pet" and "Update Pet".
+- Record form headings are "New Owner", "Edit Owner", "New Pet", "Edit Pet" and "New Visit"; their buttons are "Add Owner", "Update Owner", "Add Pet", "Update Pet" and "Add Visit".
 - Pet confirmations keep upstream's wording exactly, as intent 010 fixes it: "New Pet has been Added", "Pet details has been edited". Pet field errors follow the same pattern as owner ones: "Name is required.", "Birth Date cannot be in the future.", "Type is required.", "This owner already has a pet with this name."
+- The visit confirmation keeps upstream's wording, "Your visit has been booked". Visit field errors: "Date is required.", "Date must be a date in the form yyyy-mm-dd.", "Description is required.", "Description must be 255 characters or fewer."
 - A select's empty first option is a prompt: "Select a type". A date field shows its format as a helper line, "yyyy-mm-dd".
 
 ## Colour
@@ -30,7 +31,8 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 
 - Two Google Fonts: Montserrat (`--font-display`) for the wordmark, page title, nav and table headers; Varela Round (`--font-body`) for everything else. Load them with `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Varela+Round&display=swap" rel="stylesheet">`.
 - `page-title` (32px/700) once per page as an `h2`, `ink`, `space-6` below the navbar.
-- `section-title` (24px/700) as an `h3` for a section under the page title, such as Pets; `space-6` above, `space-3` below.
+- `section-title` (24px/700) as an `h3` for a section under the page title, such as Pets, Visits or Previous Visits; `space-6` above, `space-3` below.
+- `subsection-title` (18px/700) as an `h4` inside a section: one per pet in Visits on Owner Information; `space-5` above, `space-2` below.
 - `brand` (20px/700) only for the navbar wordmark.
 - `nav-item` (14px/600, 0.08em) and `table-head` (14px/700, 0.06em) are always UPPERCASE.
 - `body` (16px/24px) for table cells, pagination, form labels, input text, messages and other text; `small` (14px) for the footer.
@@ -42,15 +44,17 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 - Corners are square: `radius-none` everywhere, form inputs and buttons included. Set Bootstrap's `--bs-border-radius` to 0 rather than overriding corners per component.
 - No shadows, no gradients, no cards. Structure comes from the brown bar, the 2px header rule and the 1px row lines.
 - Forms put each field's label above its input. A search field and its button sit on one row from Bootstrap's `sm` breakpoint (576px) up and stack below it; inputs are full width on a phone and at most `field-width` (20rem) above that. Leave `space-5` below a form before the table or message it controls.
-- A record form (New Owner, Edit Owner, New Pet, Edit Pet) is stacked: one field per row, `space-3` apart, the button below, the whole form at most `field-width` wide from `sm` up.
+- A record form (New Owner, Edit Owner, New Pet, Edit Pet, New Visit) is stacked: one field per row, `space-3` apart, the button below, the whole form at most `field-width` wide from `sm` up.
 - Spacing follows Bootstrap's scale: `space-3` × `space-4` table cell padding, `space-5` between a table and its pagination, `space-6` above the page title, `space-5` between the homepage title and its photo.
+- Records of records sit in sections, never in a table cell: a pet's visits are a VisitList under a Visits `h3` and the pet's `h4`, below the pets table, not inside its row.
+- A form that acts on a record the person did not type (New Visit) names it first in a context block, a DetailList of read-only facts, `space-5` above the form.
 - The homepage photo is `hero-width` (360px) wide at most and shrinks with its container, so it never scrolls sideways on a phone.
 
 ## Links
 
 - Links are `spring-green-dark` text, underlined, with the 2px `focus-ring` outline. That covers record names in a DataTable and action links.
 - An action that opens another page is an action link (`.pc-action`), never a Button: "Add Owner" directly under the Find Owners title, above the search form; "Edit Owner" under the owner's DetailList; "Add New Pet" directly under the Pets section title, with or without pets. Title Case, no icon, no box.
-- A per-row action goes in a DataTable actions column ("Edit Pet"), with the record's name added in a visually hidden span so each link reads uniquely ("Edit Pet Leo").
+- Per-row actions go in a DataTable actions column ("Edit Pet", then "Add Visit", `space-3` apart, at most two), with the record's name added in a visually hidden span so each link reads uniquely ("Edit Pet Leo", "Add Visit Leo").
 - Buttons only submit forms. Don't make a link look like a button.
 
 ## States and accessibility
