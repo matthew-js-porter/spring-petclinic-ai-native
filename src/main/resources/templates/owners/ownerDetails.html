@@ -30,25 +30,33 @@
 
 	<h3 class="pc-section-title">Pets</h3>
 
+	<a class="pc-action" th:href="@{/owners/{id}/pets/new.html(id=${owner.id})}">Add New Pet</a>
+
 	<p th:if="${#lists.isEmpty(owner.pets)}" class="pc-muted pc-empty">This owner has no pets.</p>
 
-	<table th:unless="${#lists.isEmpty(owner.pets)}" id="pets" class="table table-striped pc-table">
-		<caption class="visually-hidden" th:text="|Pets of ${owner.firstName} ${owner.lastName}|">Pets of George Franklin</caption>
-		<thead>
-		<tr>
-			<th scope="col">Name</th>
-			<th scope="col">Birth Date</th>
-			<th scope="col">Type</th>
-		</tr>
-		</thead>
-		<tbody>
-		<tr th:each="pet : ${owner.pets}">
-			<td th:text="${pet.name}">Leo</td>
-			<td class="text-nowrap" th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}">2010-09-07</td>
-			<td th:text="${pet.type}">cat</td>
-		</tr>
-		</tbody>
-	</table>
+	<div th:unless="${#lists.isEmpty(owner.pets)}" class="table-responsive pc-table-region" tabindex="0" role="region"
+		 aria-label="Pets table">
+		<table id="pets" class="table table-striped pc-table">
+			<caption class="visually-hidden" th:text="|Pets of ${owner.firstName} ${owner.lastName}|">Pets of George Franklin</caption>
+			<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Birth Date</th>
+				<th scope="col">Type</th>
+				<th scope="col">Actions</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="pet : ${owner.pets}">
+				<td th:text="${pet.name}">Leo</td>
+				<td class="text-nowrap" th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}">2010-09-07</td>
+				<td th:text="${pet.type}">cat</td>
+				<td class="pc-col-actions"><a th:href="@{/owners/{ownerId}/pets/{petId}/edit.html(ownerId=${owner.id},petId=${pet.id})}">Edit Pet<span
+						class="visually-hidden" th:text="| ${pet.name}|"> Leo</span></a></td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </th:block>
 </body>
 </html>
