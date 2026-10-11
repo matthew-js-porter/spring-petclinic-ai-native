@@ -1,4 +1,4 @@
-Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the nine components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage, VisitList) on top of Bootstrap 5.3. OwnerForm (New Owner, Edit Owner), PetForm (New Pet, Edit Pet) and VisitForm (New Visit) are page patterns composed from them, not further components.
+Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the nine components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage, VisitList) on top of Bootstrap 5.3. OwnerForm (New Owner, Edit Owner), PetForm (New Pet, Edit Pet), VisitForm (New Visit) and ErrorPage (any failed request) are page patterns composed from them, not further components.
 
 ## Content
 
@@ -7,7 +7,8 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 - Nav items and table headers are written in Title Case in the markup ("Specialties") and set UPPERCASE by CSS; never type them in capitals.
 - Data is shown as stored: lowercase specialty names (`radiology`, `dentistry surgery`), several values separated by a single space.
 - An empty value is the word `none` in `ink-muted`, never a dash or a blank cell. An empty collection is one plain sentence in `ink-muted` in place of its table: "This owner has no pets.", "This pet has no visits."
-- Detail pages are titled with upstream's wording, "Owner Information", as the one exception to the plural-noun rule besides "Welcome".
+- Detail pages are titled with upstream's wording, "Owner Information", as the one exception to the plural-noun rule besides "Welcome". Error pages are titled with what happened ("Page Not Found", "Something Went Wrong").
+- Error pages state what happened in one plain sentence and offer a way on; they never show internals (status code, path, input, exception, trace or SQL) and never say which record was missing. The wording table is in ErrorPage.
 - The footer always reads "Spring PetClinic · a Spring Boot sample application".
 - Form labels and button labels are short and in Title Case in the markup: "Last Name", "Find Owner". Buttons are set UPPERCASE by CSS, like nav items.
 - Messages are one plain sentence ending in a full stop that repeats what the person typed in straight double quotes: `No owners found with a last name starting with "Dav".`
@@ -53,7 +54,7 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 ## Links
 
 - Links are `spring-green-dark` text, underlined, with the 2px `focus-ring` outline. That covers record names in a DataTable and action links.
-- An action that opens another page is an action link (`.pc-action`), never a Button: "Add Owner" directly under the Find Owners title, above the search form; "Edit Owner" under the owner's DetailList; "Add New Pet" directly under the Pets section title, with or without pets. Title Case, no icon, no box.
+- An action that opens another page is an action link (`.pc-action`), never a Button: "Add Owner" directly under the Find Owners title, above the search form; "Edit Owner" under the owner's DetailList; "Add New Pet" directly under the Pets section title, with or without pets; "Go to the Homepage" and "Find Owners" on an error page. Title Case, no icon, no box.
 - Per-row actions go in a DataTable actions column ("Edit Pet", then "Add Visit", `space-3` apart, at most two), with the record's name added in a visually hidden span so each link reads uniquely ("Edit Pet Leo", "Add Visit Leo").
 - Buttons only submit forms. Don't make a link look like a button.
 

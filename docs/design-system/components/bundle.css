@@ -117,3 +117,8 @@ input[type="date"].pc-input { min-height: calc(24px + 2 * var(--space-2) + 2 * v
 
 /* Context block: a DetailList of read-only facts above a form */
 .pc-detail.pc-context { margin-bottom: var(--space-5); }
+
+/* Error page: the two ways on, one action link per line, space-3 apart */
+.pc-error-actions { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.pc-error-actions .pc-action { margin: 0; }
+.pc-error-text { margin: 0 0 var(--space-4); overflow-wrap: anywhere; }
