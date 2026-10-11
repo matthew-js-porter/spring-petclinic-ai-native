@@ -52,7 +52,7 @@ Lint with `actionlint .github/workflows/*.yml` before pushing workflow changes. 
 ## Evals
 
 - Each pipeline skill (`/intent`, `/spec`, `/maintain-scan`) keeps its eval cases in `.claude/skills/<skill>/evals/evals.json` (skill-creator's format; fixtures in `evals/files/`). Run one locally with `/skill-creator eval <skill>`; the skill-creator plugin is enabled in `.claude/settings.json`.
-- Evals are advisory and never block a merge.
+- The `skill-evals` check fails when a PR's skill scores lower than `main`'s on any eval (or below 100% with nothing to compare against). It blocks merging only if it is made a required check in branch protection.
 - When a skill misses something a human later catches, add an eval for it to that skill's `evals.json`. Keep fixtures out of the repo's top-level `intent/` and never name them `pom.xml` or `*.java` (other workflows and Snyk would pick them up); use a `.fixture` suffix.
 
 ## Workflow: intent -> spec -> plan
