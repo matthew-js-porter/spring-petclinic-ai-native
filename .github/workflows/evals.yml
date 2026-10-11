@@ -59,12 +59,15 @@ jobs:
 
             - Run every eval once, comparing the skill as it is on `origin/main` (old_skill, snapshot it with `git show`) against the working copy (with_skill). If `origin/main` has no version of the skill, run with_skill only.
             - Do not change the skill or any other tracked file, and do not commit or push.
+            - This is a non-interactive run: the job ends, and stops any background work, as soon as your turn ends. Spawn every eval run and grader as a foreground subagent (never in the background) and wait for all of them before you aggregate, render and finish.
+            - Use simple Bash commands: one command per call, no shell variables, loops or brace expansion (they need approval and will be denied). skill-creator's scripts are under `~/.claude/plugins/`.
             - Put the workspace at `skill-evals/<skill>-workspace/` in the repository root (not under `.claude/`, which is write-protected), and keep every result there. Read the skill and its evals from `.claude/skills/<skill>/`.
             - Do not start the viewer server: write it with `--static skill-evals/<skill>-workspace/review.html`.
             ${{ github.event.pull_request.number && format('- When every skill is done, post one comment on PR #{0} with `gh pr comment {0} --body-file <file>`: a table per skill (eval, old_skill pass rate, with_skill pass rate, change), the expectations that failed with one line of evidence each, and a link to {1}/{2}/actions/runs/{3} for the full review pages. Say that the evals are advisory.', github.event.pull_request.number, github.server_url, github.repository, github.run_id) || '- Finish with the same table and failed expectations as your final message.' }}
           claude_args: >-
             --max-turns 200
-            --allowedTools "Skill,Task,Agent,Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(cd:*),Bash(python:*),Bash(python3:*),Bash(mkdir:*),Bash(cp:*),Bash(ls:*),Bash(wc:*),Bash(grep:*),Bash(gh pr comment:*)"
+            --add-dir /home/runner/.claude/plugins
+            --allowedTools "Skill,Task,Agent,Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(cd:*),Bash(python:*),Bash(python3:*),Bash(mkdir:*),Bash(cp:*),Bash(ls:*),Bash(wc:*),Bash(grep:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(diff:*),Bash(find:*),Bash(sort:*),Bash(gh pr comment:*)"
 
       # Never publish results that contain the token.
       - name: Check results for the token
