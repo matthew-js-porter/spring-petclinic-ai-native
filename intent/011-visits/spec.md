@@ -156,6 +156,7 @@ Write tests are `@Transactional` (MockMvc and HtmlUnit-over-MockMvc run on the t
 9. **Page length.** Owner details with many pets and visits grows long; there is no pagination or collapsing. Fine for the seed data; revisit if visits grow.
 10. **Test and doc churn.** The "no Visit" assertion and the DataTable "no Add Visit" wording are intentionally reversed; any other text assuming a read-only details page should be found by search. Historical `intent/008` to `010` docs stay as they are.
 11. **Concurrent intent 012 (error page).** Both touch ownership/404 behaviour in tests; whichever lands second must re-run the other's 404 assertions.
+12. **An invalid date cannot be redisplayed in `<input type="date">`.** Browsers sanitise a value such as `2024-02-30` to empty, so F10's "typed values kept" holds for the description but not for a malformed date, which comes back blank with its format message (board `design/VisitFormDateError.dc.html`). Tests should assert the message and the kept description, not the date's redisplayed value. The alternative is a text input for the date, which loses the native picker.
 
 ## 8. Assumptions
 1. The intent has no open questions; the resolved items (seed four visits; any date, default today) are followed as written.
