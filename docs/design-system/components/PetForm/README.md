@@ -15,6 +15,6 @@ The New Pet and Edit Pet page pattern (intent 010): a composition of FormField (
 - After a save the browser lands on Owner Information, which shows the confirmation InlineMessage (`role="status"`) under its title once: "New Pet has been Added" or "Pet details has been edited".
 - Entry points on Owner Information: "Add New Pet", an action link directly under the Pets `section-title`, present with or without pets; "Edit Pet" in the pets table's actions column, one per row, with the pet's name hidden in the link for assistive tech (see DataTable).
 
-No Cancel link, as on OwnerForm. No Add Visit action yet. The select and date controls are native, so their open lists and pickers look like the visitor's operating system; the closed control is square everywhere.
+No Cancel link, as on OwnerForm. "Add Visit" now sits after "Edit Pet" in the same actions cell; see VisitForm. The select and date controls are native, so their open lists and pickers look like the visitor's operating system; the closed control is square everywhere.
 
 Not yet reviewed: there is no designer-approved board for this form. These previews are the board for the design owner's review before intent 010 merges.

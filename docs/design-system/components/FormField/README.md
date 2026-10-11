@@ -11,25 +11,25 @@ A labelled input, text, date or select: the label in `body` type above a square,
 ## Variants
 
 - **Text** (`<input type="text">`, also `tel` and `search`): the base control.
-- **Select** (`<select class="form-select pc-input">`, intent 010): the same box, plus a small `ink` chevron at the right, `space-4` in, with the right padding widened to `space-3` + `space-5` so long options don't run under it. It is Bootstrap's `form-select` chevron with the radius reset to 0: no custom icon, no custom list. The first option is an empty prompt, `<option value="">Select a type</option>`, selected until the person chooses; the options follow in name order, labelled as stored (`bird`, `cat`, `dog`, `hamster`, `lizard`, `snake`). The open list is the browser's own and is not styled; it keeps native keyboard and screen reader behaviour.
-- **Date** (`<input type="date">`, intent 010): the same box at the text input's height; the picker is the browser's. A helper line below it, "yyyy-mm-dd" (`.pc-field-help`, `small` style in `ink-muted`, 7.1:1), shows the format for browsers that fall back to a plain text box, and is tied to the input with `aria-describedby`. `max` may hint today's date to the picker; the server still checks. Use `autocomplete="off"`.
+- **Select** (`<select class="form-select pc-input">`): the same box, plus a small `ink` chevron at the right, `space-4` in, with the right padding widened to `space-3` + `space-5` so long options don't run under it. It is Bootstrap's `form-select` chevron with the radius reset to 0: no custom icon, no custom list. The first option is an empty prompt, `<option value="">Select a type</option>`, selected until the person chooses; the options follow in name order, labelled as stored (`bird`, `cat`, `dog`, `hamster`, `lizard`, `snake`). The open list is the browser's own and is not styled; it keeps native keyboard and screen reader behaviour.
+- **Date** (`<input type="date">`): the same box at the text input's height; the picker is the browser's. A helper line below it, "yyyy-mm-dd" (`.pc-field-help`, `small` style in `ink-muted`, 7.1:1), shows the format for browsers that fall back to a plain text box, and is tied to the input with `aria-describedby`. `max` may hint today's date to the picker where the date cannot be in the future (Birth Date); the server still checks. A date that may be any day (a visit's Date) has no `max` and may be pre-filled, with today on New Visit. Use `autocomplete="off"`.
 
 The control box is square on every platform; native pickers and option lists are the operating system's and may be rounded. That is accepted rather than replaced with a scripted control.
 
 ## Layouts
 
 - **Row** (`.pc-form`), for a search: label-over-input fields and the button sit on one row, bottom-aligned, from `sm` (576px) up and stack below it, `space-3` apart, with `space-5` below the form. A search form is `<form method="get" role="search">` and works without JavaScript.
-- **Stacked** (`.pc-form .pc-form-stacked`), for a record form such as New Owner, Edit Owner, New Pet and Edit Pet: one field per row, `space-3` apart, the Button below the last field and left-aligned. The whole form is at most `field-width` wide from `sm` up, full width below. Start it with a helper line in `ink-muted` when every field is required: "All fields are required." DOM order is tab order.
+- **Stacked** (`.pc-form .pc-form-stacked`), for a record form such as New Owner, Edit Owner, New Pet, Edit Pet and New Visit: one field per row, `space-3` apart, the Button below the last field and left-aligned. The whole form is at most `field-width` wide from `sm` up, full width below. Start it with a helper line in `ink-muted` when every field is required: "All fields are required." DOM order is tab order.
 
 ## Error state (`.pc-field-invalid`)
 
 Applies to all three variants.
 
 - The control's border grows to `border-strong` (2px) `line-strong`; padding drops by 1px so nothing shifts (the select keeps room for its chevron).
-- Under the control (and under a helper line, if any), one sentence in `body` style, `ink` (13.1:1), with a `border-accent` (4px) `line-strong` rule on its left and `space-3` indent. It names the field so it makes sense on its own: "First Name is required.", "Birth Date cannot be in the future.", "Type is required."
+- Under the control (and under a helper line, if any), one sentence in `body` style, `ink` (13.1:1), with a `border-accent` (4px) `line-strong` rule on its left and `space-3` indent. It names the field so it makes sense on its own: "First Name is required.", "Birth Date cannot be in the future.", "Type is required.", "Date is required.", "Description is required."
 - The control gets `aria-invalid="true"` and `aria-describedby` pointing at the error's `id` (`birthDate-error`), after the helper's id when there is one (`birthDate-help birthDate-error`). Keep what the person typed (trimmed) in the input, and keep the chosen option selected.
 - One message per field: required beats format beats rule. A value that is empty shows only "… is required."
-- Pair it with a form-level summary above the form, an InlineMessage with `role="alert"`: "Owner not saved: 2 fields need attention.", "Pet not saved: 3 fields need attention."
+- Pair it with a form-level summary above the form, an InlineMessage with `role="alert"`: "Owner not saved: 2 fields need attention.", "Pet not saved: 3 fields need attention.", "Visit not saved: 2 fields need attention."
 - The words, the heavier border and the rule carry the meaning. The system has no error colour and doesn't add one.
 
 In the Thymeleaf app this is Bootstrap's `form-label`, `form-control` and `form-select` with `pc-` classes in `petclinic.css` and `--bs-border-radius: 0`; errors are `th:errors` in a `<p class="pc-field-error">`. Turn native browser bubbles off with `novalidate` so server messages are the one mechanism; keep `required` and `aria-required="true"` for assistive tech.
