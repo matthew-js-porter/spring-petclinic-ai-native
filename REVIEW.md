@@ -13,6 +13,7 @@ Do two passes over the diff:
    - If the change touches an `intent/<nnn>-<name>/` folder or implements one, compare it with that folder's `spec.md` and `plan.md`. Report missing requirements and undocumented deviations.
    - `CLAUDE.md` rules, e.g. YAML-only config (no `application.properties`), Java 25, Boot 4 test packages, no actuator exposure beyond `health` without a spec that asks for it.
    - No workflow or agent pushes directly to `main`.
+   - **Java pins and `.sdkmanrc`.** Renovate moves the Java major in `pom.xml` (`java.version`) and the `setup-java` `java-version` in `build.yml` and `snyk.yml`, but never `.sdkmanrc`: SDKMAN identifiers differ per platform and old builds are withdrawn, so no tool can pick one that installs. If the diff changes any of those Java majors and `.sdkmanrc` still names a different major, that is a `[major]` finding on the changed Java line (the `<java.version>` line if it changed), since `.sdkmanrc` is not in the diff: local `sdk env install` stays on the old JDK and the build's pin check fails. Ask a human to set it to an identifier `sdk list java` offers for the new major; do not suggest one yourself.
 
 ## Severity
 
