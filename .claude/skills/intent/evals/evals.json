@@ -26,7 +26,7 @@
       "files": [],
       "expectations": [
         "The final response asks clarifying questions about the problem (for example what is annoying, who is affected, or what better looks like).",
-        "The final response asks at most 4 questions (count the question marks with a script).",
+        "The final response asks at most 4 distinct questions. A numbered or bulleted item counts as one question even if it has follow-up clauses or several question marks.",
         "No intent.md was written anywhere.",
         "The transcript shows no git commit or git push."
       ]
