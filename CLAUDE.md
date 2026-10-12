@@ -40,7 +40,7 @@ GitHub Actions workflows (intent 002) live in `.github/workflows/`:
 - `build.yml`: `./mvnw -B clean verify` on Temurin 25 for pushes to `main` and every PR.
 - `snyk.yml`: Snyk Open Source and Code scans that fail on `high` and above, and keep a `snyk-sarif` artifact.
 - `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, plus a `/security-review` job, including on fix commits pushed by `@claude`.
-- `claude.yml`: `@claude` mentions that push fixes to the PR branch. Bot comments are ignored unless they carry the `<!-- boot-overrides -->` marker that `REVIEW.md`'s Spring Boot overrides rule puts on Boot upgrade PRs; that comment has `@claude` remove the overrides.
+- `claude.yml`: `@claude` mentions that push fixes to the PR branch. Bot comments are ignored unless they contain `@claude remove these Spring Boot version overrides`, the request `REVIEW.md`'s Spring Boot overrides rule ends its Boot upgrade comment with. claude-code-action strips HTML comments from the comments it posts, so a hidden marker cannot be used.
 - `design-spec.yml`: drafts `spec.md` as a PR when an `intent.md` lands on `main`.
 - `maintain-scan.yml`: weekly, runs the `/maintain-scan` skill on the latest Snyk results and opens a PR with the `intent.md` files it writes.
 - `evals.yml`: runs `/skill-creator eval <skill>` on PRs that change a skill (or `CLAUDE.md`) and on dispatch, and comments the results on the PR.

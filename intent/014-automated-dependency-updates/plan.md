@@ -61,6 +61,7 @@ Verify locally: run the snippet as is (passes), then with `.sdkmanrc` edited to 
 - `claude.yml`, the only edits:
   - In the `issue_comment` and `pull_request_review_comment` clauses, append `&& (github.event.comment.user.type != 'Bot' || contains(github.event.comment.body, '<!-- boot-overrides -->'))`.
   - Add `allowed_bots: "claude"` to the action `with:`.
+- **Outcome:** the hidden marker never reaches GitHub (claude-code-action strips HTML comments from the comments it posts, found on test PR #78), so both clauses match the visible `@claude remove these Spring Boot version overrides` request instead, and the request ends "Do not repeat this request in your reply."
 - Verify: `actionlint`. Real F4/F5 check after merge (C11): the PR adding the rule gets no Claude review of itself. Then the test branch from §6 (bump the parent, keep both overrides) should produce:
   - one review comment, followed by a Claude App commit "Remove Spring Boot version overrides for Boot X" that removes exactly the two lines;
   - re-runs of build, snyk and review, with the second review silent;
@@ -111,7 +112,7 @@ Verify locally: run the snippet as is (passes), then with `.sdkmanrc` edited to 
 - `CLAUDE.md` CI section, three bullets:
   - Renovate (`renovate.json5`, hosted App, weekly Monday, groups, no automerge);
   - `dependency-updates.yml` (gate/fix loop, `MAX_FIX_ATTEMPTS`, `renovate[bot]` only);
-  - the REVIEW.md Boot-override rule plus the `claude.yml` bot/marker condition.
+  - the REVIEW.md Boot-override rule plus the `claude.yml` bot/request condition.
 - `spec.md` deviations noted where implementation diverged: the two `allowed_bots` lines, the `sdkman` outcome, anything found in the experiments.
 
 ## Verification summary
