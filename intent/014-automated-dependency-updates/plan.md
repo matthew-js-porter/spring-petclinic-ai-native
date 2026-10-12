@@ -40,7 +40,9 @@ New `renovate.json5` at the root, with short comments describing what each block
 
 Spec 5.2, F6 and C9 record this.
 
-## PR 2: Java pin consistency step (`deps/02-java-pins`), F6
+## PR 2: Java pin consistency step (`deps/02-java-pins`), F6 — dropped
+The owner decided against this check after review; PR #69 was closed unmerged. Original plan below for the record.
+
 `build.yml`: new step "Check Java pins agree", after checkout and before `setup-java`. It is plain bash:
 - Extract the majors:
   - `pom.xml`: `sed -n 's:.*<java.version>\([0-9]*\).*:\1:p' pom.xml`
@@ -105,14 +107,12 @@ Verify locally: run the snippet as is (passes), then with `.sdkmanrc` edited to 
   - Renovate (`renovate.json5`, hosted App, weekly Monday, groups, no automerge);
   - `dependency-updates.yml` (gate/fix loop, `MAX_FIX_ATTEMPTS`, `renovate[bot]` only);
   - the REVIEW.md Boot-override rule plus the `claude.yml` bot/marker condition.
-- Also mention the Java pin check in `build.yml`.
 - `spec.md` deviations noted where implementation diverged: the two `allowed_bots` lines, the `sdkman` outcome, anything found in the experiments.
 
 ## Verification summary
 | Requirement | Check |
 |---|---|
 | F1–F3, F6, F10 | Validator `--strict`, local `--dry-run=lookup`, then the Dependency Dashboard after install |
-| F6 consistency | Local snippet pass/fail, green `build` |
 | F4/F5 | Post-merge Boot test branch (§6) |
 | F7/F8/F12 | Post-merge: first failing Renovate PR, plus a human red PR showing `gate` skipped |
 | F9 | A Renovate PR shows build, snyk, claude-review, claude-security-review |
