@@ -36,6 +36,7 @@ New `renovate.json5` at the root, with short comments describing what each block
 - `pom.xml`'s regex uses `extractVersionTemplate` so the pin stays major-only.
 - The Snyk rule matches `snyk/actions`.
 - There's an explicit `maven-wrapper` group.
+- Rule 6 (disabling Tomcat and Jackson by name) was dropped at review: the config names no individual overrides, and Renovate doesn't see BOM-only overrides anyway.
 
 Spec 5.2, F6 and C9 record this.
 
