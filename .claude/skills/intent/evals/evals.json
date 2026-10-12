@@ -11,7 +11,8 @@
         "Exactly one intent.md was written, in a folder named <NNN>-<kebab-name> where NNN is one above the highest numbered folder in the repository's intent/ directory.",
         "The file has these level-2 headings in this order: Problem, Proposed outcome, Affected users and systems, Constraints, Open questions.",
         "The file has at most 70 non-blank lines (count them with a script).",
-        "None of these strings appear in the file: VetController, VetRepository, vetList.html, @Query, jQuery, React, JavaScript.",
+        "None of these strings appear in the file: VetController, VetRepository, vetList.html, @Query, jQuery, React.",
+        "The file does not prescribe how to build the filter with client-side JavaScript or any library (for example a JavaScript dropdown or script). Stating the constraint that the page works without JavaScript is allowed and does not fail this.",
         "The Open questions section mentions whether the chosen specialty is kept in the page address or URL (bookmarking).",
         "The Proposed outcome lists searching vets by name, editing vets and appointments as out of scope.",
         "The Proposed outcome states that the vets JSON stays unchanged.",
@@ -26,7 +27,7 @@
       "files": [],
       "expectations": [
         "The final response asks clarifying questions about the problem (for example what is annoying, who is affected, or what better looks like).",
-        "The final response asks at most 4 questions (count the question marks with a script).",
+        "The final response asks at most 4 distinct questions. A numbered or bulleted item counts as one question even if it has follow-up clauses or several question marks.",
         "No intent.md was written anywhere.",
         "The transcript shows no git commit or git push."
       ]
