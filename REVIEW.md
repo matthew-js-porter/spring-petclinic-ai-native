@@ -13,6 +13,7 @@ Do two passes over the diff:
    - If the change touches an `intent/<nnn>-<name>/` folder or implements one, compare it with that folder's `spec.md` and `plan.md`. Report missing requirements and undocumented deviations.
    - `CLAUDE.md` rules, e.g. YAML-only config (no `application.properties`), Java 25, Boot 4 test packages, no actuator exposure beyond `health` without a spec that asks for it.
    - No workflow or agent pushes directly to `main`.
+   - **Spring Boot overrides.** If the diff changes the `spring-boot-starter-parent` `<version>` in `pom.xml`, each `<properties>` entry still in `pom.xml` that overrides a property Spring Boot's parent defines (for example `tomcat.version`, `jackson-bom.version`; never `java.version`, and never properties Boot does not define such as `webjars-bootstrap.version`) is a `[major]` finding, whatever its version: the pin no longer follows Boot and holds the library back once Boot moves past it. Post one comment for all of them on the parent `<version>` line, listing each property and value, include `<!-- boot-overrides -->`, and end it with `@claude remove these Spring Boot version overrides from pom.xml, touching no other line, commit as "Remove Spring Boot version overrides for Boot <new version>", push to this branch, and reply with each removed property and its old value. Do not quote the boot-overrides marker in your reply.` If no overrides remain, post nothing for this rule.
    - **Java pins and `.sdkmanrc`.** Renovate moves the Java major in `pom.xml` (`java.version`) and the `setup-java` `java-version` in `build.yml` and `snyk.yml`, but never `.sdkmanrc`: SDKMAN identifiers differ per platform and old builds are withdrawn, so no tool can pick one that installs. If the diff changes any of those Java majors and `.sdkmanrc` still names a different major, that is a `[major]` finding on the changed Java line (the `<java.version>` line if it changed), since `.sdkmanrc` is not in the diff: local `sdk env install` stays on the old JDK and the build's pin check fails. Ask a human to set it to an identifier `sdk list java` offers for the new major; do not suggest one yourself.
 
 ## Severity
@@ -27,5 +28,5 @@ Prefix every comment with one tag:
 
 - Only report an issue if you can state a concrete failure scenario: the inputs or state, and what goes wrong.
 - Do not comment on style, naming or formatting unless it causes a bug.
-- One comment per issue, on the most relevant line. Suggest a fix when it is short.
+- One comment per issue, on the most relevant line. Suggest a fix when it is short. The one exception is the Spring Boot overrides rule, which posts a single comment for all overrides so they are removed in one `@claude` run.
 - No praise or summary comments. If nothing qualifies, post nothing.
