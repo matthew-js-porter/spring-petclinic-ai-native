@@ -1,0 +1,76 @@
+// Renovate (hosted Mend Renovate App) configuration.
+// Weekly, grouped update PRs; humans review and merge, nothing auto-merges.
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended"],
+  timezone: "UTC",
+  // After the Monday 03:00 Snyk scan, before maintain-scan at 06:00.
+  schedule: ["before 5am on monday"],
+  dependencyDashboard: true,
+  labels: ["dependencies"],
+  automerge: false,
+  // Keep actions on version tags; never rewrite them to commit SHAs.
+  pinDigests: false,
+  // Rebase only on conflicts so fix and override clean-up commits are not force-pushed away.
+  rebaseWhen: "conflicted",
+  prConcurrentLimit: 3,
+  prHourlyLimit: 2,
+  // Security PRs from Dependabot alerts are not held to the schedule.
+  vulnerabilityAlerts: {
+    enabled: true,
+    labels: ["security"],
+  },
+  enabledManagers: ["maven", "maven-wrapper", "github-actions", "custom.regex"],
+  packageRules: [
+    {
+      description: "Every other Maven dependency and plugin, minor and patch only, in one PR",
+      matchManagers: ["maven"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "maven-minor-patch",
+    },
+    {
+      description: "Spring Boot parent and artifacts always in their own PR, majors included",
+      matchDatasources: ["maven"],
+      matchPackageNames: ["org.springframework.boot:**"],
+      groupName: "spring-boot",
+    },
+    {
+      description: "Workflow actions, minor and patch only; majors get one PR each",
+      matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor", "patch"],
+      groupName: "github-actions",
+    },
+    {
+      description: "Maven wrapper and Maven distribution in one PR",
+      matchManagers: ["maven-wrapper"],
+      groupName: "maven-wrapper",
+    },
+    {
+      description: "Leave the SHA-pinned Snyk setup action alone",
+      matchPackageNames: ["snyk/actions"],
+      enabled: false,
+    },
+    {
+      description: "Java majors in pom.xml and setup-java move together; LTS only",
+      // java-jdk is setup-java's java-version, extracted by the github-actions manager.
+      matchDepNames: ["java", "java-jdk"],
+      groupName: "java",
+      separateMajorMinor: false,
+      allowedVersions: "/^(25|29)(\\.|$)/",
+    },
+  ],
+  // .sdkmanrc is not managed: SDKMAN identifiers differ per platform and drop old builds,
+  // so no datasource can propose one that installs. A human sets it on Java major PRs.
+  customManagers: [
+    {
+      customType: "regex",
+      description: "java.version in pom.xml",
+      managerFilePatterns: ["/^pom\\.xml$/"],
+      matchStrings: ["<java\\.version>(?<currentValue>\\d+)</java\\.version>"],
+      depNameTemplate: "java",
+      datasourceTemplate: "java-version",
+      // Major only, e.g. 25, never 25.0.4+101.0.LTS.
+      extractVersionTemplate: "^(?<version>\\d+)",
+    },
+  ],
+}

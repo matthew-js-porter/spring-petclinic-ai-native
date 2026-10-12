@@ -3,7 +3,7 @@ Source intent: [intent.md](./intent.md)
 Author: matthew-js-porter
 
 ## 1. Summary
-Adopt **Renovate** (Mend Renovate GitHub App) to open weekly, grouped update PRs for Maven dependencies and plugins, the `spring-boot-starter-parent` version, GitHub Actions, the Maven wrapper and the Java pins. Two automations act on the update PRs:
+Adopt **Renovate** (Mend Renovate GitHub App) to open weekly, grouped update PRs for Maven dependencies and plugins, the `spring-boot-starter-parent` version, GitHub Actions, the Maven wrapper and the Java pins in `pom.xml` and CI (`.sdkmanrc` stays manual, flagged by the review; see 5.2). Two automations act on the update PRs:
 
 1. **Override clean-up (review rule).** `REVIEW.md` tells the Claude review that a PR raising the Boot parent version must not keep Spring Boot version overrides in `pom.xml`. The review posts one `[major]` comment listing them with an `@claude` request, and `claude.yml` removes them and pushes to the PR branch, whatever version the new Boot manages. `build` and `snyk` re-run on the new head because the push comes from the Claude GitHub App.
 2. **Build-fix loop (new `dependency-updates.yml`).** When `build` fails on a Renovate PR, Claude tries to fix it and pushes to the PR branch, up to a cap (default 2 attempts). If the cap is reached it comments what failed and what it tried.
@@ -27,8 +27,8 @@ Humans merge everything; nothing auto-merges and nothing is pushed to `main`. Ou
 | Maven deps, plugins, Boot parent | Yes | Yes |
 | GitHub Actions | Yes | Yes |
 | Maven wrapper | No native support for `maven-wrapper.properties` | Yes (`maven-wrapper` manager) |
-| `.sdkmanrc` | No | Yes (`sdkman` manager) |
-| Keep Java pins in step | Cannot group across ecosystems or files | Custom regex managers plus a shared `groupName` can bump `pom.xml`, `.sdkmanrc` and both `setup-java` pins in one PR |
+| `.sdkmanrc` | No | Only via a regex manager, and no datasource knows SDKMAN's identifiers (see 5.2) |
+| Keep Java pins in step | Cannot group across ecosystems or files | Custom regex managers plus a shared `groupName` can bump `pom.xml` and both `setup-java` pins in one PR |
 | Hold back unwanted versions (non-LTS, unsupported by SDKMAN) | Limited `ignore` rules | `allowedVersions` and `packageRules` per dependency |
 | Group Boot with related changes | Groups by ecosystem only | Arbitrary groups |
 | Removing overrides on a Boot upgrade | Not possible | Not possible either (no manager knows which properties shadow BOM entries; the hosted app cannot run post-upgrade commands), so the Claude review flags them and `@claude` removes them (F4, 3.5) |
@@ -44,8 +44,8 @@ Renovate is the only option that covers the wrapper and Java pins, and its group
   - **spring-boot**: the parent version plus any `org.springframework.boot` artifact (including the `spring-boot-maven-plugin` if ever versioned explicitly). Always its own PR, so override clean-up (F4) has a clear trigger.
   - **maven-minor-patch**: every other Maven dependency and plugin, minor and patch only.
   - **github-actions**: all workflow actions, minor and patch only.
-  - **java**: `pom.xml`, `.sdkmanrc` and both CI JDK pins (F6).
-  - **maven-wrapper**: wrapper and Maven distribution.
+  - **java**: `pom.xml` and both CI JDK pins (F6); `.sdkmanrc` is manual.
+  - **maven-wrapper**: wrapper and Maven distribution (an explicit `groupName`; without it Renovate names the branch `maven-3.x`).
   - Major updates are never grouped: one PR per dependency.
 
 ### 3.3 Fix attempts per PR: 2
@@ -77,7 +77,7 @@ Options checked and rejected (OpenRewrite variants tested on copies of `pom.xml`
 | F3 | **Wrapper.** Renovate opens PRs for `.mvn/wrapper/maven-wrapper.properties` (wrapper version and Maven distribution URL). |
 | F4 | **Override clean-up rule.** `REVIEW.md` gains a conformance rule: when a PR's diff changes the `spring-boot-starter-parent` `<version>` in `pom.xml`, every `<properties>` entry still in the head `pom.xml` that overrides a property Spring Boot's parent defines (today `tomcat.version` and `jackson-bom.version`) is a `[major]` finding, whatever its version. `java.version` and properties Boot does not define (`webjars-bootstrap.version`) are never flagged. The review posts **one** inline comment on the parent `<version>` line that lists each override with its value, contains the hidden marker `<!-- boot-overrides -->`, and ends with `@claude remove these Spring Boot version overrides from pom.xml and push to this branch. Do not quote the boot-overrides marker in your reply.` If none remain, it posts nothing. |
 | F5 | **Applying the fix.** `claude.yml` acts on that comment: it removes exactly the listed properties, touches no other line, commits "Remove Spring Boot version overrides for Boot X" and pushes to the PR branch as the Claude GitHub App, so `build`, `snyk` and the review re-run. It replies with the removed properties and their old values. To let a bot comment trigger it, `claude.yml` gets `allowed_bots: "claude"`, and its `if` accepts a comment from a bot only when the body contains `<!-- boot-overrides -->`; human `@claude` comments behave as before. The re-run review finds no overrides left and posts nothing, so the loop ends. |
-| F6 | **Java pins in step.** One Renovate group bumps `java.version`, `.sdkmanrc` and the `java-version` in `build.yml` and `snyk.yml` together. Only versions SDKMAN can install are proposed, and only LTS majors (the 001 deviation), with patch updates of the current major allowed. A check in `build.yml` fails when the major in `pom.xml`, `.sdkmanrc` and the CI files differ (see 5.4). |
+| F6 | **Java pins in step.** One Renovate group bumps `java.version` and the `java-version` in `build.yml` and `snyk.yml` together, LTS majors only (the 001 deviation). `.sdkmanrc` is not managed by Renovate (deviation, 5.2): on a Java major PR the review flags it (`REVIEW.md`) and a human sets an identifier SDKMAN offers. A check in `build.yml` fails when the major in `pom.xml`, `.sdkmanrc` and the CI files differ (see 5.4). |
 | F7 | **Build-fix loop.** When `build` completes with `failure` on a PR from a `renovate/*` branch authored by `renovate[bot]`, Claude is run with the failing run's logs and attempts a fix, pushing commits to that branch as the Claude GitHub App so `build` re-runs. The run is skipped when the attempt cap is reached. |
 | F8 | **Cap and give-up.** The workflow counts previous attempts from a hidden marker (`<!-- dep-fix-attempt -->`) in PR comments it posts at the start of each attempt. After `MAX_FIX_ATTEMPTS` failed builds it does not start another run; it posts one comment saying what failed (failing step, error excerpt), what each attempt changed, and that a human is needed. If Claude concludes mid-attempt that it cannot fix the failure (e.g. a major API removal), it posts the same comment immediately. |
 | F9 | **Existing checks run.** Every Renovate PR runs `build`, `snyk` and both Claude review jobs. `renovate` is added to `allowed_bots` in `claude-code-review.yml` (a one-line change to a template file). |
@@ -99,7 +99,7 @@ Options checked and rejected (OpenRewrite variants tested on copies of `pom.xml`
 ### 5.1 Layout
 ```
 renovate.json5                          # F1, F2, F3, F6, F10 (new)
-REVIEW.md                               # F4: Spring Boot override rule
+REVIEW.md                               # F4: Spring Boot override rule; F6: .sdkmanrc on Java major PRs
 .github/workflows/dependency-updates.yml  # F7, F8, F12 (new)
 .github/workflows/claude-code-review.yml  # F9: add renovate to allowed_bots (one line)
 .github/workflows/claude.yml            # F5: allowed_bots claude + marker condition
@@ -109,14 +109,16 @@ CLAUDE.md                               # CI section: document the new workflow,
 
 ### 5.2 renovate.json5
 - `extends: ["config:recommended"]` minus the default digest pinning for actions; `timezone: "UTC"`; `schedule` as in 3.2; `dependencyDashboard: true`; `labels: ["dependencies"]`; `automerge: false`; `pinDigests: false`; `vulnerabilityAlerts: { enabled: true, labels: ["security"] }`.
-- `enabledManagers`: `maven`, `maven-wrapper`, `github-actions`, `sdkman`, `custom.regex`.
+- `enabledManagers`: `maven`, `maven-wrapper`, `github-actions`, `custom.regex`. Renovate has no `sdkman` manager (checked against Renovate 44.151.1).
 - `packageRules`:
   - group `spring-boot` (`matchDatasources: maven`, `matchPackageNames: ["org.springframework.boot:*"]`), always its own PR, major updates included and not grouped with others.
   - group `maven-minor-patch` (`matchUpdateTypes: [minor, patch]`), excluding the Boot rule.
-  - group `github-actions` (`matchManagers: github-actions`, minor and patch); majors separate. `snyk/actions/setup` is excluded from digest rewriting.
-  - group `java` for the four Java pins; `allowedVersions` restricts to LTS majors (currently 25, then 29, etc.) and to versions present in SDKMAN's list.
-  - `ignoreDeps` / `matchPackageNames` rule to **skip `tomcat.version` and `jackson-bom.version`** (overrides are owned by the security flow and F4, not by Renovate bumping them in isolation). Renovate only sees properties referenced from a `<version>` of a declared dependency, so these two are not seen today; the rule makes that explicit if an override ever becomes visible. `webjars-bootstrap.version` is referenced by a dependency and is updated normally.
-- `customManagers` (regex) for `java-version:` in `build.yml` and `snyk.yml` and `<java.version>` in `pom.xml`, using the `java-version` datasource, so they share a dependency name and group. `.sdkmanrc` uses the built-in `sdkman` manager with the `-open` flavour kept.
+  - group `github-actions` (`matchManagers: github-actions`, minor and patch); majors separate. `snyk/actions` (Renovate's dependency name for `snyk/actions/setup`) is disabled so its SHA pin is left alone.
+  - group `java` for the three Java pins (`matchDepNames: java, java-jdk`); `allowedVersions` restricts to LTS majors (currently 25, then 29). Majors stay in the group (`separateMajorMinor: false`).
+  - No rule names individual overrides. Renovate only sees properties referenced from a `<version>` of a declared dependency, so Boot overrides such as `tomcat.version` and `jackson-bom.version` (which only shadow Boot's BOM) are never proposed for update; they are removed on Boot upgrades by F4/F5. `webjars-bootstrap.version` is referenced by a dependency and is updated normally.
+- `setup-java`'s `java-version` is extracted by the `github-actions` manager itself (dependency name `java-jdk`, major only), so no regex is needed for the workflows. One `customManagers` regex covers `<java.version>` in `pom.xml` with the `java-version` datasource and `extractVersionTemplate: "^(?<version>\\d+)"`, so it is written as `29`, not `29.0.1+...LTS`.
+- **Deviation: `.sdkmanrc` is not managed.** There is no `sdkman` manager, and a regex manager on the `java-version` datasource proposes Temurin versions (e.g. `25.0.4`) that are not SDKMAN identifiers. SDKMAN's identifiers differ per platform (`25.0.1.0+8-open` on linux-x64, `25.0.0.0+36-open` on mac-arm64 on 2026-10-11) and old builds are withdrawn (the current `25.0.2-open` is no longer listed), so no Renovate rule can propose one that installs. Instead `REVIEW.md` flags a Java major PR whose `.sdkmanrc` major differs, and a human sets an identifier from `sdk list java`; the 5.4 check fails the build until then. Patch drift in `.sdkmanrc` is not tracked.
+- Verified with `renovate-config-validator --strict` and a `--platform=local --dry-run=lookup` run on a copy with Java 21, Boot 4.0.0, Bootstrap 5.3.3, Maven 3.9.9 and `actions/checkout@v5`: branches `renovate/java` (both `java-jdk` pins and `pom.xml` to 25, skipping 22-24), `renovate/spring-boot`, `renovate/maven-minor-patch`, `renovate/maven-wrapper` and a separate `renovate/actions-checkout-7.x`; `snyk/actions` disabled; no digest pins.
 
 ### 5.3 dependency-updates.yml
 Triggers and structure follow `design-spec.yml`'s pattern because `claude-code-action` does not support `workflow_run`:
@@ -150,7 +152,7 @@ This is the one place `REVIEW.md` asks for a single combined comment instead of 
 | F2 | The first actions PR keeps `@vN` tags; `git diff` shows no 40-character SHA introduced. |
 | F3 | Lowering the Maven distribution version yields a wrapper PR. |
 | F4 / F5 | On a Boot PR (or a same-repo test branch that bumps the parent with `tomcat.version` and `jackson-bom.version` still present): the review posts one `[major]` comment on the parent line listing both, with the marker and the `@claude` request; a Claude App commit then removes exactly those two lines, `build`, `snyk` and the review re-run, the second review posts nothing, and the `@claude` reply starts no further `claude.yml` run. A bot comment without the marker that mentions `@claude` does not start `claude.yml`. After a Renovate rebase that drops the commit, the cycle repeats. |
-| F6 | Lower all four Java pins; one PR raises them together. Edit only `.sdkmanrc`: `build` fails on the consistency step. A non-installable, non-LTS version is never proposed. |
+| F6 | Lower the three Renovate-managed Java pins; one PR raises them together and the review flags `.sdkmanrc`. Edit only `.sdkmanrc`: `build` fails on the consistency step. A non-LTS major is never proposed. |
 | F7 / F8 | Open a Renovate PR (or a branch named `renovate/test` authored by the bot in a sandbox repo) that breaks a test; a fix commit appears from the Claude App and `build` re-runs. Make the failure unfixable: after 2 attempts a single give-up comment appears and no third run starts. |
 | F9 | A Renovate PR shows `build`, `snyk`, `claude-review` and `claude-security-review` runs. |
 | F10 / F11 | `grep -rn "automerge" renovate.json5` shows `false`; `grep -rn "push origin main\|HEAD:main" .github` returns nothing. |
@@ -177,7 +179,7 @@ No brand-guideline or UX-standard document applies (no UI; `docs/design-system/`
 - **C6 — SHA pin versus tag policy.** `CLAUDE.md` says never to pin to commit SHAs, but `snyk.yml` pins `snyk/actions/setup` to a SHA (002 deviation). Renovate would, left alone, update the SHA while leaving the comment `# v1.0.0`; if told to ignore digests it leaves it alone permanently. This spec leaves the reference alone (excluded in `renovate.json5`); the owner should decide whether to move it to `@v1` tag so the policy is consistent. That change is out of scope.
 - **C7 — Overlap with `maintain-scan`.** A dependency CVE can generate both a Renovate security PR and a `maintain/security-*` intent PR. Merging the Renovate PR clears the Snyk finding on the next scan, but the intent already filed stays open. Not solved here (the Snyk flow is out of scope); reviewers must close the stale intent.
 - **C8 — Config format.** `CLAUDE.md` says "Config is YAML only; do not add `application.properties`". Renovate's native formats are JSON and JSON5, not YAML. I read the rule as covering Spring application config and chose `renovate.json5`. If it is meant repo-wide, the alternative is to reject Renovate in favour of Dependabot (`dependabot.yml` is YAML), which loses the wrapper, `.sdkmanrc` and Java-grouping requirements. The owner should confirm.
-- **C9 — Java grouping depends on regex managers and on SDKMAN data.** Renovate's `sdkman` manager and the `java-version` datasource may not agree on the latest patch (Temurin in CI versus the `-open` build in `.sdkmanrc`), so the group may propose a patch version not available for one of them. The consistency check (5.4) compares majors only, and the build uses `setup-java` with a major, so a patch mismatch is harmless. If Renovate cannot be made to keep all four in one PR, the fallback is a Renovate PR for `.sdkmanrc` and `java.version` only and a Claude fix commit for the CI pins; the spec does not mandate that.
+- **C9 — `.sdkmanrc` is manual.** Renovate cannot propose an installable SDKMAN identifier (5.2), so `.sdkmanrc` is left to a human, prompted by the review on Java major PRs and enforced by the 5.4 check. A Java major PR stays red until someone edits `.sdkmanrc`; patch updates of the local JDK are not tracked at all. The current pin `25.0.2-open` is already withdrawn from SDKMAN, so a fresh `sdk env install` fails today; fixing that is outside this intent.
 - **C10 — First-run Boot upgrade and dependency churn.** Boot 4.1.x moves quickly. A Boot PR may require code changes beyond a trivial fix (e.g. package moves like those noted in `CLAUDE.md` for test annotations). Two attempts will often be insufficient; the give-up comment is the expected outcome for these, and the owner picks up the PR.
 - **C11 — Claude workflows skip on PRs that change them.** `claude-code-action` refuses to run unless the workflow file matches `main`, so `dependency-updates.yml` and the `claude.yml` change can only be verified after they are merged, and the PR adding it gets no Claude review of itself (same as 002). The `workflow_run` trigger also only fires for workflow files on the default branch.
 - **C12 — Actor restrictions.** The action rejects non-human actors unless listed. The `fix` job sees `github-actions[bot]` (dispatch) and PR-triggered review sees `renovate[bot]`. Each is allow-listed only in the job that needs it. If the Claude App cannot be used to push on a `workflow_dispatch` run, commits would be authored by `github-actions[bot]` and would not re-trigger `build`. This must be verified in the first end-to-end test; the fallback is a PR comment `@claude` trigger, which already pushes as the App (`claude.yml`).
@@ -189,7 +191,7 @@ No brand-guideline or UX-standard document applies (no UI; `docs/design-system/`
 - Schedule is Monday before 05:00 UTC, grouping as in 3.2, `prConcurrentLimit` 3.
 - Fix attempts are capped at 2 per PR, configurable via `MAX_FIX_ATTEMPTS`.
 - `maintain-scan` and Snyk flows are unchanged; overlap with Renovate security PRs is accepted (3.4). Dependabot alerts are enabled solely as Renovate's vulnerability data source.
-- Only LTS Java majors, plus patch updates of 25, are proposed; this extends the 001 deviation.
+- Only LTS Java majors are proposed (the pins are major-only); this extends the 001 deviation. `.sdkmanrc` is not managed by Renovate (owner decision, 5.2).
 - The existing overrides `tomcat.version` and `jackson-bom.version` are not touched by Renovate and are cleaned up only by F4/F5 on a Boot upgrade.
 - On a Boot upgrade, every Spring Boot override is removed regardless of version, never `java.version` (owner decision, 3.5); the review flags them and `@claude` removes them.
 - Only the PR author `renovate[bot]` on `renovate/*` branches in this repository counts as "opened by the dependency bot".
