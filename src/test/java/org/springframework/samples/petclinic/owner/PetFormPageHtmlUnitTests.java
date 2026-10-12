@@ -23,6 +23,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.samples.petclinic.HtmlPages.currentNavItems;
+import static org.springframework.samples.petclinic.HtmlPages.texts;
 
 /**
  * Drives the New Pet and Edit Pet forms like a browser through MockMvc's HtmlUnit
@@ -264,17 +266,6 @@ class PetFormPageHtmlUnitTests {
 			.stream()
 			.map((link) -> ((HtmlAnchor) link).getHrefAttribute())
 			.toList();
-	}
-
-	private static List<String> currentNavItems(HtmlPage page) {
-		return page.querySelectorAll("nav[aria-label='Main'] [aria-current=page]")
-			.stream()
-			.map((link) -> ((HtmlAnchor) link).getHrefAttribute())
-			.toList();
-	}
-
-	private static List<String> texts(HtmlPage page, String selector) {
-		return page.querySelectorAll(selector).stream().map(DomNode::asNormalizedText).toList();
 	}
 
 }

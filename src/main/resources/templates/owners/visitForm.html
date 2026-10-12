@@ -20,26 +20,14 @@
 		</div>
 	</dl>
 
-	<p th:if="${#fields.hasErrors('${visitForm.*}')}" class="pc-message" role="alert"
-	   th:with="count=${#lists.size(#fields.detailedErrors('${visitForm.*}'))}"
-	   th:text="${count == 1} ? 'Visit not saved: 1 field needs attention.' : |Visit not saved: ${count} fields need attention.|">
-		Visit not saved: 2 fields need attention.</p>
+	<p th:replace="~{fragments/form :: errorSummary('visitForm', 'Visit')}"></p>
 
 	<form method="post" th:action="@{${action}}" th:object="${visitForm}" novalidate class="pc-form pc-form-stacked">
 		<p class="pc-form-help">All fields are required.</p>
 
-		<div class="pc-field" th:with="invalid=${#fields.hasErrors('date')}"
-			 th:classappend="${invalid} ? 'pc-field-invalid'">
-			<label for="date" class="form-label">Date</label>
-			<input type="date" th:field="*{date}" autocomplete="off" required aria-required="true"
-				   th:aria-invalid="${invalid} ? 'true' : null"
-				   th:aria-describedby="${invalid} ? 'date-help date-error' : 'date-help'"
-				   class="form-control pc-input">
-			<p id="date-help" class="pc-field-help">yyyy-mm-dd</p>
-			<p th:if="${invalid}" id="date-error" class="pc-field-error" th:errors="*{date}">Date is required.</p>
-		</div>
+		<div th:replace="~{fragments/form :: dateField('date', 'Date', null)}"></div>
 
-		<div th:replace="~{owners/ownerForm :: field('description', 'Description', 'text', 255, 'off')}"></div>
+		<div th:replace="~{fragments/form :: field('description', 'Description', 'text', 255, 'off')}"></div>
 
 		<button type="submit" class="btn pc-button">Add Visit</button>
 	</form>

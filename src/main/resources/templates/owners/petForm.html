@@ -7,26 +7,13 @@
 
 	<p class="pc-muted">Owner: <span th:text="${ownerName}">George Franklin</span></p>
 
-	<p th:if="${#fields.hasErrors('${petForm.*}')}" class="pc-message" role="alert"
-	   th:with="count=${#lists.size(#fields.detailedErrors('${petForm.*}'))}"
-	   th:text="${count == 1} ? 'Pet not saved: 1 field needs attention.' : |Pet not saved: ${count} fields need attention.|">
-		Pet not saved: 2 fields need attention.</p>
+	<p th:replace="~{fragments/form :: errorSummary('petForm', 'Pet')}"></p>
 
 	<form method="post" th:action="@{${action}}" th:object="${petForm}" novalidate class="pc-form pc-form-stacked">
 		<p class="pc-form-help">All fields are required.</p>
-		<div th:replace="~{owners/ownerForm :: field('name', 'Name', 'text', 30, 'off')}"></div>
+		<div th:replace="~{fragments/form :: field('name', 'Name', 'text', 30, 'off')}"></div>
 
-		<div class="pc-field" th:with="invalid=${#fields.hasErrors('birthDate')}"
-			 th:classappend="${invalid} ? 'pc-field-invalid'">
-			<label for="birthDate" class="form-label">Birth Date</label>
-			<input type="date" th:field="*{birthDate}" th:max="${today}" autocomplete="off" required
-				   aria-required="true" th:aria-invalid="${invalid} ? 'true' : null"
-				   th:aria-describedby="${invalid} ? 'birthDate-help birthDate-error' : 'birthDate-help'"
-				   class="form-control pc-input">
-			<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
-			<p th:if="${invalid}" id="birthDate-error" class="pc-field-error" th:errors="*{birthDate}">Birth Date is
-				required.</p>
-		</div>
+		<div th:replace="~{fragments/form :: dateField('birthDate', 'Birth Date', ${today})}"></div>
 
 		<div class="pc-field" th:with="invalid=${#fields.hasErrors('typeId')}"
 			 th:classappend="${invalid} ? 'pc-field-invalid'">

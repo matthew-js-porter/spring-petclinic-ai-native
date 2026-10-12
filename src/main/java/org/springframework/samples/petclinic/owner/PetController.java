@@ -9,21 +9,15 @@ import java.util.Optional;
 
 import jakarta.validation.Valid;
 
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * New Pet and Edit Pet. Pets are reached through their owner: an unknown owner, an
@@ -51,18 +45,9 @@ class PetController {
 		this.clock = clock;
 	}
 
-	/**
-	 * Trims the form's values before validation; an empty value stays {@code ""} so it
-	 * fails {@code @NotBlank} and is redisplayed as typed.
-	 */
-	@InitBinder("petForm")
-	void trimPetForm(WebDataBinder binder) {
-		binder.registerCustomEditor(String.class, new StringTrimmerEditor(false));
-	}
-
 	@GetMapping("/owners/{ownerId}/pets/new.html")
 	String initCreationForm(@PathVariable Integer ownerId, Model model) {
-		Owner owner = findOwner(ownerId);
+		Owner owner = OwnerPages.findOwner(this.owners, ownerId);
 		model.addAttribute("petForm", PetForm.empty());
 		return form(model, owner, null, sortedTypes());
 	}
@@ -70,7 +55,7 @@ class PetController {
 	@PostMapping("/owners/{ownerId}/pets")
 	ModelAndView processCreationForm(@PathVariable Integer ownerId, @Valid @ModelAttribute("petForm") PetForm form,
 			BindingResult result, Model model, RedirectAttributes flash) {
-		Owner owner = findOwner(ownerId);
+		Owner owner = OwnerPages.findOwner(this.owners, ownerId);
 		List<PetType> types = sortedTypes();
 		checkContext(form, result, owner, null, types);
 		if (result.hasErrors()) {
@@ -79,13 +64,13 @@ class PetController {
 		this.pets.insert(ownerId, form.name(), IsoDates.parse(form.birthDate()).orElseThrow(),
 				Integer.valueOf(form.typeId()));
 		flash.addFlashAttribute("message", "New Pet has been Added");
-		return seeOther(ownerId);
+		return OwnerPages.seeOther(ownerId);
 	}
 
 	@GetMapping("/owners/{ownerId}/pets/{petId}/edit.html")
 	String initUpdateForm(@PathVariable Integer ownerId, @PathVariable Integer petId, Model model) {
-		Owner owner = findOwner(ownerId);
-		model.addAttribute("petForm", PetForm.from(findPet(owner, petId)));
+		Owner owner = OwnerPages.findOwner(this.owners, ownerId);
+		model.addAttribute("petForm", PetForm.from(OwnerPages.findPet(owner, petId)));
 		return form(model, owner, petId, sortedTypes());
 	}
 
@@ -93,8 +78,8 @@ class PetController {
 	ModelAndView processUpdateForm(@PathVariable Integer ownerId, @PathVariable Integer petId,
 			@Valid @ModelAttribute("petForm") PetForm form, BindingResult result, Model model,
 			RedirectAttributes flash) {
-		Owner owner = findOwner(ownerId);
-		findPet(owner, petId);
+		Owner owner = OwnerPages.findOwner(this.owners, ownerId);
+		OwnerPages.findPet(owner, petId);
 		List<PetType> types = sortedTypes();
 		checkContext(form, result, owner, petId, types);
 		if (result.hasErrors()) {
@@ -102,10 +87,10 @@ class PetController {
 		}
 		if (!this.pets.update(ownerId, petId, form.name(), IsoDates.parse(form.birthDate()).orElseThrow(),
 				Integer.valueOf(form.typeId()))) {
-			throw petNotFound(petId);
+			throw OwnerPages.petNotFound(petId);
 		}
 		flash.addFlashAttribute("message", "Pet details has been edited");
-		return seeOther(ownerId);
+		return OwnerPages.seeOther(ownerId);
 	}
 
 	/**
@@ -147,28 +132,6 @@ class PetController {
 		return this.petTypes.findAll().stream().sorted(TYPE_BY_NAME).toList();
 	}
 
-	private Owner findOwner(Integer ownerId) {
-		return this.owners.findById(ownerId)
-			.orElseThrow(
-					() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "owner " + ownerId + " does not exist"));
-	}
-
-	/**
-	 * Finds the pet among the owner's own, so a pet of another owner is as unknown as one
-	 * that does not exist.
-	 */
-	private static Pet findPet(Owner owner, Integer petId) {
-		return owner.pets()
-			.stream()
-			.filter((pet) -> pet.id().equals(petId))
-			.findFirst()
-			.orElseThrow(() -> petNotFound(petId));
-	}
-
-	private static ResponseStatusException petNotFound(Integer petId) {
-		return new ResponseStatusException(HttpStatus.NOT_FOUND, "pet " + petId + " does not exist");
-	}
-
 	/**
 	 * Fills in what differs between New Pet ({@code petId} null) and Edit Pet.
 	 */
@@ -182,17 +145,6 @@ class PetController {
 		model.addAttribute("action",
 				create ? "/owners/" + owner.id() + "/pets" : "/owners/" + owner.id() + "/pets/" + petId);
 		return FORM_VIEW;
-	}
-
-	/**
-	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
-	 * browser to follow with a GET.
-	 */
-	private static ModelAndView seeOther(Integer ownerId) {
-		RedirectView redirect = new RedirectView("/owners/" + ownerId + ".html", true);
-		redirect.setStatusCode(HttpStatus.SEE_OTHER);
-		redirect.setExposeModelAttributes(false);
-		return new ModelAndView(redirect);
 	}
 
 }

@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.samples.petclinic.HtmlPages.texts;
 
 /**
  * Drives the owner details page like a browser through MockMvc's HtmlUnit integration,
@@ -144,10 +145,6 @@ class OwnerDetailsPageHtmlUnitTests {
 		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 
 		assertThat(this.webClient.getPage("/owners/999.html").getWebResponse().getStatusCode()).isEqualTo(404);
-	}
-
-	private static List<String> texts(HtmlPage page, String selector) {
-		return page.querySelectorAll(selector).stream().map(DomNode::asNormalizedText).toList();
 	}
 
 	/**

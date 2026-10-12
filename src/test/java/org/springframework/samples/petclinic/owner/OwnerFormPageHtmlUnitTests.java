@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.htmlunit.WebClient;
 import org.htmlunit.html.DomElement;
-import org.htmlunit.html.DomNode;
-import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlButton;
 import org.htmlunit.html.HtmlForm;
 import org.htmlunit.html.HtmlInput;
@@ -21,6 +19,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.samples.petclinic.HtmlPages.currentNavItems;
+import static org.springframework.samples.petclinic.HtmlPages.texts;
 
 /**
  * Drives the New Owner and Edit Owner forms like a browser through MockMvc's HtmlUnit
@@ -201,17 +201,6 @@ class OwnerFormPageHtmlUnitTests {
 
 	private static HtmlPage submit(HtmlPage page) throws IOException {
 		return form(page).<HtmlButton>querySelector("button[type=submit]").click();
-	}
-
-	private static List<String> currentNavItems(HtmlPage page) {
-		return page.querySelectorAll("nav[aria-label='Main'] [aria-current=page]")
-			.stream()
-			.map((link) -> ((HtmlAnchor) link).getHrefAttribute())
-			.toList();
-	}
-
-	private static List<String> texts(HtmlPage page, String selector) {
-		return page.querySelectorAll(selector).stream().map(DomNode::asNormalizedText).toList();
 	}
 
 }

@@ -143,13 +143,19 @@ button:focus-visible,
 	padding-bottom: 48px;
 }
 
-.pc-page-title {
-	margin: 0 0 24px;
+/* Display headings: the page, section and subsection titles */
+.pc-page-title,
+.pc-section-title,
+.pc-subsection-title {
 	font-family: var(--pc-font-display);
-	font-size: 32px;
-	line-height: 38px;
 	font-weight: 700;
 	color: var(--pc-ink);
+}
+
+.pc-page-title {
+	margin: 0 0 24px;
+	font-size: 32px;
+	line-height: 38px;
 }
 
 .pc-muted {
@@ -167,21 +173,15 @@ button:focus-visible,
 /* Section title: an h3 under the page title, such as "Pets" */
 .pc-section-title {
 	margin: 48px 0 12px;
-	font-family: var(--pc-font-display);
 	font-size: 24px;
 	line-height: 30px;
-	font-weight: 700;
-	color: var(--pc-ink);
 }
 
 /* Subsection title: an h4 under a section title, such as one pet's name under "Visits" */
 .pc-subsection-title {
 	margin: 24px 0 8px;
-	font-family: var(--pc-font-display);
 	font-size: 18px;
 	line-height: 24px;
-	font-weight: 700;
-	color: var(--pc-ink);
 }
 
 .pc-section-title + .pc-subsection-title {
