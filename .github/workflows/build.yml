@@ -22,6 +22,25 @@ jobs:
         with:
           persist-credentials: false
 
+      # The Java major must agree across pom.xml, .sdkmanrc and the setup-java pins.
+      - name: Check Java pins agree
+        run: |
+          pom=$(sed -n 's:^[[:space:]]*<java.version>\([0-9][0-9]*\)</java.version>.*:\1:p' pom.xml)
+          sdkman=$(sed -n 's/^java=\([0-9][0-9]*\).*/\1/p' .sdkmanrc)
+          build=$(sed -n 's/^[[:space:]]*java-version:[[:space:]]*\([0-9][0-9]*\)[[:space:]]*$/\1/p' .github/workflows/build.yml)
+          snyk=$(sed -n 's/^[[:space:]]*java-version:[[:space:]]*\([0-9][0-9]*\)[[:space:]]*$/\1/p' .github/workflows/snyk.yml)
+          echo "pom.xml=$pom .sdkmanrc=$sdkman build.yml=$build snyk.yml=$snyk"
+          for v in "$pom" "$sdkman" "$build" "$snyk"; do
+            if ! [[ "$v" =~ ^[0-9]+$ ]]; then
+              echo "::error::Could not read one Java major (pom.xml=$pom .sdkmanrc=$sdkman build.yml=$build snyk.yml=$snyk)"
+              exit 1
+            fi
+          done
+          if [ "$(printf '%s\n' "$pom" "$sdkman" "$build" "$snyk" | sort -u | wc -l)" -ne 1 ]; then
+            echo "::error::Java majors differ: pom.xml=$pom .sdkmanrc=$sdkman build.yml=$build snyk.yml=$snyk"
+            exit 1
+          fi
+
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
