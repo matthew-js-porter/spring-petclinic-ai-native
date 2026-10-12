@@ -58,11 +58,6 @@
       separateMajorMinor: false,
       allowedVersions: "/^(25|29)(\\.|$)/",
     },
-    {
-      description: "Tomcat and Jackson overrides are removed on Boot upgrades, never bumped on their own",
-      matchPackageNames: ["org.apache.tomcat**", "tools.jackson**", "com.fasterxml.jackson**"],
-      enabled: false,
-    },
   ],
   // .sdkmanrc is not managed: SDKMAN identifiers differ per platform and drop old builds,
   // so no datasource can propose one that installs. A human sets it on Java major PRs.
