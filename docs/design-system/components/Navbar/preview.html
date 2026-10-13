@@ -1,17 +1,65 @@
-<!-- @dsCard group="Layout" height=96 subtitle="Brand link and nav items; the current page is marked" -->
+<!-- @dsCard group="Layout" height=520 subtitle="Expanded from 992px; below it, collapsed and open behind the toggle" -->
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Navbar — preview</title></head>
+<head><meta charset="utf-8"><title>Navbar — preview</title>
+<style>
+  .demo-label { margin: var(--space-4) var(--space-3) var(--space-2); font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+  .demo-narrow { max-width: 375px; }
+</style>
+</head>
 <body>
+<p class="demo-label">From 992px: items in a row, right-aligned, no toggle</p>
 <header>
   <nav class="pc-navbar" aria-label="Main">
     <a class="pc-brand" href="#"><img src="../../assets/Logos/petclinic-mark.png" alt="">Spring PetClinic</a>
-    <ul class="pc-nav">
-      <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7.5 8 2.5l5.5 5V13.5h-11z"/></svg> Home</a></li>
-      <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.2 10.2 13.5 13.5M11 6.75a4.25 4.25 0 1 1-8.5 0 4.25 4.25 0 0 1 8.5 0z"/></svg> Find Owners</a></li>
-      <li><a href="#" aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.5M2.5 8h.5M2.5 12h.5"/></svg> Veterinarians</a></li>
-    </ul>
+    <div class="pc-navbar-menu" id="nav-wide">
+      <ul class="pc-nav">
+        <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 7.5 8 2.5l5.5 5V13.5h-11z"/></svg> Home</a></li>
+        <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10.2 10.2 13.5 13.5M11 6.75a4.25 4.25 0 1 1-8.5 0 4.25 4.25 0 0 1 8.5 0z"/></svg> Find Owners</a></li>
+        <li><a href="#" aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.5M2.5 8h.5M2.5 12h.5"/></svg> Veterinarians</a></li>
+      </ul>
+    </div>
   </nav>
 </header>
+
+<p class="demo-label">Below 992px, collapsed (aria-expanded="false")</p>
+<div class="demo-narrow">
+  <nav class="pc-navbar pc-navbar-collapsed" aria-label="Main, collapsed example">
+    <a class="pc-brand" href="#"><img src="../../assets/Logos/petclinic-mark.png" alt="">Spring PetClinic</a>
+    <button class="pc-navbar-toggle" type="button" aria-controls="nav-closed" aria-expanded="false" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="pc-navbar-menu" id="nav-closed" hidden>
+      <ul class="pc-nav"><li><a href="#">Home</a></li></ul>
+    </div>
+  </nav>
+</div>
+
+<p class="demo-label">Below 992px, open (aria-expanded="true"): a full-width stack, 64px rows</p>
+<div class="demo-narrow">
+  <nav class="pc-navbar pc-navbar-collapsed" aria-label="Main, open example">
+    <a class="pc-brand" href="#"><img src="../../assets/Logos/petclinic-mark.png" alt="">Spring PetClinic</a>
+    <button class="pc-navbar-toggle" type="button" aria-controls="nav-open" aria-expanded="true" aria-label="Toggle navigation">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="pc-navbar-menu" id="nav-open">
+      <ul class="pc-nav">
+        <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M2.5 7.5 8 2.5l5.5 5V13.5h-11z"/></svg> Home</a></li>
+        <li><a href="#"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10.2 10.2 13.5 13.5M11 6.75a4.25 4.25 0 1 1-8.5 0 4.25 4.25 0 0 1 8.5 0z"/></svg> Find Owners</a></li>
+        <li><a href="#" aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.5M2.5 8h.5M2.5 12h.5"/></svg> Veterinarians</a></li>
+      </ul>
+    </div>
+  </nav>
+</div>
+<script>
+  document.querySelectorAll('.pc-navbar-toggle').forEach(function (button) {
+    var menu = document.getElementById(button.getAttribute('aria-controls'));
+    button.addEventListener('click', function () {
+      var open = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+    });
+  });
+</script>
 </body>
 </html>

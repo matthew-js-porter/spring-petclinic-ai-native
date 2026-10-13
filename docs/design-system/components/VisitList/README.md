@@ -4,7 +4,7 @@ One pet's visits as a two-column DataTable (Date, Description), most recent firs
 
 **The consumer provides** the pet's name (for the caption) and its visits, already ordered by date descending, then id descending. Each visit is a date and a description.
 
-- Table: a DataTable (`table table-striped pc-table pc-visits`) with a visually hidden `<caption>` naming the pet ("Visits of Samantha") and `<th scope="col">` headers "Date" and "Description", Title Case in the markup, UPPERCASE by CSS.
+- Table: a DataTable (`pc-table pc-visits`) with a visually hidden `<caption>` naming the pet ("Visits of Samantha") and `<th scope="col">` headers "Date" and "Description", Title Case in the markup, UPPERCASE by CSS.
 - Date cell: `pc-col-date`, as `yyyy-MM-dd`, no wrap, as narrow as the date. Description cell: `body` text that wraps, long words included, so the table never scrolls the page sideways at 320px. Two columns need no `pc-table-region`.
 - Empty: no table, one `pc-empty` sentence in `ink-muted`: "This pet has no visits." Not `none`, not an empty table.
 - No links or actions inside the list; visits are not edited or deleted. "Add Visit" lives in the pets table's actions column (see DataTable), not here.

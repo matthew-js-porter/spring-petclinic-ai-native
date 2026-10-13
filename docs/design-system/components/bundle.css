@@ -1,6 +1,18 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Varela+Round&display=swap");
 
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button, input, select { font: inherit; }
+
 body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 24px; background: var(--surface); color: var(--ink); }
+
+/* Content column: 12px gutters, 540/720/960/1140/1320px from 576/768/992/1200/1400px */
+.pc-container { width: 100%; margin: 0 auto; padding: 0 12px; }
+@media (min-width: 576px) { .pc-container { max-width: 540px; } }
+@media (min-width: 768px) { .pc-container { max-width: 720px; } }
+@media (min-width: 992px) { .pc-container { max-width: 960px; } }
+@media (min-width: 1200px) { .pc-container { max-width: 1140px; } }
+@media (min-width: 1400px) { .pc-container { max-width: 1320px; } }
 
 /* Navbar */
 .pc-navbar { display: flex; align-items: stretch; justify-content: space-between; height: var(--navbar-height); padding: 0 var(--space-6); background: var(--spring-brown); border-top: var(--border-accent) solid var(--spring-green); }
@@ -11,6 +23,16 @@ body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 2
 .pc-nav a[aria-current="page"] { background: var(--spring-green-dark); }
 .pc-nav a:hover { background: var(--spring-green-dark); }
 .pc-nav svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+/* Collapsed navbar below 992px: a square toggle opens the menu as a full-width stack */
+.pc-navbar-toggle { display: none; align-items: center; justify-content: center; min-width: 48px; height: var(--navbar-height); margin: 0; padding: 0 var(--space-3); background: transparent; color: var(--on-dark); border: 0; border-radius: var(--radius-none); cursor: pointer; }
+.pc-navbar-toggle svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.pc-navbar-toggle:hover, .pc-navbar-toggle[aria-expanded="true"] { background: var(--spring-green-dark); }
+.pc-navbar-toggle:focus-visible { outline: 2px solid var(--focus-ring-on-dark); outline-offset: -2px; }
+.pc-navbar-collapsed { flex-wrap: wrap; height: auto; min-height: var(--navbar-height); padding: 0 var(--space-3); }
+.pc-navbar-collapsed .pc-navbar-toggle { display: flex; }
+.pc-navbar-collapsed .pc-navbar-menu { flex-basis: 100%; }
+.pc-navbar-collapsed .pc-nav { flex-direction: column; }
+.pc-navbar-collapsed .pc-nav a { height: var(--navbar-height); }
 .pc-navbar a:focus-visible { outline: 2px solid var(--focus-ring-on-dark); outline-offset: -2px; }
 
 /* Data table */
@@ -100,9 +122,9 @@ input[type="date"].pc-input { min-height: calc(24px + 2 * var(--space-2) + 2 * v
 /* Links in tables, the actions column and the pets section entry link */
 .pc-table a { color: var(--spring-green-dark); }
 .pc-table a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-.pc-col-actions, .pc-table .text-nowrap { white-space: nowrap; }
+.pc-col-actions, .pc-table .pc-nowrap { white-space: nowrap; }
 .pc-section-title + .pc-action { margin-bottom: var(--space-3); }
-.pc-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.pc-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* Two links in an actions cell: Edit Pet then Add Visit, space-3 apart, no separator */
 .pc-col-actions a + a { margin-left: var(--space-3); }

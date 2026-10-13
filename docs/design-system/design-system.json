@@ -3,7 +3,7 @@
   "layout": "files",
   "createdOnFiles": {
     "v": 1,
-    "at": "2026-10-11T03:02:29Z"
+    "at": "2026-10-12T12:00:00Z"
   },
   "title": "Spring PetClinic",
   "namespace": "PetClinic",
@@ -24,13 +24,13 @@
       "files": {
         "petclinic-mark.png": {
           "name": "petclinic-mark.png",
-          "blob": "dbc263c9060a9dfa3ea2d44a60127d3d",
+          "blob": "ef6c9d0a071b7e506a35d20dc26d147b",
           "size": 9738,
           "type": "image/png"
         },
         "petclinic-lockup.png": {
           "name": "petclinic-lockup.png",
-          "blob": "220279ca1042d1a0553ce7a7785b10b2",
+          "blob": "0424aec9ca31e709cd70df75b7b53df1",
           "size": 43435,
           "type": "image/png"
         }
@@ -45,7 +45,7 @@
       "files": {
         "pets.png": {
           "name": "pets.png",
-          "blob": "e26037659efdc82df28fe9623f3b5e75",
+          "blob": "92fe0151b3bc63a4509e4251ca496fe0",
           "size": 970430,
           "type": "image/png"
         }
@@ -59,8 +59,8 @@
   },
   "lastChange": {
     "by": "matthew-js-porter",
-    "at": "2026-10-11T03:40:00Z",
+    "at": "2026-10-12T12:00:00Z",
     "via": "Claude Code",
-    "note": "Custom error page (spec 012 §4.3): ErrorPage page pattern with wording table and previews (404, 400, 405, 500, other 4xx, 320px), error content rules, pc-error-actions list"
+    "note": "Removing Bootstrap (spec 015 F8): no CSS framework; pc-container, pc-sr-only, pc-nowrap and pc-table-region replace Bootstrap classes; collapsible navbar with toggle, aria-expanded, Escape and no-JS fallback"
   }
 }
