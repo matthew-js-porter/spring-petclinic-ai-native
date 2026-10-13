@@ -103,6 +103,8 @@ Verify locally: run the snippet as is (passes), then with `.sdkmanrc` edited to 
   - `actionlint`.
   - After merge (C11), the §6 F7/F8 check: a `renovate/test-break` branch can't be authored by `renovate[bot]`, so the realistic path is the first real failing Renovate PR. Or temporarily add a test-only author override via a dispatch input? **No:** keep the scope guard strict and wait for a real failure. F12: confirm a human PR with a red build shows `gate` skipped.
 
+**Outcome (follow-up): push identity.** On test PR #79 the `@claude` push came from `github-actions[bot]` (the persisted checkout credentials beat the App token) and its checks waited for approval. `claude.yml` and the `fix` job now check out with `persist-credentials: false`; see C12 in the spec.
+
 **Outcome (PR 4), simplified at review.** The owner asked for a much simpler workflow, about 90 lines instead of 216:
 - `gate` checks the PR author, counts earlier `fix PR <n>` runs, and either dispatches a fix or posts a one-line give-up comment.
 - `fix` is checkout, setup-java, then Claude with a short prompt.

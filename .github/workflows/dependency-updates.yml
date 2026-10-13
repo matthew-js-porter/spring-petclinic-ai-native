@@ -66,6 +66,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
+          # Push with the Claude App token, not GITHUB_TOKEN, so PR checks re-run without approval.
+          persist-credentials: false
 
       - uses: actions/setup-java@v6
         with:
