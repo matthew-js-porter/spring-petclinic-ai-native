@@ -30,18 +30,18 @@
 
 		<div class="pc-field" th:with="invalid=${#fields.hasErrors('date')}"
 			 th:classappend="${invalid} ? 'pc-field-invalid'">
-			<label for="date" class="form-label">Date</label>
+			<label for="date">Date</label>
 			<input type="date" th:field="*{date}" autocomplete="off" required aria-required="true"
 				   th:aria-invalid="${invalid} ? 'true' : null"
 				   th:aria-describedby="${invalid} ? 'date-help date-error' : 'date-help'"
-				   class="form-control pc-input">
+				   class="pc-input">
 			<p id="date-help" class="pc-field-help">yyyy-mm-dd</p>
 			<p th:if="${invalid}" id="date-error" class="pc-field-error" th:errors="*{date}">Date is required.</p>
 		</div>
 
 		<div th:replace="~{owners/ownerForm :: field('description', 'Description', 'text', 255, 'off')}"></div>
 
-		<button type="submit" class="btn pc-button">Add Visit</button>
+		<button type="submit" class="pc-button">Add Visit</button>
 	</form>
 
 	<h3 class="pc-section-title">Previous Visits</h3>

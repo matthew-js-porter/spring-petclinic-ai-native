@@ -89,7 +89,7 @@ class VisitControllerTests {
 					"<dl class=\"pc-detail pc-context\">", "<dd>Samantha</dd>", "<dd>cat</dd>", "<dd>Jean Coleman</dd>",
 					"<form method=\"post\" action=\"/owners/6/pets/7/visits\" novalidate", "value=\"2026-10-10\"",
 					"maxlength=\"255\"", ">Add Visit</button>", "<h3 class=\"pc-section-title\">Previous Visits</h3>",
-					"<caption class=\"visually-hidden\">Visits of Samantha</caption>")
+					"<caption class=\"pc-sr-only\">Visits of Samantha</caption>")
 			.containsPattern("(?s)checkup.*spayed.*rabies shot")
 			.containsPattern("href=\"/owners.html\"\\s+aria-current=\"page\"")
 			.doesNotContain("max=\"", "role=\"alert\"", "pc-field-error", "aria-invalid");

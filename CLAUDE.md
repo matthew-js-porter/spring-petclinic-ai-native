@@ -17,8 +17,9 @@ curl -i localhost:8080/actuator/health
 
 - Java 25, pinned in `pom.xml` and `.sdkmanrc` (`java=25.0.2-open`). Run `sdk env install` / `sdk env` before building; a mismatched default JDK breaks the build. JDK 27 (latest non-LTS) is not installable via SDKMAN, so 25 is a deliberate deviation recorded in the spec.
 - Config is YAML only (`application.yaml`); do not add `application.properties`.
+- Favour dependencies whose versions Spring Boot manages. A non-Boot dependency is allowed only with a stated reason in its spec.
 - Keep the actuator surface minimal: Boot's default exposes only `health`. Don't add `management.endpoints` settings unless a spec asks for it.
-- UI follows the design system in `docs/design-system/` (tokens, components, usage rules); `static/resources/css/petclinic.css` implements it on Bootstrap 5.3.
+- UI follows the design system in `docs/design-system/` (tokens, components, usage rules); `static/resources/css/petclinic.css` implements it as a hand-written stylesheet, with `static/resources/js/navbar.js` for the collapsing menu; no CSS framework or WebJars.
 - Spring Data JDBC quotes explicit `@Table`/`@Column` names, so write them in UPPER CASE to match H2.
 - Never mention intents (e.g. "intent 009") in code, YAML, SQL or CSS comments; comments describe the code, and the `intent/` documents carry the history.
 - Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
@@ -28,7 +29,7 @@ curl -i localhost:8080/actuator/health
 UI work follows the Spring PetClinic design system in `docs/design-system/` (a versioned mirror of the published design system artifact, derived from the vets page screenshot in intent 004). Read `README.md` there before building or styling any page.
 
 - `tokens.json` holds the colours, type, spacing, radii and borders; `components/<Name>/README.md` covers the nine components (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage, VisitList) plus the OwnerForm, PetForm, VisitForm and ErrorPage page patterns, each with a `preview.html`. `assets/Logos/` has the logo crops. Asset `blob` ids in `design-system.json` are those of the published artifact, https://claude.ai/artifact/2Dg7pbGjKMze7Y8zaoikw2; keep both in step.
-- Pages are Thymeleaf on Bootstrap 5.3 (WebJar), styled by a hand-written `static/resources/css/petclinic.css` that maps the tokens onto Bootstrap. No SCSS build.
+- Pages are Thymeleaf, styled by a hand-written `static/resources/css/petclinic.css` that maps the tokens onto `pc-*` classes, plus `navbar.js` for the menu toggle (the only script; every page works without it). No CSS framework, no WebJars, no SCSS build.
 - Key rules: square corners everywhere, inputs and buttons included, no shadows/gradients/cards; `spring-green` (#6db33f) is decorative only (accent bar, logo, navbar focus ring) and never text on white; `spring-green-dark` carries links and active/current states; Montserrat for display, Varela Round for body; nav items and table headers are Title Case in markup, UPPERCASE via CSS; empty values render as `none` in `ink-muted`; one light theme only.
 - Accessibility is part of the system: landmarks, hidden `<caption>` and `<th scope="col">`, `aria-current="page"`, `aria-label` on pagination, visible 2px focus outlines.
 - `intent/004-vets/PetClinic Vets.html` is the vets page rebuilt with the system, the visual reference for intent 004.

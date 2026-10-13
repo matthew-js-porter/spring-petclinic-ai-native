@@ -12,7 +12,6 @@ import org.htmlunit.html.HtmlButton;
 import org.htmlunit.html.HtmlForm;
 import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlPage;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +35,6 @@ class OwnerFormPageHtmlUnitTests {
 
 	@Autowired
 	private WebClient webClient;
-
-	@BeforeEach
-	void disableJavaScript() {
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle, which the page
-		// only uses for the collapsed navbar; that is checked in a real browser instead.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
-	}
 
 	@Test
 	void showsABlankLabelledForm() throws IOException {
@@ -176,7 +168,7 @@ class OwnerFormPageHtmlUnitTests {
 	void usesNoButtonStyledLinksInlineStylesOrScripts() throws IOException {
 		for (String path : List.of("/owners/new.html", "/owners/1/edit.html")) {
 			HtmlPage page = this.webClient.getPage(path);
-			assertThat(page.querySelectorAll("main a.btn, main [style], main script")).isEmpty();
+			assertThat(page.querySelectorAll("main a.pc-button, main [style], main script")).isEmpty();
 		}
 	}
 

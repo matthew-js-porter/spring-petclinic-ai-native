@@ -14,7 +14,6 @@ import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlOption;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlSelect;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +35,6 @@ class PetFormPageHtmlUnitTests {
 
 	@Autowired
 	private WebClient webClient;
-
-	@BeforeEach
-	void disableJavaScript() {
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle, which the page
-		// only uses for the collapsed navbar; that is checked in a real browser instead.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
-	}
 
 	@Test
 	void showsABlankLabelledForm() throws IOException {

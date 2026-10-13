@@ -10,7 +10,6 @@ import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlTable;
 import org.htmlunit.html.HtmlTableRow;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +28,6 @@ class OwnerDetailsPageHtmlUnitTests {
 
 	@Autowired
 	private WebClient webClient;
-
-	@BeforeEach
-	void disableJavaScript() {
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle, which the page
-		// only uses for the collapsed navbar; that is checked in a real browser instead.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
-	}
 
 	@Test
 	void showsTheOwnerInformation() throws IOException {
@@ -109,7 +101,7 @@ class OwnerDetailsPageHtmlUnitTests {
 		assertThat(texts(page, "main a")).containsExactly("Edit Owner", "Add New Pet", "Edit Pet Max", "Add Visit Max",
 				"Edit Pet Samantha", "Add Visit Samantha");
 		assertThat(page.<HtmlAnchor>querySelector("h3 + a.pc-action").asNormalizedText()).isEqualTo("Add New Pet");
-		assertThat(texts(page, "#pets td.pc-col-actions .visually-hidden")).containsExactly("Max", "Max", "Samantha",
+		assertThat(texts(page, "#pets td.pc-col-actions .pc-sr-only")).containsExactly("Max", "Max", "Samantha",
 				"Samantha");
 		assertThat(page.querySelectorAll("[role=status]")).isEmpty();
 	}

@@ -1,5 +1,5 @@
 /*
- * Spring PetClinic theme on top of Bootstrap 5.3.
+ * Spring PetClinic stylesheet: a small reset plus the pc-* components. No CSS framework.
  * Values come from docs/design-system/tokens.json; see docs/design-system/README.md for usage rules.
  */
 
@@ -44,22 +44,112 @@
 	--pc-hero-width: 360px;
 	--pc-field-width: 20rem;
 	--pc-detail-label-width: 12rem;
+}
 
-	/* Bootstrap overrides */
-	--bs-body-font-family: var(--pc-font-body);
-	--bs-body-color: var(--pc-ink);
-	--bs-body-bg: var(--pc-surface);
-	--bs-link-color: var(--pc-spring-green-dark);
-	--bs-link-color-rgb: 63, 114, 35;
-	--bs-link-hover-color: var(--pc-spring-brown);
-	--bs-link-hover-color-rgb: 52, 48, 45;
-	--bs-border-radius: 0;
+/* Reset */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
 }
 
 body {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+	margin: 0;
+	font-family: var(--pc-font-body);
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: var(--pc-ink);
+	background: var(--pc-surface);
+	-webkit-text-size-adjust: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+	margin-top: 0;
+}
+
+p {
+	margin-bottom: 1rem;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+img,
+svg {
+	vertical-align: middle;
+}
+
+img {
+	max-width: 100%;
+}
+
+button,
+input,
+select {
+	margin: 0;
+	font: inherit;
+	border-radius: 0;
+}
+
+[hidden] {
+	display: none !important;
+}
+
+/* Content column: 12px gutters, at most 540/720/960/1140/1320px from 576/768/992/1200/1400px */
+.pc-container {
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
+	padding-right: 12px;
+	padding-left: 12px;
+}
+
+@media (min-width: 576px) {
+	.pc-container {
+		max-width: 540px;
+	}
+}
+
+@media (min-width: 768px) {
+	.pc-container {
+		max-width: 720px;
+	}
+}
+
+@media (min-width: 992px) {
+	.pc-container {
+		max-width: 960px;
+	}
+}
+
+@media (min-width: 1200px) {
+	.pc-container {
+		max-width: 1140px;
+	}
+}
+
+@media (min-width: 1400px) {
+	.pc-container {
+		max-width: 1320px;
+	}
+}
+
+/* Links */
+a {
+	color: var(--pc-spring-green-dark);
+}
+
+a:hover {
+	color: var(--pc-spring-brown);
 }
 
 a:focus-visible,
@@ -67,19 +157,37 @@ button:focus-visible,
 .pc-table-region:focus-visible {
 	outline: 2px solid var(--pc-focus-ring);
 	outline-offset: 2px;
-	box-shadow: none;
 }
 
-/* Navbar */
+/* Visually hidden, still read by assistive technology */
+.pc-sr-only {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}
+
+.pc-nowrap {
+	white-space: nowrap;
+}
+
+/* Navbar: items in a row from 992px; below it a toggle opens them as a full-width stack */
 .pc-navbar {
-	--bs-navbar-padding-y: 0;
 	min-height: 64px;
 	background: var(--pc-spring-brown);
 	border-top: 4px solid var(--pc-spring-green);
 }
 
-.pc-navbar > .container {
+.pc-navbar-inner {
+	display: flex;
+	flex-wrap: wrap;
 	align-items: stretch;
+	justify-content: space-between;
 }
 
 .pc-brand {
@@ -99,13 +207,64 @@ button:focus-visible,
 	color: var(--pc-on-dark);
 }
 
-.pc-navbar .navbar-toggler {
-	--bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.5);
-	align-self: center;
+/* Shown only once navbar.js has run (pc-js), so without JavaScript the menu stays open */
+.pc-navbar-toggle {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	min-width: 48px;
+	min-height: 64px;
+	padding: 0 12px;
+	color: var(--pc-on-dark);
+	background: transparent;
+	border: 0;
+	cursor: pointer;
 }
 
-.pc-navbar .navbar-nav {
-	align-items: stretch;
+.pc-navbar-toggle:hover,
+.pc-navbar-toggle[aria-expanded="true"] {
+	background: var(--pc-spring-green-dark);
+}
+
+.pc-navbar-menu {
+	flex-basis: 100%;
+}
+
+.pc-nav {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pc-js .pc-navbar-toggle {
+	display: flex;
+}
+
+.pc-js .pc-navbar-menu:not(.pc-open) {
+	display: none;
+}
+
+@media (min-width: 992px) {
+	.pc-navbar-inner {
+		flex-wrap: nowrap;
+	}
+
+	.pc-js .pc-navbar-toggle {
+		display: none;
+	}
+
+	.pc-navbar-menu,
+	.pc-js .pc-navbar-menu:not(.pc-open) {
+		display: flex;
+		flex-basis: auto;
+		margin-left: auto;
+	}
+
+	.pc-nav {
+		flex-direction: row;
+	}
 }
 
 .pc-nav-link {
@@ -238,17 +397,26 @@ button:focus-visible,
 	}
 }
 
-/* Data table */
+/* Data table: 1px row lines, warm-grey stripe on odd body rows */
 .pc-table {
-	--bs-table-color: var(--pc-ink);
-	--bs-table-striped-color: var(--pc-ink);
-	--bs-table-striped-bg: var(--pc-surface-stripe);
-	--bs-table-border-color: var(--pc-line);
+	width: 100%;
 	margin-bottom: 0;
+	color: var(--pc-ink);
+	vertical-align: top;
+}
+
+.pc-table > thead {
+	vertical-align: bottom;
 }
 
 .pc-table > :not(caption) > * > * {
 	padding: 12px 16px;
+	text-align: left;
+	border-bottom: 1px solid var(--pc-line);
+}
+
+.pc-table > tbody > tr:nth-child(odd) > * {
+	background: var(--pc-surface-stripe);
 }
 
 .pc-table > thead > tr > th {
@@ -262,7 +430,7 @@ button:focus-visible,
 }
 
 .pc-table > tbody > tr > td.pc-muted {
-	--bs-table-color-state: var(--pc-ink-muted);
+	color: var(--pc-ink-muted);
 }
 
 .pc-col-name {
@@ -289,6 +457,10 @@ button:focus-visible,
 }
 
 /* Wide tables scroll inside their region at narrow widths instead of the page */
+.pc-table-region {
+	overflow-x: auto;
+}
+
 .pc-table-region > .pc-table {
 	width: max-content;
 	min-width: 100%;
@@ -337,7 +509,8 @@ button:focus-visible,
 	gap: 4px;
 }
 
-.pc-field .form-label {
+.pc-field label {
+	display: inline-block;
 	margin: 0;
 	font-size: 16px;
 	line-height: 24px;
@@ -345,21 +518,20 @@ button:focus-visible,
 }
 
 .pc-input {
+	display: block;
+	width: 100%;
 	padding: 8px 12px;
 	font-size: 16px;
 	line-height: 24px;
 	color: var(--pc-ink);
-	background: var(--pc-surface);
+	background-color: var(--pc-surface);
 	border: 1px solid var(--pc-line-strong);
+	appearance: none;
 }
 
 .pc-input:focus {
-	color: var(--pc-ink);
-	background: var(--pc-surface);
-	border-color: var(--pc-line-strong);
 	outline: 2px solid var(--pc-focus-ring);
 	outline-offset: 2px;
-	box-shadow: none;
 }
 
 @media (min-width: 576px) {
@@ -373,10 +545,14 @@ button:focus-visible,
 	}
 }
 
-/* Select: Bootstrap's form-select chevron, kept clear of long options; the open list is the browser's */
+/* Select: an ink chevron space-4 from the right, kept clear of long options; the open list is the browser's */
 select.pc-input {
 	padding-right: 36px;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2334302d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+	background-repeat: no-repeat;
 	background-position: right 16px center;
+	background-size: 16px 12px;
+	cursor: pointer;
 }
 
 .pc-field-invalid select.pc-input,
@@ -387,6 +563,26 @@ select.pc-input {
 /* Date: the text input's height; the picker is the browser's */
 input[type="date"].pc-input {
 	min-height: 42px;
+}
+
+/* WebKit pads the date's inner parts, which makes it taller than a text input; hold it to one line */
+.pc-input::-webkit-date-and-time-value {
+	min-width: 85px;
+	height: 1.5em;
+	margin: 0;
+}
+
+.pc-input::-webkit-datetime-edit {
+	display: block;
+	padding: 0;
+}
+
+.pc-input::-webkit-datetime-edit-fields-wrapper,
+.pc-input::-webkit-datetime-edit-text,
+.pc-input::-webkit-datetime-edit-month-field,
+.pc-input::-webkit-datetime-edit-day-field,
+.pc-input::-webkit-datetime-edit-year-field {
+	padding: 0;
 }
 
 /* Helper line under a field, such as a date's format */
@@ -473,30 +669,29 @@ input[type="date"].pc-input {
 
 /* Button: the system's only button style */
 .pc-button {
-	--bs-btn-padding-x: 16px;
-	--bs-btn-padding-y: 8px;
-	--bs-btn-font-family: var(--pc-font-display);
-	--bs-btn-font-size: 14px;
-	--bs-btn-font-weight: 600;
-	--bs-btn-line-height: 24px;
-	--bs-btn-color: var(--pc-on-dark);
-	--bs-btn-bg: var(--pc-spring-green-dark);
-	--bs-btn-border-color: var(--pc-spring-green-dark);
-	--bs-btn-hover-color: var(--pc-on-dark);
-	--bs-btn-hover-bg: var(--pc-spring-brown);
-	--bs-btn-hover-border-color: var(--pc-spring-brown);
-	--bs-btn-active-color: var(--pc-on-dark);
-	--bs-btn-active-bg: var(--pc-spring-brown);
-	--bs-btn-active-border-color: var(--pc-spring-brown);
-	--bs-btn-focus-box-shadow: none;
+	display: inline-block;
+	padding: 8px 16px;
+	font-family: var(--pc-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 24px;
 	letter-spacing: 0.08em;
+	text-align: center;
+	text-decoration: none;
 	text-transform: uppercase;
+	vertical-align: middle;
+	color: var(--pc-on-dark);
+	background: var(--pc-spring-green-dark);
+	border: 1px solid var(--pc-spring-green-dark);
+	cursor: pointer;
+	user-select: none;
 }
 
-/* Bootstrap's .btn:focus-visible removes the outline; restore the system's ring */
-.pc-button:focus-visible {
-	outline: 2px solid var(--pc-focus-ring);
-	outline-offset: 2px;
+.pc-button:hover,
+.pc-button:active {
+	color: var(--pc-on-dark);
+	background: var(--pc-spring-brown);
+	border-color: var(--pc-spring-brown);
 }
 
 /* Inline message: a one-sentence answer in place of a result, or the result of the last action */

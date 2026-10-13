@@ -62,9 +62,6 @@ class ErrorPageIntegrationTests {
 	@BeforeEach
 	void createBrowser() {
 		this.webClient = new WebClient();
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle; see
-		// VetsPageHtmlUnitTests.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
 		this.webClient.getOptions().setCssEnabled(false);
 		this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 	}

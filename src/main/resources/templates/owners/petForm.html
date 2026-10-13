@@ -18,11 +18,11 @@
 
 		<div class="pc-field" th:with="invalid=${#fields.hasErrors('birthDate')}"
 			 th:classappend="${invalid} ? 'pc-field-invalid'">
-			<label for="birthDate" class="form-label">Birth Date</label>
+			<label for="birthDate">Birth Date</label>
 			<input type="date" th:field="*{birthDate}" th:max="${today}" autocomplete="off" required
 				   aria-required="true" th:aria-invalid="${invalid} ? 'true' : null"
 				   th:aria-describedby="${invalid} ? 'birthDate-help birthDate-error' : 'birthDate-help'"
-				   class="form-control pc-input">
+				   class="pc-input">
 			<p id="birthDate-help" class="pc-field-help">yyyy-mm-dd</p>
 			<p th:if="${invalid}" id="birthDate-error" class="pc-field-error" th:errors="*{birthDate}">Birth Date is
 				required.</p>
@@ -30,16 +30,16 @@
 
 		<div class="pc-field" th:with="invalid=${#fields.hasErrors('typeId')}"
 			 th:classappend="${invalid} ? 'pc-field-invalid'">
-			<label for="typeId" class="form-label">Type</label>
+			<label for="typeId">Type</label>
 			<select th:field="*{typeId}" required aria-required="true" th:aria-invalid="${invalid} ? 'true' : null"
-					th:aria-describedby="${invalid} ? 'typeId-error' : null" class="form-select pc-input">
+					th:aria-describedby="${invalid} ? 'typeId-error' : null" class="pc-input">
 				<option value="">Select a type</option>
 				<option th:each="type : ${petTypes}" th:value="${type.id}" th:text="${type.name}">cat</option>
 			</select>
 			<p th:if="${invalid}" id="typeId-error" class="pc-field-error" th:errors="*{typeId}">Type is required.</p>
 		</div>
 
-		<button type="submit" class="btn pc-button" th:text="${submitLabel}">Add Pet</button>
+		<button type="submit" class="pc-button" th:text="${submitLabel}">Add Pet</button>
 	</form>
 </th:block>
 </body>

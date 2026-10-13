@@ -4,8 +4,8 @@
 <th:block th:fragment="visits(petName, list)">
 	<p th:if="${#lists.isEmpty(list)}" class="pc-muted pc-empty">This pet has no visits.</p>
 
-	<table th:unless="${#lists.isEmpty(list)}" class="table table-striped pc-table pc-visits">
-		<caption class="visually-hidden" th:text="|Visits of ${petName}|">Visits of Samantha</caption>
+	<table th:unless="${#lists.isEmpty(list)}" class="pc-table pc-visits">
+		<caption class="pc-sr-only" th:text="|Visits of ${petName}|">Visits of Samantha</caption>
 		<thead>
 		<tr>
 			<th scope="col">Date</th>
