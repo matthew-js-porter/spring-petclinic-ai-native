@@ -30,6 +30,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+          # Push with the Claude App token, not GITHUB_TOKEN, so PR checks re-run without approval.
+          persist-credentials: false
 
       - name: Run Claude Code
         id: claude
