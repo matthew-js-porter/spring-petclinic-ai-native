@@ -29,8 +29,6 @@
 	<properties>
 		<java.version>25</java.version>
 		<webjars-bootstrap.version>5.3.8</webjars-bootstrap.version>
-		<tomcat.version>11.0.26</tomcat.version>
-		<jackson-bom.version>3.1.7</jackson-bom.version>
 	</properties>
 	<dependencies>
 		<dependency>
