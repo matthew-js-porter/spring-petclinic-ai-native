@@ -9,7 +9,6 @@ import org.htmlunit.html.DomNode;
 import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlImage;
 import org.htmlunit.html.HtmlPage;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +26,6 @@ class WelcomePageHtmlUnitTests {
 
 	@Autowired
 	private WebClient webClient;
-
-	@BeforeEach
-	void disableJavaScript() {
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle; see
-		// VetsPageHtmlUnitTests.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
-	}
 
 	@Test
 	void showsTheWelcomeHeadingAndPhoto() throws IOException {
@@ -59,7 +51,7 @@ class WelcomePageHtmlUnitTests {
 	void marksHomeAsTheCurrentNavItem() throws IOException {
 		HtmlPage page = this.webClient.getPage("/");
 
-		List<String> items = page.querySelectorAll("nav[aria-label='Main'] .nav-item a")
+		List<String> items = page.querySelectorAll("nav[aria-label='Main'] .pc-nav a")
 			.stream()
 			.map(DomNode::asNormalizedText)
 			.toList();

@@ -13,7 +13,6 @@ import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlTable;
 import org.htmlunit.html.HtmlTableRow;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +31,6 @@ class OwnersPageHtmlUnitTests {
 
 	@Autowired
 	private WebClient webClient;
-
-	@BeforeEach
-	void disableJavaScript() {
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle, which the page
-		// only uses for the collapsed navbar; that is checked in a real browser instead.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
-	}
 
 	@Test
 	void showsTheFirstPageOfOwners() throws IOException {
@@ -228,7 +220,7 @@ class OwnersPageHtmlUnitTests {
 	}
 
 	private static List<String> navItems(HtmlPage page) {
-		return page.querySelectorAll("nav[aria-label='Main'] .nav-item a")
+		return page.querySelectorAll("nav[aria-label='Main'] .pc-nav a")
 			.stream()
 			.map(DomNode::asNormalizedText)
 			.toList();

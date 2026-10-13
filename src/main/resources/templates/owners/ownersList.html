@@ -9,11 +9,11 @@
 
 	<form method="get" th:action="@{/owners.html}" role="search" class="pc-form">
 		<div class="pc-field">
-			<label for="lastName" class="form-label">Last Name</label>
+			<label for="lastName">Last Name</label>
 			<input type="search" id="lastName" name="lastName" maxlength="30" autocomplete="off"
-				   class="form-control pc-input" th:value="${lastName}">
+				   class="pc-input" th:value="${lastName}">
 		</div>
-		<button type="submit" class="btn pc-button">Find Owner</button>
+		<button type="submit" class="pc-button">Find Owner</button>
 	</form>
 
 	<p th:if="${listOwners.totalElements == 0}" class="pc-message" role="status"
@@ -21,9 +21,9 @@
 		No owners found.</p>
 
 	<th:block th:if="${listOwners.totalElements > 0}">
-		<div class="table-responsive pc-table-region" tabindex="0" role="region" aria-label="Owners table">
-			<table id="owners" class="table table-striped pc-table">
-				<caption class="visually-hidden"
+		<div class="pc-table-region" tabindex="0" role="region" aria-label="Owners table">
+			<table id="owners" class="pc-table">
+				<caption class="pc-sr-only"
 						 th:with="pages=|page ${listOwners.number + 1} of ${listOwners.totalPages > 0 ? listOwners.totalPages : 1}|"
 						 th:text="${#strings.isEmpty(lastName)} ? |Owners and their pets, ${pages}| : |Owners with last name starting with &quot;${lastName}&quot;, ${pages}|">
 					Owners and their pets</caption>
@@ -41,7 +41,7 @@
 					<td><a th:href="@{/owners/{id}.html(id=${owner.id})}" th:text="|${owner.firstName} ${owner.lastName}|">George Franklin</a></td>
 					<td th:text="${owner.address}">110 W. Liberty St.</td>
 					<td th:text="${owner.city}">Madison</td>
-					<td class="text-nowrap" th:text="${owner.telephone}">6085551023</td>
+					<td class="pc-nowrap" th:text="${owner.telephone}">6085551023</td>
 					<td th:if="${#lists.isEmpty(owner.pets)}" class="pc-muted">none</td>
 					<td th:unless="${#lists.isEmpty(owner.pets)}"
 						th:text="${#strings.listJoin(owner.pets.![name], ' ')}">Leo</td>

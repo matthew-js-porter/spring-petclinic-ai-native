@@ -25,7 +25,7 @@ Out of scope (from the intent): visual redesign, new components or pages, back-e
 ## 3. Decisions on the open questions
 
 ### 3.1 Where the "favour Boot-managed dependencies" preference lives: `CLAUDE.md` rule plus a `REVIEW.md` check
-Recommended and specified here, pending the owner's confirmation (the intent assigns this question to matthew-js-porter; see Assumptions):
+Confirmed by matthew-js-porter at implementation (the intent assigned this question to them):
 - `CLAUDE.md` (Project section): "Favour dependencies whose versions Spring Boot manages. A non-Boot dependency is allowed only with a stated reason in its spec."
 - `REVIEW.md` (Conformance): flag a `pom.xml` diff that adds a `<dependency>` or plugin carrying an explicit `<version>` (or otherwise not managed by the Boot parent or BOM) unless the linked `spec.md` states a reason. Severity `[minor]`, since reviews are advisory and the dependency is allowed with a reason. A `CLAUDE.md` line alone is read by agents but not checked on human PRs; the review rule makes the preference visible at the point of change at the cost of one rule line. Not a build-time enforcer: no Maven Enforcer rule or test is added, because the preference is "not forbidden", and a hard gate would need an allow-list to maintain.
 
@@ -178,3 +178,9 @@ Take the computed values Bootstrap supplied today and write them as plain declar
 - Keep Bootstrap loaded while migrating templates class by class, and remove it only when the pages look right without it, then run the full test suite.
 - Arrange a human to republish the design-system artifact before merge (C1) and to confirm the preference-location question (3.1).
 - Estimated effort: one to two days, mostly CSS verification across pages at two widths and the toggle behaviour with a screen reader.
+
+## 11. Deviations recorded at implementation
+- **Labels (F4).** No `pc-label` class: labels are classless `<label>` elements styled by `.pc-field label`, as `docs/design-system/components/FormField/README.md` specifies. F4 left the names to the plan.
+- **Design-system docs and artifact (F8, C1).** Already updated on `main` before implementation (commit c8c19b6), with the artifact republished at https://claude.ai/artifact/2Dg7pbGjKMze7Y8zaoikw2 (F8 and C1 cite the earlier URL). The implementation PR does not touch `docs/design-system/`, so C1's merge gate is already met.
+- **Toggle tests (F7, C3).** HtmlUnit runs `navbar.js` (written without arrow functions or newer syntax) and evaluates the stylesheet's media queries. `NavbarHtmlUnitTests` therefore covers the click toggle, Escape, and the toggle's visibility at 375, 991 and 992px, as well as the no-JavaScript fallback. Escape is dispatched as a `KeyboardEvent` with `key: 'Escape'`. The screen-reader announcement (A7) is still a manual check.
+- **JavaScript in page tests (F7).** Every page test now runs with JavaScript on. The shared MockMvc `WebClient` has its width and JavaScript setting restored after each navbar test.

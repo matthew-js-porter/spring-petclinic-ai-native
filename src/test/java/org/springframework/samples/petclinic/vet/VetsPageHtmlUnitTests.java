@@ -11,7 +11,6 @@ import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlPage;
 import org.htmlunit.html.HtmlTable;
 import org.htmlunit.html.HtmlTableRow;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +30,6 @@ class VetsPageHtmlUnitTests {
 	@Autowired
 	private WebClient webClient;
 
-	@BeforeEach
-	void disableJavaScript() {
-		// HtmlUnit's JavaScript engine cannot parse Bootstrap 5.3's bundle, which the page
-		// only uses for the collapsed navbar; that is checked in a real browser instead.
-		this.webClient.getOptions().setJavaScriptEnabled(false);
-	}
-
 	@Test
 	void showsTheFirstPageOfVets() throws IOException {
 		HtmlPage page = this.webClient.getPage("/vets.html");
@@ -56,10 +48,7 @@ class VetsPageHtmlUnitTests {
 		page.getElementsByTagName("link").forEach((link) -> assets.add(link.getAttribute("href")));
 		page.getElementsByTagName("script").forEach((script) -> assets.add(script.getAttribute("src")));
 
-		assertThat(assets).hasSize(3)
-			.contains("/resources/css/petclinic.css")
-			.anyMatch((asset) -> asset.matches("/webjars/bootstrap/[0-9.]+/css/bootstrap.min.css"))
-			.anyMatch((asset) -> asset.matches("/webjars/bootstrap/[0-9.]+/js/bootstrap.bundle.min.js"));
+		assertThat(assets).containsExactly("/resources/css/petclinic.css", "/resources/js/navbar.js");
 		for (String asset : assets) {
 			assertThat(this.webClient.getPage(page.getFullyQualifiedUrl(asset)).getWebResponse().getStatusCode())
 				.as(asset)
@@ -95,7 +84,7 @@ class VetsPageHtmlUnitTests {
 		HtmlPage viaNav = vetsLink.click();
 		assertThat(rows(viaNav)).hasSize(5);
 
-		HtmlAnchor homeLink = page.querySelector("nav[aria-label='Main'] .nav-item a[href='/']");
+		HtmlAnchor homeLink = page.querySelector("nav[aria-label='Main'] .pc-nav a[href='/']");
 		assertThat(homeLink.hasAttribute("aria-current")).isFalse();
 		HtmlPage viaBrand = page.getAnchorByHref("/").click();
 		assertThat(viaBrand.getUrl().getPath()).isEqualTo("/");

@@ -17,17 +17,17 @@
 		<div th:replace="~{owners/ownerForm :: field('address', 'Address', 'text', 255, 'street-address')}"></div>
 		<div th:replace="~{owners/ownerForm :: field('city', 'City', 'text', 80, 'address-level2')}"></div>
 		<div th:replace="~{owners/ownerForm :: field('telephone', 'Telephone', 'tel', 10, 'tel-national')}"></div>
-		<button type="submit" class="btn pc-button" th:text="${submitLabel}">Add Owner</button>
+		<button type="submit" class="pc-button" th:text="${submitLabel}">Add Owner</button>
 	</form>
 </th:block>
 
 <div th:fragment="field(name, label, type, maxlength, autocomplete)" class="pc-field"
 	 th:with="invalid=${#fields.hasErrors(name)}" th:classappend="${invalid} ? 'pc-field-invalid'">
-	<label th:for="${name}" class="form-label" th:text="${label}">First Name</label>
+	<label th:for="${name}" th:text="${label}">First Name</label>
 	<input th:type="${type}" th:field="*{__${name}__}" th:maxlength="${maxlength}" th:autocomplete="${autocomplete}"
 		   th:inputmode="${type == 'tel'} ? 'numeric' : null" required aria-required="true"
 		   th:aria-invalid="${invalid} ? 'true' : null" th:aria-describedby="${invalid} ? |${name}-error| : null"
-		   class="form-control pc-input">
+		   class="pc-input">
 	<p th:if="${invalid}" th:id="|${name}-error|" class="pc-field-error" th:errors="*{__${name}__}">First Name is
 		required.</p>
 </div>

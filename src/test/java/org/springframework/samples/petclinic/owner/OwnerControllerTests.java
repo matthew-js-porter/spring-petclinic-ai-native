@@ -73,7 +73,7 @@ class OwnerControllerTests {
 			.containsKey("listOwners");
 		assertThat(result).bodyText()
 			.contains("<td><a href=\"/owners/1.html\">George Franklin</a></td>", "<td>1 Main St.</td>", "<td>Madison</td>",
-					"<td class=\"text-nowrap\">6085550001</td>", "<td>Leo</td>", "<td>Jewel Rosy</td>")
+					"<td class=\"pc-nowrap\">6085550001</td>", "<td>Leo</td>", "<td>Jewel Rosy</td>")
 			.doesNotContain("Jean Coleman");
 	}
 
@@ -153,10 +153,10 @@ class OwnerControllerTests {
 
 		assertThat(body)
 			.contains("<form method=\"get\" action=\"/owners.html\" role=\"search\" class=\"pc-form\">",
-					"<label for=\"lastName\" class=\"form-label\">Last Name</label>",
-					"<button type=\"submit\" class=\"btn pc-button\">Find Owner</button>")
+					"<label for=\"lastName\">Last Name</label>",
+					"<button type=\"submit\" class=\"pc-button\">Find Owner</button>")
 			.containsPattern(
-					"<input type=\"search\" id=\"lastName\" name=\"lastName\" maxlength=\"30\" autocomplete=\"off\"\\s+class=\"form-control pc-input\" value=\"\">");
+					"<input type=\"search\" id=\"lastName\" name=\"lastName\" maxlength=\"30\" autocomplete=\"off\"\\s+class=\"pc-input\" value=\"\">");
 		assertThat(body.indexOf("role=\"search\"")).isBetween(body.indexOf("pc-page-title"), body.indexOf("<table"));
 	}
 
@@ -337,8 +337,8 @@ class OwnerControllerTests {
 					"<h2 class=\"pc-page-title\">Owner Information</h2>", "<dt>Name</dt>", "<dd>George Franklin</dd>",
 					"<dd>1 Main St.</dd>", "<dd>Madison</dd>", "<dd>6085550001</dd>",
 					"<h3 class=\"pc-section-title\">Pets</h3>",
-					"<caption class=\"visually-hidden\">Pets of George Franklin</caption>", "<td>Leo</td>",
-					"<td class=\"text-nowrap\">2010-09-07</td>", "<td>cat</td>")
+					"<caption class=\"pc-sr-only\">Pets of George Franklin</caption>", "<td>Leo</td>",
+					"<td class=\"pc-nowrap\">2010-09-07</td>", "<td>cat</td>")
 			.doesNotContain("This owner has no pets.");
 		then(this.owners).should().findById(1);
 	}
@@ -368,7 +368,7 @@ class OwnerControllerTests {
 		String body = body("/owners/6.html");
 
 		assertThat(body).contains("<h3 class=\"pc-section-title\">Visits</h3>",
-				"<caption class=\"visually-hidden\">Visits of Samantha</caption>",
+				"<caption class=\"pc-sr-only\">Visits of Samantha</caption>",
 				"<td class=\"pc-col-date\">2013-01-04</td>", "<p class=\"pc-muted pc-empty\">This pet has no visits.</p>");
 		String visitsSection = body.substring(body.indexOf(">Visits</h3>"));
 		assertThat(visitsSection.indexOf(">Lucky</h4>")).isLessThan(visitsSection.indexOf(">Max</h4>"));
@@ -395,8 +395,8 @@ class OwnerControllerTests {
 		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo")));
 
 		assertThat(body("/owners/1.html")).containsPattern("<td class=\"pc-col-actions\"><a href=\"/owners/1/pets/1/edit.html\">"
-				+ "Edit Pet<span\\s+class=\"visually-hidden\"> Leo</span></a><a\\s+href=\"/owners/1/pets/1/visits/new.html\">"
-				+ "Add Visit<span\\s+class=\"visually-hidden\"> Leo</span></a></td>");
+				+ "Edit Pet<span\\s+class=\"pc-sr-only\"> Leo</span></a><a\\s+href=\"/owners/1/pets/1/visits/new.html\">"
+				+ "Add Visit<span\\s+class=\"pc-sr-only\"> Leo</span></a></td>");
 	}
 
 	@Test
