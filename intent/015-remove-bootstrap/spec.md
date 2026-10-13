@@ -136,7 +136,7 @@ Take the computed values Bootstrap supplied today and write them as plain declar
 | A8 | With JavaScript disabled, nav links are reachable at 375px | Manual |
 | A9 | Accessibility behaviour unchanged | Existing page tests for captions, scopes, `aria-current`, pagination labels pass unchanged; manual tab-through shows a 2px outline on every control |
 | A10 | `./mvnw clean verify` passes | CI `build` |
-| A11 | `CLAUDE.md`, `docs/design-system/` describe no Bootstrap dependency; `grep -rni bootstrap` over `CLAUDE.md`, `docs/`, `src/` returns nothing except the allowed icon-provenance note (C5) | grep |
+| A11 | `CLAUDE.md`, `docs/design-system/` describe no Bootstrap dependency; `grep -rni bootstrap` over `CLAUDE.md`, `docs/`, `src/main/` returns nothing except the allowed icon-provenance note (C5); `src/test/` may contain the word only in the F7 negative checks (the `/webjars/bootstrap/css/bootstrap.min.css` 404 test and the no-`bootstrap`/`webjars` URL assertions) | grep |
 | A12 | The preference is recorded in `CLAUDE.md` and `REVIEW.md` | Review |
 | A13 | Snyk and Renovate | After merge, Snyk Open Source no longer lists the WebJar; Renovate no longer opens Bootstrap PRs |
 
