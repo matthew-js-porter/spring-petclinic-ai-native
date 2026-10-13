@@ -1,4 +1,4 @@
-Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the nine components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage, VisitList) on top of Bootstrap 5.3. OwnerForm (New Owner, Edit Owner), PetForm (New Pet, Edit Pet), VisitForm (New Visit) and ErrorPage (any failed request) are page patterns composed from them, not further components.
+Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown header with a thin Spring-green line on top, white pages, warm-grey striped tables, and green only where something is current or clickable. Build every page from the tokens and the nine components below (Navbar, DataTable, DetailList, Pagination, Footer, FormField, Button, InlineMessage, VisitList), with one hand-written stylesheet and no CSS framework. OwnerForm (New Owner, Edit Owner), PetForm (New Pet, Edit Pet), VisitForm (New Visit) and ErrorPage (any failed request) are page patterns composed from them, not further components.
 
 ## Content
 
@@ -41,15 +41,20 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 
 ## Layout and shape
 
-- Content sits in Bootstrap's `.container`; the navbar spans the full width at `navbar-height` (64px) plus the 4px accent bar.
-- Corners are square: `radius-none` everywhere, form inputs and buttons included. Set Bootstrap's `--bs-border-radius` to 0 rather than overriding corners per component.
+- Content sits in `.pc-container`: full width with 12px gutters, centred, at most 540px from 576px, 720px from 768px, 960px from 992px, 1140px from 1200px and 1320px from 1400px. The navbar spans the full width at `navbar-height` (64px) plus the 4px accent bar.
+- Breakpoints are the system's own: `sm` 576px (search rows, form widths), `md` 768px, `lg` 992px (the navbar collapses below it), then 1200px and 1400px for the container only.
+- Corners are square: `radius-none` everywhere, form inputs and buttons included.
 - No shadows, no gradients, no cards. Structure comes from the brown bar, the 2px header rule and the 1px row lines.
-- Forms put each field's label above its input. A search field and its button sit on one row from Bootstrap's `sm` breakpoint (576px) up and stack below it; inputs are full width on a phone and at most `field-width` (20rem) above that. Leave `space-5` below a form before the table or message it controls.
+- Forms put each field's label above its input. A search field and its button sit on one row from the `sm` breakpoint (576px) up and stack below it; inputs are full width on a phone and at most `field-width` (20rem) above that. Leave `space-5` below a form before the table or message it controls.
 - A record form (New Owner, Edit Owner, New Pet, Edit Pet, New Visit) is stacked: one field per row, `space-3` apart, the button below, the whole form at most `field-width` wide from `sm` up.
-- Spacing follows Bootstrap's scale: `space-3` × `space-4` table cell padding, `space-5` between a table and its pagination, `space-6` above the page title, `space-5` between the homepage title and its photo.
+- Spacing uses the `space-*` scale: `space-3` × `space-4` table cell padding, `space-5` between a table and its pagination, `space-6` above the page title, `space-5` between the homepage title and its photo.
 - Records of records sit in sections, never in a table cell: a pet's visits are a VisitList under a Visits `h3` and the pet's `h4`, below the pets table, not inside its row.
 - A form that acts on a record the person did not type (New Visit) names it first in a context block, a DetailList of read-only facts, `space-5` above the form.
 - The homepage photo is `hero-width` (360px) wide at most and shrinks with its container, so it never scrolls sideways on a phone.
+
+## Building it
+
+The system needs no CSS framework, no WebJar and no CDN. Pages are plain HTML (Thymeleaf in the app) styled by one hand-written stylesheet that maps these tokens onto `pc-*` classes and starts with a small reset: `box-sizing: border-box`, body margin 0 at 16px with a 1.5 line height, `border-collapse: collapse` on tables, `font: inherit` on form controls, `[hidden] { display: none }`. The one script is the navbar toggle (see Navbar), and every page works without it. Element classes: `pc-container`, `pc-navbar`, `pc-navbar-toggle`, `pc-navbar-menu`, `pc-nav`, `pc-table`, `pc-table-region`, `pc-input`, `pc-button`, `pc-nowrap`, `pc-sr-only` (visually hidden, still read by assistive technology).
 
 ## Links
 
@@ -61,7 +66,7 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 ## States and accessibility
 
 - Current page: `aria-current="page"`. In the navbar that is the `spring-green-dark` fill; in pagination it is plain `ink` text.
-- Focus: 2px solid `focus-ring` on light grounds, `focus-ring-on-dark` in the navbar. Never remove outlines; inputs and buttons get theirs with a 2px offset, replacing Bootstrap's focus shadow.
+- Focus: 2px solid `focus-ring` on light grounds, `focus-ring-on-dark` in the navbar. Never remove outlines; inputs and buttons get theirs with a 2px offset; nothing draws a focus shadow.
 - Selects and date inputs are native controls styled like text inputs (square box, same border and focus); their open lists and pickers stay the browser's.
 - Every input has a visible `<label for>`; placeholders never stand in for labels. A search form is `<form method="get" role="search">`. A message that appears after a submit has `role="status"`; a form summary of errors has `role="alert"`. Meaning is in the words, never in colour alone.
 - An invalid field: `aria-invalid="true"`, `aria-describedby` to its error sentence, a 2px `line-strong` border and a 4px `line-strong` rule beside the message. There is no error colour. Required fields carry `required` and `aria-required="true"`; forms use `novalidate` so the server's messages are the only ones.
@@ -71,7 +76,8 @@ Spring PetClinic is a plain, square, two-colour interface: a dark Spring-brown h
 ## Iconography
 
 - Logo: the heart-with-cross mark in `spring-green` from the Logos group, 24px (`logo-size`) beside the wordmark, `alt=""` because the wordmark names the link.
-- Nav icons are thin outline glyphs before the label: a house for Home, a magnifying glass for Find Owners, a bulleted list for Veterinarians. They look like Bootstrap Icons (`house`, `search`, `list-ul`); the previews draw simple stand-ins, so use the real Bootstrap Icons in the app.
+- Nav icons are thin outline glyphs before the label: a house for Home, a magnifying glass for Find Owners, a bulleted list for Veterinarians. The app inlines their SVG paths, taken from Bootstrap Icons (`house`, `search`, `list-ul`, MIT licence), as `aria-hidden` `currentColor` icons; nothing is loaded from that project. The previews draw simple stand-ins.
+- The navbar toggle is a three-line menu glyph drawn the same way (inline SVG, `currentColor`, 1.5px stroke).
 - Pagination uses text chevrons (« ‹ › ») rather than icons.
 - One photograph, `pets.png` from the Photos group, on the homepage only: square, no border, shadow or card, with descriptive `alt` text.
 - No emoji, no illustrations, and no other photographs.

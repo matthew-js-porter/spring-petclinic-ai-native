@@ -10,4 +10,4 @@ The page control under a list: `Pages: [ 1 2 ]` followed by first, previous, nex
 - Disabled chevrons (first/previous on page 1, next/last on the last page) are `ink-disabled` text, not links. That colour is 2.2:1, allowed only because the control is disabled.
 - Items sit `space-2` apart; the row sits `space-5` below the table.
 
-Don't: draw Bootstrap's boxed page buttons; PetClinic's pagination is plain text.
+Don't: draw boxed page buttons; PetClinic's pagination is plain text.
