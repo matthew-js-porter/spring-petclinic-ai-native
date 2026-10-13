@@ -117,6 +117,8 @@ The intent forbids new dependencies and CDNs, not first-party code, so a script 
 ```
 The `aria-label` stays "Toggle navigation" for continuity with the current page; the button's name does not change with state (the state is carried by `aria-expanded`, avoiding a double announcement). `navbar.js` sketch: select `.pc-navbar-toggle`, add `pc-js` to `document.documentElement`, toggle `aria-expanded` and the panel's open class on click, close on `Escape`. Focus leaving the menu does not close it, so tabbing through an open menu works.
 
+Visual reference: the design canvas at https://claude.ai/artifact/PVD19xcCQP2ZgUVsNGnc5W, with its source in [`design/`](./design/). It shows the vets page at 1280px on `pc-*` classes only, the navbar below 992px collapsed (working toggle), open and with JavaScript off, and the form, button, table and container rules `petclinic.css` takes over. The select chevron is drawn there as an overlaid inline SVG because the canvas format allows no `data:` URIs; the app uses the CSS data-URI from F5.
+
 ### 5.3 CSS strategy
 Take the computed values Bootstrap supplied today and write them as plain declarations or `--pc-*` variables, rather than re-deriving them from memory: the implementer diffs computed styles (browser dev tools) for `body`, `h1-h4`, `p`, `a`, `table`, `th/td`, `label`, `input`, `select`, `button` before and after, per page. Keep selectors flat (class-based), and keep the existing tokens block. Delete rules that only counteracted Bootstrap (for example restoring the button focus ring, `box-shadow: none` on focus where no shadow is now set) rather than leaving dead code.
 

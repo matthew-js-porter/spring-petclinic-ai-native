@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetClinic components without Bootstrap</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Varela+Round&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*,*::before,*::after{box-sizing:border-box}
+button,input,select{font:inherit}
+a{color:#3f7223}
+a:hover{color:#34302d}
+.pc-button:hover{background:#34302d;border-color:#34302d}
+.pc-button:focus-visible,.pc-input:focus-visible{outline:2px solid #3f7223;outline-offset:2px}
+.pc-table tbody tr:nth-child(odd) td{background:#f4f2f0}
+.pc-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 820px; box-sizing: border-box; padding: 48px 64px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px; background: #ffffff; color: #34302d; font-family: 'Varela Round', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.5;">
+
+<div style="display: flex; flex-direction: column; gap: 40px;">
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 24px; line-height: 30px; font-weight: 700;">Find Owners</h3>
+<form method="get" role="search" style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px;">
+<div style="display: flex; flex-direction: column; gap: 4px; width: 20rem;">
+<label class="pc-label" for="lastName">Last Name</label>
+<input class="pc-input" id="lastName" type="text" value="Dav" style="display: block; width: 100%; padding: 7px 12px; border: 1px solid #34302d; border-radius: 0; background: #ffffff; color: #34302d;">
+</div>
+<button class="pc-button" type="submit" style="display: inline-block; padding: 9px 20px; border: 1px solid #3f7223; border-radius: 0; background: #3f7223; color: #ffffff; cursor: pointer; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Find Owner</button>
+</form>
+<div role="status" style="border-left: 4px solid #34302d; padding: 4px 0 4px 12px;">No owners found with a last name starting with "Dav".</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 24px; line-height: 30px; font-weight: 700;">Add Pet</h3>
+<div style="display: flex; flex-direction: column; gap: 12px; width: 20rem;">
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<label class="pc-label" for="petName">Name</label>
+<input class="pc-input" id="petName" type="text" value="" aria-invalid="true" aria-describedby="petNameError" style="display: block; width: 100%; padding: 6px 11px; border: 2px solid #34302d; border-radius: 0; background: #ffffff; color: #34302d;">
+<div id="petNameError" style="border-left: 4px solid #34302d; padding-left: 12px;">Name is required.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<label class="pc-label" for="birthDate">Birth Date</label>
+<input class="pc-input" id="birthDate" type="date" value="2024-03-09" aria-describedby="birthDateHint" style="display: block; width: 100%; padding: 7px 12px; border: 1px solid #34302d; border-radius: 0; background: #ffffff; color: #34302d;">
+<span id="birthDateHint" style="font-size: 14px; line-height: 21px; color: #5c5752;">yyyy-mm-dd</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px;">
+<label class="pc-label" for="petType">Type</label>
+<div style="position: relative;">
+<select class="pc-input" id="petType" style="display: block; width: 100%; padding: 7px 36px 7px 12px; border: 1px solid #34302d; border-radius: 0; background: #ffffff; color: #34302d; appearance: none; -webkit-appearance: none;">
+<option>cat</option>
+<option>dog</option>
+<option>lizard</option>
+</select>
+<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#34302d" stroke-width="1.5" aria-hidden="true" focusable="false" style="position: absolute; right: 16px; top: 50%; margin-top: -6px; pointer-events: none;"><path d="M2 4l4 4 4-4"></path></svg>
+</div>
+</div>
+<div>
+<button class="pc-button" type="submit" style="display: inline-block; padding: 9px 20px; border: 1px solid #3f7223; border-radius: 0; background: #3f7223; color: #ffffff; cursor: pointer; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Add Pet</button>
+</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<h4 style="margin: 0; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; line-height: 24px; font-weight: 700;">Button States</h4>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px;">
+<span class="pc-button" style="display: inline-block; padding: 9px 20px; border: 1px solid #3f7223; background: #3f7223; color: #ffffff; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Default</span>
+<span style="display: inline-block; padding: 9px 20px; border: 1px solid #34302d; background: #34302d; color: #ffffff; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Hover</span>
+<span style="display: inline-block; padding: 9px 20px; border: 1px solid #3f7223; background: #3f7223; color: #ffffff; outline: 2px solid #3f7223; outline-offset: 2px; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">Focus</span>
+</div>
+</section>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 40px; min-width: 0;">
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<h3 style="margin: 0; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 24px; line-height: 30px; font-weight: 700;">Owners</h3>
+<div class="pc-table-region" tabindex="0" role="region" aria-label="Owners" style="overflow-x: auto;">
+<table class="pc-table" style="width: 100%; border-collapse: collapse; color: #34302d;">
+<caption class="pc-sr-only">Owners</caption>
+<thead><tr>
+<th scope="col" style="text-align: left; padding: 12px 16px; border-bottom: 2px solid #34302d; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;">Name</th>
+<th scope="col" style="text-align: left; padding: 12px 16px; border-bottom: 2px solid #34302d; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;">City</th>
+<th scope="col" style="text-align: left; padding: 12px 16px; border-bottom: 2px solid #34302d; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;">Pets</th>
+</tr></thead>
+<tbody>
+<tr><td class="pc-nowrap" style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb; white-space: nowrap;"><a href="#">George Franklin</a></td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">Madison</td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">Leo</td></tr>
+<tr><td class="pc-nowrap" style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb; white-space: nowrap;"><a href="#">Betty Davis</a></td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">Sun Prairie</td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">Basil</td></tr>
+<tr><td class="pc-nowrap" style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb; white-space: nowrap;"><a href="#">Harold Davis</a></td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">Windsor</td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb; color: #5c5752;">none</td></tr>
+<tr><td class="pc-nowrap" style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb; white-space: nowrap;"><a href="#">Eduardo Rodriquez</a></td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">McFarland</td><td style="padding: 12px 16px; border-bottom: 1px solid #e0dfdb;">Rosy Jewel</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 12px;">
+<h4 style="margin: 0; font-family: Montserrat, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; line-height: 24px; font-weight: 700;">Container Widths</h4>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<sc-for list="{{widths}}" as="w" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 16px;">
+<span style="width: 96px; flex-shrink: 0; font-size: 14px; line-height: 21px; color: #5c5752;">{{w.from}}</span>
+<div style="height: 24px; background: #f4f2f0; border-left: 4px solid #6db33f; width: {{w.bar}};"></div>
+<span style="font-size: 14px; line-height: 21px;">{{w.max}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":820}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      ['below 576px', 'full width', 375],
+      ['576px', '540px', 540],
+      ['768px', '720px', 720],
+      ['992px', '960px', 960],
+      ['1200px', '1140px', 1140],
+      ['1400px', '1320px', 1320]
+    ];
+    return {
+      widths: rows.map((r) => ({ from: r[0], max: r[1], bar: Math.round(r[2] / 1320 * 300) + 'px' }))
+    };
+  }
+}
+</script>
+</body>
+</html>
