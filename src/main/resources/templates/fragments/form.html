@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<body>
+<p th:fragment="errorSummary(formName, noun)" th:if="${#fields.hasErrors('${__${formName}__.*}')}"
+   class="pc-message" role="alert" th:with="count=${#lists.size(#fields.detailedErrors('${__${formName}__.*}'))}"
+   th:text="${count == 1} ? |${noun} not saved: 1 field needs attention.| : |${noun} not saved: ${count} fields need attention.|">
+	Owner not saved: 2 fields need attention.</p>
+
+<div th:fragment="field(name, label, type, maxlength, autocomplete)" class="pc-field"
+	 th:with="invalid=${#fields.hasErrors(name)}" th:classappend="${invalid} ? 'pc-field-invalid'">
+	<label th:for="${name}" class="form-label" th:text="${label}">First Name</label>
+	<input th:type="${type}" th:field="*{__${name}__}" th:maxlength="${maxlength}" th:autocomplete="${autocomplete}"
+		   th:inputmode="${type == 'tel'} ? 'numeric' : null" required aria-required="true"
+		   th:aria-invalid="${invalid} ? 'true' : null" th:aria-describedby="${invalid} ? |${name}-error| : null"
+		   class="form-control pc-input">
+	<p th:if="${invalid}" th:id="|${name}-error|" class="pc-field-error" th:errors="*{__${name}__}">First Name is
+		required.</p>
+</div>
+
+<div th:fragment="dateField(name, label, max)" class="pc-field" th:with="invalid=${#fields.hasErrors(name)}"
+	 th:classappend="${invalid} ? 'pc-field-invalid'">
+	<label th:for="${name}" class="form-label" th:text="${label}">Birth Date</label>
+	<input type="date" th:field="*{__${name}__}" th:max="${max}" autocomplete="off" required aria-required="true"
+		   th:aria-invalid="${invalid} ? 'true' : null"
+		   th:aria-describedby="${invalid} ? |${name}-help ${name}-error| : |${name}-help|"
+		   class="form-control pc-input">
+	<p th:id="|${name}-help|" class="pc-field-help">yyyy-mm-dd</p>
+	<p th:if="${invalid}" th:id="|${name}-error|" class="pc-field-error" th:errors="*{__${name}__}">Birth Date is
+		required.</p>
+</div>
+</body>
+</html>

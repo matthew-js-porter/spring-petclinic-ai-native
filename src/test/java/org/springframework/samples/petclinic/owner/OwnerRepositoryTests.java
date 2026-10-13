@@ -1,28 +1,22 @@
 package org.springframework.samples.petclinic.owner;
 
-import java.lang.reflect.Proxy;
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.samples.petclinic.StatementCounting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -32,9 +26,8 @@ import static org.assertj.core.api.Assertions.tuple;
  * {@link Owner} aggregate mapping and paging.
  */
 @DataJdbcTest
+@Import(StatementCounting.class)
 class OwnerRepositoryTests {
-
-	private static final AtomicInteger statements = new AtomicInteger();
 
 	@Autowired
 	private OwnerRepository owners;
@@ -135,12 +128,12 @@ class OwnerRepositoryTests {
 
 	@Test
 	void readsAPageWithQueriesBoundedByThePageSize() {
-		statements.set(0);
+		StatementCounting.reset();
 
 		this.owners.findAll(PageRequest.of(0, 5, Sort.by("id")));
 
 		// page query + count query + one pets query per owner on the page
-		assertThat(statements.get()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
+		assertThat(StatementCounting.count()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
 	}
 
 	@ParameterizedTest
@@ -176,12 +169,12 @@ class OwnerRepositoryTests {
 
 	@Test
 	void readsAFilteredPageWithQueriesBoundedByThePageSize() {
-		statements.set(0);
+		StatementCounting.reset();
 
 		this.owners.findByLastNameStartingWithIgnoreCase("D",
 				PageRequest.of(0, OwnerController.PAGE_SIZE, Sort.by("id")));
 
-		assertThat(statements.get()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
+		assertThat(StatementCounting.count()).isLessThanOrEqualTo(2 + OwnerController.PAGE_SIZE);
 	}
 
 	@Test
@@ -226,39 +219,6 @@ class OwnerRepositoryTests {
 
 		assertThat(this.owners.findById(999)).isEmpty();
 		assertThat(this.owners.findAll(Sort.by("id"))).hasSize(11);
-	}
-
-	@TestConfiguration
-	static class StatementCounting {
-
-		@Bean
-		static BeanPostProcessor countingDataSource() {
-			return new BeanPostProcessor() {
-				@Override
-				public Object postProcessAfterInitialization(Object bean, String beanName) {
-					return (bean instanceof DataSource dataSource) ? counting(dataSource) : bean;
-				}
-			};
-		}
-
-		private static DataSource counting(DataSource target) {
-			return (DataSource) Proxy.newProxyInstance(DataSource.class.getClassLoader(),
-					new Class<?>[] { DataSource.class }, (proxy, method, args) -> {
-						Object result = method.invoke(target, args);
-						return (result instanceof Connection connection) ? counting(connection) : result;
-					});
-		}
-
-		private static Connection counting(Connection target) {
-			return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
-					new Class<?>[] { Connection.class }, (proxy, method, args) -> {
-						if (method.getName().startsWith("prepare") || method.getName().equals("createStatement")) {
-							statements.incrementAndGet();
-						}
-						return method.invoke(target, args);
-					});
-		}
-
 	}
 
 }

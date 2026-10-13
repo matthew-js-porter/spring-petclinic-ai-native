@@ -14,13 +14,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 class OwnerController {
@@ -58,15 +54,6 @@ class OwnerController {
 		this.owners = owners;
 		this.petTypes = petTypes;
 		this.visits = visits;
-	}
-
-	/**
-	 * Trims the form's values before validation; an empty value stays {@code ""} so it
-	 * fails {@code @NotBlank} and is redisplayed as typed.
-	 */
-	@InitBinder("ownerForm")
-	void trimOwnerForm(WebDataBinder binder) {
-		binder.registerCustomEditor(String.class, new StringTrimmerEditor(false));
 	}
 
 	@GetMapping("/owners.html")
@@ -117,25 +104,25 @@ class OwnerController {
 		Owner saved = this.owners.save(new Owner(null, form.firstName(), form.lastName(), form.address(), form.city(),
 				form.telephone(), Set.of()));
 		flash.addFlashAttribute("message", "New Owner Created");
-		return seeOther(saved.id());
+		return OwnerPages.seeOther(saved.id());
 	}
 
 	@GetMapping("/owners/{id}/edit.html")
 	String initUpdateForm(@PathVariable Integer id, Model model) {
-		model.addAttribute("ownerForm", OwnerForm.from(findOwner(id)));
+		model.addAttribute("ownerForm", OwnerForm.from(OwnerPages.findOwner(this.owners, id)));
 		return form(model, id);
 	}
 
 	@PostMapping("/owners/{id}")
 	ModelAndView processUpdateForm(@PathVariable Integer id, @Valid @ModelAttribute("ownerForm") OwnerForm form,
 			BindingResult result, Model model, RedirectAttributes flash) {
-		findOwner(id);
+		OwnerPages.findOwner(this.owners, id);
 		if (result.hasErrors()) {
 			return new ModelAndView(form(model, id));
 		}
 		this.owners.update(id, form.firstName(), form.lastName(), form.address(), form.city(), form.telephone());
 		flash.addFlashAttribute("message", "Owner Values Updated");
-		return seeOther(id);
+		return OwnerPages.seeOther(id);
 	}
 
 	/**
@@ -152,7 +139,7 @@ class OwnerController {
 	 * loading all their pets' visits in one query. Unknown ids are 404.
 	 */
 	private OwnerDetailView ownerDetails(Integer id) {
-		Owner owner = findOwner(id);
+		Owner owner = OwnerPages.findOwner(this.owners, id);
 		Map<Integer, String> typeNames = this.petTypes.findAll()
 			.stream()
 			.collect(Collectors.toMap(PetType::id, PetType::name));
@@ -170,11 +157,6 @@ class OwnerController {
 				owner.telephone(), pets);
 	}
 
-	private Owner findOwner(Integer id) {
-		return this.owners.findById(id)
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "owner " + id + " does not exist"));
-	}
-
 	/**
 	 * Fills in what differs between New Owner ({@code ownerId} null) and Edit Owner.
 	 */
@@ -185,17 +167,6 @@ class OwnerController {
 		model.addAttribute("submitLabel", create ? "Add Owner" : "Update Owner");
 		model.addAttribute("action", create ? "/owners" : "/owners/" + ownerId);
 		return FORM_VIEW;
-	}
-
-	/**
-	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
-	 * browser to follow with a GET.
-	 */
-	private static ModelAndView seeOther(Integer id) {
-		RedirectView redirect = new RedirectView("/owners/" + id + ".html", true);
-		redirect.setStatusCode(HttpStatus.SEE_OTHER);
-		redirect.setExposeModelAttributes(false);
-		return new ModelAndView(redirect);
 	}
 
 	/**

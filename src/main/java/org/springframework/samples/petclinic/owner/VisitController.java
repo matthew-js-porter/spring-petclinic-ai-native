@@ -6,21 +6,15 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * New Visit. Visits are reached through their pet's owner: an unknown owner, an unknown
@@ -46,19 +40,10 @@ class VisitController {
 		this.clock = clock;
 	}
 
-	/**
-	 * Trims the form's values before validation; an empty value stays {@code ""} so it
-	 * fails {@code @NotBlank} and is redisplayed as typed.
-	 */
-	@InitBinder("visitForm")
-	void trimVisitForm(WebDataBinder binder) {
-		binder.registerCustomEditor(String.class, new StringTrimmerEditor(false));
-	}
-
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new.html")
 	String initCreationForm(@PathVariable Integer ownerId, @PathVariable Integer petId, Model model) {
-		Owner owner = findOwner(ownerId);
-		Pet pet = findPet(owner, petId);
+		Owner owner = OwnerPages.findOwner(this.owners, ownerId);
+		Pet pet = OwnerPages.findPet(owner, petId);
 		model.addAttribute("visitForm", VisitForm.on(LocalDate.now(this.clock)));
 		return form(model, owner, pet);
 	}
@@ -67,8 +52,8 @@ class VisitController {
 	ModelAndView processCreationForm(@PathVariable Integer ownerId, @PathVariable Integer petId,
 			@Valid @ModelAttribute("visitForm") VisitForm form, BindingResult result, Model model,
 			RedirectAttributes flash) {
-		Owner owner = findOwner(ownerId);
-		Pet pet = findPet(owner, petId);
+		Owner owner = OwnerPages.findOwner(this.owners, ownerId);
+		Pet pet = OwnerPages.findPet(owner, petId);
 		if (!result.hasFieldErrors("date") && IsoDates.parse(form.date()).isEmpty()) {
 			result.rejectValue("date", "format", "Date must be a date in the form yyyy-mm-dd.");
 		}
@@ -77,37 +62,14 @@ class VisitController {
 		}
 		this.visits.insert(pet.id(), IsoDates.parse(form.date()).orElseThrow(), form.description());
 		flash.addFlashAttribute("message", "Your visit has been booked");
-		return seeOther(ownerId);
-	}
-
-	private Owner findOwner(Integer ownerId) {
-		return this.owners.findById(ownerId)
-			.orElseThrow(
-					() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "owner " + ownerId + " does not exist"));
-	}
-
-	/**
-	 * Finds the pet among the owner's own, so a pet of another owner is as unknown as one
-	 * that does not exist.
-	 */
-	private static Pet findPet(Owner owner, Integer petId) {
-		return owner.pets()
-			.stream()
-			.filter((pet) -> pet.id().equals(petId))
-			.findFirst()
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "pet " + petId + " does not exist"));
+		return OwnerPages.seeOther(ownerId);
 	}
 
 	/**
 	 * Fills in the context block, the form's target and the pet's previous visits.
 	 */
 	private String form(Model model, Owner owner, Pet pet) {
-		String typeName = this.petTypes.findAll()
-			.stream()
-			.filter((type) -> type.id().equals(pet.type().getId()))
-			.map(PetType::name)
-			.findFirst()
-			.orElse(null);
+		String typeName = this.petTypes.findById(pet.type().getId()).map(PetType::name).orElse(null);
 		List<VisitView> previous = VisitView.mostRecentFirst(this.visits.findByPetIds(List.of(pet.id())));
 		model.addAttribute("ownerName", owner.firstName() + " " + owner.lastName());
 		model.addAttribute("petName", pet.name());
@@ -115,17 +77,6 @@ class VisitController {
 		model.addAttribute("visits", previous);
 		model.addAttribute("action", "/owners/" + owner.id() + "/pets/" + pet.id() + "/visits");
 		return FORM_VIEW;
-	}
-
-	/**
-	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
-	 * browser to follow with a GET.
-	 */
-	private static ModelAndView seeOther(Integer ownerId) {
-		RedirectView redirect = new RedirectView("/owners/" + ownerId + ".html", true);
-		redirect.setStatusCode(HttpStatus.SEE_OTHER);
-		redirect.setExposeModelAttributes(false);
-		return new ModelAndView(redirect);
 	}
 
 }

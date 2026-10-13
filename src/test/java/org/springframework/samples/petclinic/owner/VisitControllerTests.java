@@ -63,7 +63,7 @@ class VisitControllerTests {
 		given(this.owners.findById(anyInt())).willReturn(Optional.empty());
 		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo", 1)));
 		stubOwner(owner(6, "Jean", "Coleman", pet(7, "Samantha", 1), pet(8, "Max", 1)));
-		given(this.petTypes.findAll()).willReturn(List.of(new PetType(1, "cat"), new PetType(2, "dog")));
+		given(this.petTypes.findById(1)).willReturn(Optional.of(new PetType(1, "cat")));
 		given(this.visits.findByPetIds(List.of(7))).willReturn(List.of(visit(1, 7, "2013-01-01", "rabies shot"),
 				visit(4, 7, "2013-01-04", "spayed"), visit(5, 7, "2013-01-04", "checkup")));
 	}

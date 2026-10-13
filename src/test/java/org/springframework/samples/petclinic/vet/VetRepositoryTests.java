@@ -1,24 +1,18 @@
 package org.springframework.samples.petclinic.vet;
 
-import java.lang.reflect.Proxy;
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.samples.petclinic.StatementCounting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,9 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * {@link Vet} aggregate mapping and paging.
  */
 @DataJdbcTest
+@Import(StatementCounting.class)
 class VetRepositoryTests {
-
-	private static final AtomicInteger statements = new AtomicInteger();
 
 	@Autowired
 	private VetRepository vets;
@@ -83,45 +76,12 @@ class VetRepositoryTests {
 
 	@Test
 	void readsAPageWithQueriesBoundedByThePageSize() {
-		statements.set(0);
+		StatementCounting.reset();
 
 		this.vets.findAll(PageRequest.of(0, 5, Sort.by("id")));
 
 		// page query + count query + one specialties query per vet on the page
-		assertThat(statements.get()).isLessThanOrEqualTo(2 + 5);
-	}
-
-	@TestConfiguration
-	static class StatementCounting {
-
-		@Bean
-		static BeanPostProcessor countingDataSource() {
-			return new BeanPostProcessor() {
-				@Override
-				public Object postProcessAfterInitialization(Object bean, String beanName) {
-					return (bean instanceof DataSource dataSource) ? counting(dataSource) : bean;
-				}
-			};
-		}
-
-		private static DataSource counting(DataSource target) {
-			return (DataSource) Proxy.newProxyInstance(DataSource.class.getClassLoader(),
-					new Class<?>[] { DataSource.class }, (proxy, method, args) -> {
-						Object result = method.invoke(target, args);
-						return (result instanceof Connection connection) ? counting(connection) : result;
-					});
-		}
-
-		private static Connection counting(Connection target) {
-			return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
-					new Class<?>[] { Connection.class }, (proxy, method, args) -> {
-						if (method.getName().startsWith("prepare") || method.getName().equals("createStatement")) {
-							statements.incrementAndGet();
-						}
-						return method.invoke(target, args);
-					});
-		}
-
+		assertThat(StatementCounting.count()).isLessThanOrEqualTo(2 + 5);
 	}
 
 }

@@ -24,4 +24,10 @@ class PetTypeRepositoryTests {
 					tuple(5, "bird"), tuple(6, "hamster"));
 	}
 
+	@Test
+	void findsOneTypeById() {
+		assertThat(this.petTypes.findById(4)).map(PetType::name).contains("snake");
+		assertThat(this.petTypes.findById(99)).isEmpty();
+	}
+
 }
