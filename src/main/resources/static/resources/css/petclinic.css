@@ -565,6 +565,26 @@ input[type="date"].pc-input {
 	min-height: 42px;
 }
 
+/* WebKit pads the date's inner parts, which makes it taller than a text input; hold it to one line */
+.pc-input::-webkit-date-and-time-value {
+	min-width: 85px;
+	height: 1.5em;
+	margin: 0;
+}
+
+.pc-input::-webkit-datetime-edit {
+	display: block;
+	padding: 0;
+}
+
+.pc-input::-webkit-datetime-edit-fields-wrapper,
+.pc-input::-webkit-datetime-edit-text,
+.pc-input::-webkit-datetime-edit-month-field,
+.pc-input::-webkit-datetime-edit-day-field,
+.pc-input::-webkit-datetime-edit-year-field {
+	padding: 0;
+}
+
 /* Helper line under a field, such as a date's format */
 .pc-field-help {
 	margin: 0;
