@@ -38,7 +38,7 @@ Humans merge everything; nothing auto-merges and nothing is pushed to `main`. Ou
 Renovate is the only option that covers the wrapper and Java pins, and its grouping controls keep PR volume low. Cost: one GitHub App install and a `renovate.json5` file. **Hosting:** the hosted Mend Renovate App, not a self-hosted Renovate action, so no extra token or secret is needed. PRs it opens are authored by `renovate[bot]` through an App token, so `build.yml` and the other `pull_request` workflows run on them (PRs opened with `GITHUB_TOKEN` would not trigger them).
 
 ### 3.2 Schedule and grouping
-- Schedule: `before 5am on monday` (UTC), after the Snyk scan (03:00) so a fresh scan exists and before `maintain-scan` (06:00). Vulnerability-driven PRs are not held to the schedule (see 3.4).
+- Schedule: `before 5am` (UTC), every day. Vulnerability-driven PRs are not held to the schedule (see 3.4). Deviation: the schedule was first `before 5am on monday`, after the Snyk scan (03:00) and before `maintain-scan` (06:00). The hosted App does not run at fixed times, and on 2026-10-26 it skipped that window, leaving Spring Boot 4.1.2 under "Awaiting Schedule" for another week. The daily window means a missed run costs a day. Renovate PRs no longer line up with the Monday Snyk and `maintain-scan` runs, which is accepted: overlap with `maintain-scan` is already accepted (3.4).
 - `prConcurrentLimit: 3`, `prHourlyLimit: 2`; Dependency Dashboard enabled so deferred updates are visible.
 - Groups (one PR each):
   - **spring-boot**: the parent version plus any `org.springframework.boot` artifact (including the `spring-boot-maven-plugin` if ever versioned explicitly). Always its own PR, so override clean-up (F4) has a clear trigger.
@@ -190,7 +190,7 @@ No brand-guideline or UX-standard document applies (no UI; `docs/design-system/`
 
 ## 9. Assumptions
 - Renovate (hosted Mend App) is chosen over Dependabot (3.1).
-- Schedule is Monday before 05:00 UTC, grouping as in 3.2, `prConcurrentLimit` 3.
+- Schedule is daily before 05:00 UTC, grouping as in 3.2, `prConcurrentLimit` 3.
 - Fix attempts are capped at 2 per PR, configurable via `MAX_FIX_ATTEMPTS`.
 - `maintain-scan` and Snyk flows are unchanged; overlap with Renovate security PRs is accepted (3.4). Dependabot alerts are enabled solely as Renovate's vulnerability data source.
 - Only LTS Java majors are proposed (the pins are major-only); this extends the 001 deviation. `.sdkmanrc` is not managed by Renovate (owner decision, 5.2).

@@ -4,8 +4,8 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["config:recommended"],
   timezone: "UTC",
-  // After the Monday 03:00 Snyk scan, before maintain-scan at 06:00.
-  schedule: ["before 5am on monday"],
+  // Daily, so a missed run delays an update by a day, not a week.
+  schedule: ["before 5am"],
   dependencyDashboard: true,
   labels: ["dependencies"],
   automerge: false,
