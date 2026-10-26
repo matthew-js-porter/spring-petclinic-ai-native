@@ -167,3 +167,13 @@ Line 14: replace "Java 25" with "Java 27". Rewrite the Java pins rule (line 18):
 - The PR will show `build` and `snyk` running against the changed workflows; check both logs for the Liberica 27 distribution.
 - After merge, the Java 28 Renovate PR (about March 2027, C1) is handled by the 3.6 flow.
 - The spec needs full human review before a plan is written.
+
+## 11. Implementation notes and deviations
+Recorded during implementation (2026-10-26).
+
+- **Identifier (3.3).** `.sdkmanrc` pins `java=27.0.0.0+36-librca`, the GA Liberica 27 build SDKMAN lists on both `linuxx64` and `darwinarm64` (the `-fx` variant was not used). setup-java's `liberica` / `27` resolves to Liberica 27.0.1 (BellSoft API), so the 3.2 patch gap is real and accepted.
+- **Deviation: Renovate's LTS filter came from a preset as well.** `config:recommended` includes `workarounds:javaLTSVersions`, which sets its own LTS-only `allowedVersions` on `java` and `java-jdk`. Deleting our `allowedVersions` (5.4) still left 27 unproposed. The `java` rule now sets `allowedVersions: "/^\\d+(\\.|-|$)/"`, which overrides the preset because it comes later, and keeps the preset's Java versioning.
+- **Deviation: setup-java pins need a regex manager.** Renovate's github-actions manager reads `java-version` only for the `temurin` and `adopt` distributions (`skipReason: unsupported` otherwise), so the move to Liberica would have dropped the three workflow pins from the `java` group. A second regex custom manager matches `distribution: liberica` followed by `java-version: <n>` in `.github/workflows/*.yml`, with dep name `java-jdk`.
+- **Renovate verification (A8).** `renovate-config-validator --strict` (Renovate 44.186.3) passes. A `--platform=local --dry-run=lookup` run on a copy pinned at 25 gives one `renovate/java` branch raising `pom.xml` and all three setup-java pins to 27 (GA, no EA). On the 27 tree it proposes no Java update.
+- **Deviation: `claude.yml` tool permission (3.6, A8).** claude-code-action does not allow arbitrary Bash by default, so the `@claude` run cannot run `sdk list java`. `claude_args` gains `--allowed-tools "Bash(curl -s https://api.sdkman.io/2/candidates/java/*)"`. The lookup steps (read the `linuxx64` and `darwinarm64` lists, take the GA `-librca` identifier present on both, otherwise change nothing) live in `CLAUDE.md`, which that run loads. `REVIEW.md` holds only the request wording.
+- **Local verification.** On Liberica 27 (`java.vendor = BellSoft`), `./mvnw -B clean verify` passes and `spring-boot:run` reports "using Java 27" with `/actuator/health` UP. That run used port 8081, because 8080 was taken by an unrelated local process.

@@ -14,12 +14,12 @@ These artifacts live in [`intent/`](intent), one folder per change, so the reaso
 ## Stack
 
 - Spring Boot
-- Java 25
+- Java 27 (Liberica)
 - Maven 
 
 ## Getting started
 
-Prerequisites: JDK 25. With [SDKMAN](https://sdkman.io), run `sdk env install` in the repo root to use the version pinned in `.sdkmanrc`.
+Prerequisites: JDK 27 (Liberica). With [SDKMAN](https://sdkman.io), run `sdk env install` in the repo root to use the version pinned in `.sdkmanrc`.
 
 ```bash
 ./mvnw clean verify          # build and test

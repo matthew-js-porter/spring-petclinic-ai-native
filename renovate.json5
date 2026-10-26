@@ -51,16 +51,18 @@
       enabled: false,
     },
     {
-      description: "Java majors in pom.xml and setup-java move together; LTS only",
-      // java-jdk is setup-java's java-version, extracted by the github-actions manager.
+      description: "Java majors in pom.xml and setup-java move together; every major, LTS or not",
+      // java-jdk is setup-java's java-version, extracted by the regex manager below.
       matchDepNames: ["java", "java-jdk"],
       groupName: "java",
       separateMajorMinor: false,
-      allowedVersions: "/^(25|29)(\\.|$)/",
+      // Overrides the LTS-only allowedVersions from config:recommended (workarounds:javaLTSVersions).
+      allowedVersions: "/^\\d+(\\.|-|$)/",
     },
   ],
   // .sdkmanrc is not managed: SDKMAN identifiers differ per platform and drop old builds,
-  // so no datasource can propose one that installs. A human sets it on Java major PRs.
+  // so no datasource can propose one that installs. On Java major PRs the review asks @claude
+  // to set it to a Liberica identifier SDKMAN lists.
   customManagers: [
     {
       customType: "regex",
@@ -70,6 +72,16 @@
       depNameTemplate: "java",
       datasourceTemplate: "java-version",
       // Major only, e.g. 25, never 25.0.4+101.0.LTS.
+      extractVersionTemplate: "^(?<version>\\d+)",
+    },
+    {
+      customType: "regex",
+      // The github-actions manager reads setup-java's java-version only for temurin and adopt.
+      description: "setup-java java-version with the liberica distribution",
+      managerFilePatterns: ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      matchStrings: ["distribution: liberica\\s+java-version: (?<currentValue>\\d+)"],
+      depNameTemplate: "java-jdk",
+      datasourceTemplate: "java-version",
       extractVersionTemplate: "^(?<version>\\d+)",
     },
   ],

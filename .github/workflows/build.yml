@@ -24,8 +24,8 @@ jobs:
 
       - uses: actions/setup-java@v6
         with:
-          distribution: temurin
-          java-version: 25
+          distribution: liberica
+          java-version: 27
           cache: maven
 
       - name: Build and test
