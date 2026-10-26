@@ -1,5 +1,5 @@
 # F5: Snyk Open Source (dependencies) and Snyk Code (SAST) scans.
-# SARIF files are always kept as the `snyk-sarif` artifact, which maintain-scan.yml reads.
+# SARIF files are always kept as the `snyk-sarif` artifact, which triage-findings.yml reads.
 name: snyk
 
 on:
@@ -7,7 +7,7 @@ on:
     branches: [main]
   pull_request:
   schedule:
-    - cron: "0 3 * * 1" # Mondays 03:00 UTC, before maintain-scan
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC, before triage-findings
   workflow_dispatch:
 
 permissions:

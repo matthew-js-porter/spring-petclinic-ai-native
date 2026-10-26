@@ -28,7 +28,7 @@ Prerequisites: JDK 25. With [SDKMAN](https://sdkman.io), run `sdk env install` i
 
 ## Skill evals
 
-The pipeline's skills (`/intent`, `/spec`, `/maintain-scan` in [`.claude/skills/`](.claude/skills)) each have eval cases in `evals/evals.json`, run with Anthropic's [skill-creator](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator) plugin. CI runs them on PRs that change a skill, comments the results, and fails the check when the PR's version scores lower than `main`'s on any eval.
+The pipeline's skills (`/intent`, `/spec`, `/triage-findings` in [`.claude/skills/`](.claude/skills)) each have eval cases in `evals/evals.json`, run with Anthropic's [skill-creator](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator) plugin. CI runs them on PRs that change a skill, comments the results, and fails the check when the PR's version scores lower than `main`'s on any eval.
 
 To run them locally:
 
@@ -39,7 +39,7 @@ To run them locally:
    /skill-creator eval <skill>
    ```
 
-   Replace `spec` with `intent` or `maintain-scan`. To measure an edit, ask for a comparison with the version on `main`, for example `/skill-creator eval spec, comparing against the skill on origin/main`.
+   Replace `spec` with `intent` or `triage-findings`. To measure an edit, ask for a comparison with the version on `main`, for example `/skill-creator eval spec, comparing against the skill on origin/main`.
 3. skill-creator runs each eval in a fresh subagent, grades every expectation, and opens a review page with the outputs and a benchmark (pass rate, time, tokens). Results are written to `.claude/skills/<skill>-workspace/`, which is gitignored.
 
 When a skill misses something a human later catches, add a case to that skill's `evals/evals.json`.
