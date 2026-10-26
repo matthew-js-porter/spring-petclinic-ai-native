@@ -1,10 +1,10 @@
 ---
-name: maintain-scan
-description: Turn Snyk SARIF findings into new `intent.md` files for confirmed, not-yet-covered problems (Maintain stage of the AI-native SDLC). Use when the user or a workflow runs /maintain-scan, or asks to triage a Snyk scan, file intents from security findings, or decide which scan results are real. Validates each finding against the code, dismisses false positives with a reason, skips problems an existing intent already covers, and writes one intent per confirmed root cause. Does not fix code, commit, push or open PRs.
+name: triage-findings
+description: Turn Snyk SARIF findings into new `intent.md` files for confirmed, not-yet-covered problems (Maintain stage of the AI-native SDLC). Use when the user or a workflow runs /triage-findings, or asks to triage a Snyk scan, file intents from security findings, or decide which scan results are real. Validates each finding against the code, dismisses false positives with a reason, skips problems an existing intent already covers, and writes one intent per confirmed root cause. Does not fix code, commit, push or open PRs.
 argument-hint: "[sarif-dir] [run-url] [next-number]"
 ---
 
-# /maintain-scan: Snyk findings to intents
+# /triage-findings: Snyk findings to intents
 
 The Maintain stage of the [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook) feeds what monitoring finds back into Plan as new intents, through the same review gate as any other work. This skill does the triage half: decide which findings are real and new, and write an `intent.md` for each. Whoever runs it decides what happens to the files afterwards (the weekly workflow commits them and opens a PR).
 

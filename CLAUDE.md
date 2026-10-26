@@ -43,7 +43,7 @@ GitHub Actions workflows (intent 002) live in `.github/workflows/`:
 - `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, plus a `/security-review` job, including on fix commits pushed by `@claude`.
 - `claude.yml`: `@claude` mentions that push fixes to the PR branch. Bot comments are ignored unless they contain `@claude remove these Spring Boot version overrides`, the request `REVIEW.md`'s Spring Boot overrides rule ends its Boot upgrade comment with. claude-code-action strips HTML comments from the comments it posts, so a hidden marker cannot be used.
 - `design-spec.yml`: drafts `spec.md` as a PR when an `intent.md` lands on `main`.
-- `maintain-scan.yml`: weekly, runs the `/maintain-scan` skill on the latest Snyk results and opens a PR with the `intent.md` files it writes.
+- `triage-findings.yml`: weekly, runs the `/triage-findings` skill on the latest Snyk results and opens a PR with the `intent.md` files it writes.
 - `evals.yml`: runs `/skill-creator eval <skill>` on PRs that change a skill (or `CLAUDE.md`) and on dispatch, and comments the results on the PR.
 - `dependency-updates.yml`: when `build` fails on a `renovate/*` PR by `renovate[bot]`, Claude tries a fix on the PR branch, up to `MAX_FIX_ATTEMPTS` (2) per PR, then posts a give-up comment for a human.
 
@@ -55,7 +55,7 @@ Lint with `actionlint .github/workflows/*.yml` before pushing workflow changes. 
 
 ## Evals
 
-- Each pipeline skill (`/intent`, `/spec`, `/maintain-scan`) keeps its eval cases in `.claude/skills/<skill>/evals/evals.json` (skill-creator's format; fixtures in `evals/files/`). Run one locally with `/skill-creator eval <skill>`; the skill-creator plugin is enabled in `.claude/settings.json`.
+- Each pipeline skill (`/intent`, `/spec`, `/triage-findings`) keeps its eval cases in `.claude/skills/<skill>/evals/evals.json` (skill-creator's format; fixtures in `evals/files/`). Run one locally with `/skill-creator eval <skill>`; the skill-creator plugin is enabled in `.claude/settings.json`.
 - The `skill-evals` check fails when a PR's skill scores lower than `main`'s on any eval (or below 100% with nothing to compare against). It blocks merging only if it is made a required check in branch protection.
 - When a skill misses something a human later catches, add an eval for it to that skill's `evals.json`. Keep fixtures out of the repo's top-level `intent/` and never name them `pom.xml` or `*.java` (other workflows and Snyk would pick them up); use a `.fixture` suffix.
 
@@ -63,7 +63,7 @@ Lint with `actionlint .github/workflows/*.yml` before pushing workflow changes. 
 
 Work follows the AI-native SDLC playbook. Each change lives in `intent/<nnn>-<name>/` with `intent.md`, `spec.md` and `plan.md`; read the spec for requirements and acceptance criteria before changing code, and keep these documents in sync with the implementation when the two diverge (note deviations explicitly in the spec).
 
-- Use the `/intent` and `/spec` skills (in `.claude/skills/`) to create those artifacts; `/maintain-scan` turns Snyk findings into intents.
+- Use the `/intent` and `/spec` skills (in `.claude/skills/`) to create those artifacts; `/triage-findings` turns Snyk findings into intents.
 - A `PostToolUse` hook on `ExitPlanMode` (`.claude/settings.json`) instructs saving an approved plan as `plan.md` next to the relevant `spec.md`, not in `~/.claude/plans` only.
 - Intents and specs do not carry a Status field.
 - Generate new Spring Boot projects with `spring-tools:create-spring-boot-project`, and run `spring-tools:validate` to check for diagnostics.

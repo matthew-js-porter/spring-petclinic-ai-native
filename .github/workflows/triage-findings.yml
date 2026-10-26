@@ -1,5 +1,5 @@
 # F6: weekly, turn confirmed Snyk findings from the latest main scan into new intents via one PR.
-name: maintain-scan
+name: triage-findings
 
 on:
   schedule:
@@ -9,7 +9,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: maintain-scan
+  group: triage-findings
   cancel-in-progress: false
 
 jobs:
@@ -65,7 +65,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            /maintain-scan .snyk-results https://github.com/${{ github.repository }}/actions/runs/${{ steps.download.outputs.run_id }} ${{ steps.prep.outputs.next }}
+            /triage-findings .snyk-results https://github.com/${{ github.repository }}/actions/runs/${{ steps.download.outputs.run_id }} ${{ steps.prep.outputs.next }}
 
             You are running unattended in CI as the Maintain stage. Nobody can answer questions.
             `.snyk-results/` holds ${{ steps.download.outputs.count }} result(s) from Snyk run ${{ steps.download.outputs.run_id }} on `main`.

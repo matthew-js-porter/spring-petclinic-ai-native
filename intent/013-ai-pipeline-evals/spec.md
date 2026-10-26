@@ -123,6 +123,7 @@ Deliberate departures:
 
 ## 8. Assumptions
 1. Only skills are evaluated, and maintain-scan became a skill so it can be (decided in planning).
+   Deviation: the skill and its workflow were later renamed from `maintain-scan` to `triage-findings` (`.claude/skills/triage-findings/`, `triage-findings.yml`), because the skill triages existing scan results and does not scan. This spec and older intents keep the old name. The `maintain/security-*` branches and "Maintain:" PR titles are unchanged, since they name the SDLC stage.
 2. Eval counts (3, 3, 2) are the meaning of "small".
 3. Results live in the PR comment and a 90-day artifact. This answers the intent's open question on storage, minimally.
 4. "Previous baseline" is the same skill on `origin/main`, run in the same job.
