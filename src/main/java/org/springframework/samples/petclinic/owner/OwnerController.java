@@ -6,15 +6,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.validation.Valid;
+
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import jakarta.validation.Valid;
-
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -62,6 +62,7 @@ class OwnerController {
 	/**
 	 * Trims the form's values before validation; an empty value stays {@code ""} so it
 	 * fails {@code @NotBlank} and is redisplayed as typed.
+	 * @param binder the binder for the form
 	 */
 	@InitBinder("ownerForm")
 	void trimOwnerForm(WebDataBinder binder) {
@@ -140,6 +141,8 @@ class OwnerController {
 	/**
 	 * One owner as JSON whatever the {@code Accept} header: no {@code produces}
 	 * condition, and a preset content type that Spring writes without negotiating.
+	 * @param id the owner's id
+	 * @return the owner's details
 	 */
 	@GetMapping("/owners/{id}")
 	ResponseEntity<OwnerDetailView> showResourcesOwner(@PathVariable Integer id) {
@@ -149,6 +152,8 @@ class OwnerController {
 	/**
 	 * Looks up one owner for the details page and its JSON, naming each pet's type and
 	 * loading all their pets' visits in one query. Unknown ids are 404.
+	 * @param id the owner's id
+	 * @return the owner's details
 	 */
 	private OwnerDetailView ownerDetails(Integer id) {
 		Owner owner = findOwner(id);
@@ -176,6 +181,9 @@ class OwnerController {
 
 	/**
 	 * Fills in what differs between New Owner ({@code ownerId} null) and Edit Owner.
+	 * @param model the model to fill
+	 * @param ownerId the owner's id, or {@code null} for New Owner
+	 * @return the form view
 	 */
 	private static String form(Model model, Integer ownerId) {
 		boolean create = ownerId == null;
@@ -189,6 +197,8 @@ class OwnerController {
 	/**
 	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
 	 * browser to follow with a GET.
+	 * @param id the owner's id
+	 * @return the redirect
 	 */
 	private static ModelAndView seeOther(Integer id) {
 		RedirectView redirect = new RedirectView("/owners/" + id + ".html", true);
@@ -201,6 +211,8 @@ class OwnerController {
 	 * Normalises the last-name search term shared by the page and the JSON: missing
 	 * becomes empty, surrounding whitespace is stripped, and anything longer than the
 	 * column is rejected.
+	 * @param lastName the request parameter, or {@code null} if absent
+	 * @return the term to search by, empty for all owners
 	 */
 	private static String searchTerm(String lastName) {
 		String term = (lastName != null) ? lastName.strip() : "";

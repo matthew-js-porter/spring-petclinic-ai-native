@@ -10,6 +10,9 @@ import org.springframework.data.relational.core.mapping.Table;
  * <p>
  * Spring Data JDBC quotes explicit table and column names, so they are written in upper
  * case to match how H2 stores the unquoted names from {@code schema.sql}.
+ *
+ * @param specialty the specialty
+ * @author Matthew Porter
  */
 @Table("VET_SPECIALTIES")
 public record VetSpecialty(@Column("SPECIALTY_ID") AggregateReference<Specialty, Integer> specialty) {

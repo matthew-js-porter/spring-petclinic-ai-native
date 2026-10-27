@@ -10,6 +10,8 @@ import org.springframework.data.repository.Repository;
 /**
  * Read-only access to vets: extends {@link Repository} rather than {@code CrudRepository}
  * so that no write methods exist.
+ *
+ * @author Matthew Porter
  */
 public interface VetRepository extends Repository<Vet, Integer> {
 

@@ -8,6 +8,11 @@ import jakarta.validation.constraints.Size;
  * so a request cannot set a pet's id or owner. Values arrive trimmed. The birth date and
  * type id are text so that a malformed value gets the form's own message rather than a
  * binding error, and is redisplayed as typed; {@link PetController} parses them.
+ *
+ * @param name the pet's name
+ * @param birthDate the date of birth as typed, {@code yyyy-mm-dd}
+ * @param typeId the id of the pet's type as typed
+ * @author Matthew Porter
  */
 record PetForm(
 		@NotBlank(message = "Name is required.") @Size(max = 30,

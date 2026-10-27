@@ -13,6 +13,12 @@ import org.springframework.data.relational.core.mapping.Table;
  * <p>
  * Spring Data JDBC quotes explicit table and column names, so they are written in upper
  * case to match how H2 stores the unquoted names from {@code schema.sql}.
+ *
+ * @param id the generated id
+ * @param name the pet's name
+ * @param birthDate the date of birth
+ * @param type the pet's type
+ * @author Matthew Porter
  */
 @Table("PETS")
 public record Pet(@Id Integer id, String name, LocalDate birthDate,

@@ -56,6 +56,7 @@ class VetController {
 	/**
 	 * Resolves specialty names from one lookup of the (small) specialties table instead
 	 * of one query per vet.
+	 * @return a mapper from a vet to its view
 	 */
 	private Function<Vet, VetView> viewMapper() {
 		Map<Integer, Specialty> byId = this.specialties.findAll()
