@@ -21,7 +21,7 @@ Out of scope: formatting or linting non-Java files (templates, CSS, JS, YAML); n
 - `CLAUDE.md`, `REVIEW.md`, and possibly the `/spec` skill if it should mention the conventions.
 
 ## Constraints
-- Java 25 (pinned in `pom.xml` and `.sdkmanrc`); all tools must work on it.
+- Java 27 (pinned in `pom.xml` and `.sdkmanrc`); all tools must work on it.
 - Favour versions Spring Boot manages; spring-javaformat, Checkstyle, Error Prone and any null checker are non-Boot, so each needs a stated reason and version in the spec, and Renovate should keep them updated.
 - Suppressions or exclusions must be narrow and carry a reason; no blanket disabling to get green.
 - No pushes to `main`; everything lands through a branch and PR.
