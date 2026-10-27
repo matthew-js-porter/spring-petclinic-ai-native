@@ -37,6 +37,10 @@
 		<sonar.sources>pom.xml,src/main,.github/workflows</sonar.sources>
 		<sonar.tests>src/test</sonar.tests>
 		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<!-- Actions are referenced by version tag, never a commit SHA; the quality gate action is the one Sonar flags. -->
+		<sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e1.ruleKey>githubactions:S7637</sonar.issue.ignore.multicriteria.e1.ruleKey>
+		<sonar.issue.ignore.multicriteria.e1.resourceKey>.github/workflows/sonar.yml</sonar.issue.ignore.multicriteria.e1.resourceKey>
 	</properties>
 	<dependencies>
 		<dependency>
