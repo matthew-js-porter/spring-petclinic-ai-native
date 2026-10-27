@@ -29,6 +29,12 @@
       groupName: "maven-minor-patch",
     },
     {
+      description: "spring-javaformat and the Checkstyle engine its rules run on move together",
+      matchDatasources: ["maven"],
+      matchPackageNames: ["io.spring.javaformat:**", "com.puppycrawl.tools:checkstyle"],
+      groupName: "spring-javaformat",
+    },
+    {
       description: "Spring Boot parent and artifacts always in their own PR, majors included",
       matchDatasources: ["maven"],
       matchPackageNames: ["org.springframework.boot:**"],
