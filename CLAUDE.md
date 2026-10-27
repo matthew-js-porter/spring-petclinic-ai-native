@@ -24,6 +24,15 @@ curl -i localhost:8080/actuator/health
 - Never mention intents (e.g. "intent 009") in code, YAML, SQL or CSS comments; comments describe the code, and the `intent/` documents carry the history.
 - Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
 
+## Architecture rules
+
+ArchUnit rules in `src/test/java/org/springframework/samples/petclinic/architecture/` run as ordinary tests in `./mvnw clean verify`; a violation fails the build with the class, the member and what to do instead. Run them alone with `./mvnw test -Dtest='HygieneRulesTests,LayeringRulesTests'`. The rule definitions are in `ArchitectureRules`.
+
+- `HygieneRulesTests` (main and test code): no package cycles, including between the root package and a feature; `toUpperCase`/`toLowerCase` only with a `Locale`; `Stream.toList()`, not `Collectors.toList()`; `URLEncoder`/`URLDecoder` with a `Charset`; `BeanPostProcessor`/`BeanFactoryPostProcessor` `@Bean` methods are `static`; `@Bean` methods do not return private types; no `System.out`/`System.err`/`printStackTrace()`; every package has a `package-info.java` annotated with JSpecify's `@NullMarked` (a new package needs one in `src/main`, or in `src/test` if it is test-only).
+- `LayeringRulesTests` (main code only): layers are identified by role, since `owner` and `vet` are flat: web = `@Controller`/`@RestController`/`@ControllerAdvice`; repository = interface extending Spring Data `Repository`; domain = `@Table`; presentation = `*View`, `*Form`, `Owners`, `Vets`. Web may use the other three; repositories and presentation types use only the domain; domain types and repositories use no web types or `jakarta.servlet`/`org.springframework.web` APIs. Feature packages do not depend on each other or on the root package, and nothing depends on `PetClinicApplication`. No field injection. Controllers are named `*Controller`, sit in the root or a feature package and are not `public`; repositories are interfaces named `*Repository`; `@Table` types are not views, forms, controllers or repositories; views and forms carry no stereotype or `@Table`.
+- `ArchitectureRulesSelfTests` runs each rule against deliberate violations in `org.springframework.samples.architecture.fixtures` (outside the application package, so component and repository scanning never picks them up). A new rule gets a fixture there.
+- Fix a violation at its source; do not suppress it. No `@ArchIgnore`, ignore-pattern files, `FreezingArchRule` or `allowEmptyShould(true)`. If a class genuinely cannot comply, exclude it by name inside the rule with a one-line reason above it.
+
 ## Design system
 
 UI work follows the Spring PetClinic design system in `docs/design-system/` (a versioned mirror of the published design system artifact, derived from the vets page screenshot in intent 004). Read `README.md` there before building or styling any page.
@@ -38,7 +47,7 @@ UI work follows the Spring PetClinic design system in `docs/design-system/` (a v
 ## CI
 
 GitHub Actions workflows (intent 002) live in `.github/workflows/`:
-- `build.yml`: `./mvnw -B clean verify` on Temurin 27 for pushes to `main` and every PR.
+- `build.yml`: `./mvnw -B clean verify` on Temurin 27 for pushes to `main` and every PR; this includes the ArchUnit architecture rules.
 - `snyk.yml`: Snyk Open Source and Code scans that fail on `high` and above, and keep a `snyk-sarif` artifact.
 - `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, plus a `/security-review` job, including on fix commits pushed by `@claude`.
 - `claude.yml`: `@claude` mentions that push fixes to the PR branch. Bot comments are ignored unless they contain `@claude remove these Spring Boot version overrides` or `@claude update .sdkmanrc to the Temurin identifier`, the requests `REVIEW.md`'s Spring Boot overrides and Java pins rules end their comments with; the Claude run may `curl -s` the SDKMAN Java candidates API to answer the latter. claude-code-action strips HTML comments from the comments it posts, so a hidden marker cannot be used.
