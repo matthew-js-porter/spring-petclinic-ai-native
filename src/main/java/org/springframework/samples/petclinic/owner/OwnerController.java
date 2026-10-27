@@ -6,15 +6,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import jakarta.validation.Valid;
-
-import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,8 +43,7 @@ class OwnerController {
 
 	private static final Sort BY_ID = Sort.by("id");
 
-	private static final Comparator<PetView> BY_NAME = Comparator.comparing(PetView::name)
-		.thenComparing(PetView::id);
+	private static final Comparator<PetView> BY_NAME = Comparator.comparing(PetView::name).thenComparing(PetView::id);
 
 	private static final Comparator<PetDetailView> DETAIL_BY_NAME = Comparator.comparing(PetDetailView::name)
 		.thenComparing(PetDetailView::id);
@@ -63,6 +63,7 @@ class OwnerController {
 	/**
 	 * Trims the form's values before validation; an empty value stays {@code ""} so it
 	 * fails {@code @NotBlank} and is redisplayed as typed.
+	 * @param binder the binder for the form
 	 */
 	@InitBinder("ownerForm")
 	void trimOwnerForm(WebDataBinder binder) {
@@ -70,8 +71,8 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners.html")
-	String showOwnerList(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String lastName,
-			Model model) {
+	String showOwnerList(@RequestParam(defaultValue = "1") int page,
+			@RequestParam(required = false) @Nullable String lastName, Model model) {
 		if (page < 1) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page must be 1 or greater");
 		}
@@ -89,7 +90,7 @@ class OwnerController {
 
 	@GetMapping(path = "/owners", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	Owners showResourcesOwnerList(@RequestParam(required = false) String lastName) {
+	Owners showResourcesOwnerList(@RequestParam(required = false) @Nullable String lastName) {
 		String term = searchTerm(lastName);
 		List<Owner> result = term.isEmpty() ? this.owners.findAll(BY_ID)
 				: this.owners.findByLastNameStartingWithIgnoreCase(term, BY_ID);
@@ -117,7 +118,7 @@ class OwnerController {
 		Owner saved = this.owners.save(new Owner(null, form.firstName(), form.lastName(), form.address(), form.city(),
 				form.telephone(), Set.of()));
 		flash.addFlashAttribute("message", "New Owner Created");
-		return seeOther(saved.id());
+		return seeOther(saved.savedId());
 	}
 
 	@GetMapping("/owners/{id}/edit.html")
@@ -139,8 +140,10 @@ class OwnerController {
 	}
 
 	/**
-	 * One owner as JSON whatever the {@code Accept} header: no {@code produces} condition,
-	 * and a preset content type that Spring writes without negotiating.
+	 * One owner as JSON whatever the {@code Accept} header: no {@code produces}
+	 * condition, and a preset content type that Spring writes without negotiating.
+	 * @param id the owner's id
+	 * @return the owner's details
 	 */
 	@GetMapping("/owners/{id}")
 	ResponseEntity<OwnerDetailView> showResourcesOwner(@PathVariable Integer id) {
@@ -150,6 +153,8 @@ class OwnerController {
 	/**
 	 * Looks up one owner for the details page and its JSON, naming each pet's type and
 	 * loading all their pets' visits in one query. Unknown ids are 404.
+	 * @param id the owner's id
+	 * @return the owner's details
 	 */
 	private OwnerDetailView ownerDetails(Integer id) {
 		Owner owner = findOwner(id);
@@ -166,7 +171,7 @@ class OwnerController {
 					VisitView.mostRecentFirst(visitsByPet.getOrDefault(pet.id(), List.of()))))
 			.sorted(DETAIL_BY_NAME)
 			.toList();
-		return new OwnerDetailView(owner.id(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
+		return new OwnerDetailView(owner.savedId(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
 				owner.telephone(), pets);
 	}
 
@@ -177,8 +182,11 @@ class OwnerController {
 
 	/**
 	 * Fills in what differs between New Owner ({@code ownerId} null) and Edit Owner.
+	 * @param model the model to fill
+	 * @param ownerId the owner's id, or {@code null} for New Owner
+	 * @return the form view
 	 */
-	private static String form(Model model, Integer ownerId) {
+	private static String form(Model model, @Nullable Integer ownerId) {
 		boolean create = ownerId == null;
 		model.addAttribute("ownerId", ownerId);
 		model.addAttribute("heading", create ? "New Owner" : "Edit Owner");
@@ -190,6 +198,8 @@ class OwnerController {
 	/**
 	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
 	 * browser to follow with a GET.
+	 * @param id the owner's id
+	 * @return the redirect
 	 */
 	private static ModelAndView seeOther(Integer id) {
 		RedirectView redirect = new RedirectView("/owners/" + id + ".html", true);
@@ -202,8 +212,10 @@ class OwnerController {
 	 * Normalises the last-name search term shared by the page and the JSON: missing
 	 * becomes empty, surrounding whitespace is stripped, and anything longer than the
 	 * column is rejected.
+	 * @param lastName the request parameter, or {@code null} if absent
+	 * @return the term to search by, empty for all owners
 	 */
-	private static String searchTerm(String lastName) {
+	private static String searchTerm(@Nullable String lastName) {
 		String term = (lastName != null) ? lastName.strip() : "";
 		if (term.length() > MAX_LAST_NAME) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -218,7 +230,7 @@ class OwnerController {
 			.map((pet) -> new PetView(pet.id(), pet.name()))
 			.sorted(BY_NAME)
 			.toList();
-		return new OwnerView(owner.id(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
+		return new OwnerView(owner.savedId(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
 				owner.telephone(), pets);
 	}
 

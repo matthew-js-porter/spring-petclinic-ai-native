@@ -7,6 +7,11 @@ import java.util.List;
 
 /**
  * A visit as rendered in a pet's visit list and in the owner JSON.
+ *
+ * @param id the visit's id
+ * @param date the date of the visit
+ * @param description what the visit was for
+ * @author Matthew Porter
  */
 public record VisitView(Integer id, LocalDate date, String description) {
 

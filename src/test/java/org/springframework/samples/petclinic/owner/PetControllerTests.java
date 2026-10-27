@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,8 +52,9 @@ class PetControllerTests {
 	@MockitoBean
 	private PetRepository pets;
 
+	// Only registers the clock() override; never read, so it may stay null here.
 	@TestBean
-	private Clock clock;
+	private @Nullable Clock clock;
 
 	static Clock clock() {
 		return Clock.fixed(TODAY.atTime(12, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
@@ -140,7 +142,8 @@ class PetControllerTests {
 
 	/**
 	 * Writes go to the resource paths only. A POST to the New Pet page reaches
-	 * {@code POST /owners/{ownerId}/pets/{petId}} with a non-numeric pet id, so it is a 400.
+	 * {@code POST /owners/{ownerId}/pets/{petId}} with a non-numeric pet id, so it is a
+	 * 400.
 	 */
 	@Test
 	void writesNothingForAPostToAnHtmlPage() {
@@ -303,7 +306,8 @@ class PetControllerTests {
 
 		assertThat(post("/owners/1/pets", params)).hasStatusOk()
 			.bodyText()
-			.contains("value=\"Rex\"", "value=\"07/09/2010\"", "<option value=\"5\" selected=\"selected\">bird</option>")
+			.contains("value=\"Rex\"", "value=\"07/09/2010\"",
+					"<option value=\"5\" selected=\"selected\">bird</option>")
 			.containsPattern("aria-invalid=\"true\"\\s+aria-describedby=\"birthDate-help birthDate-error\"")
 			.containsOnlyOnce("selected=\"selected\"");
 	}
@@ -340,7 +344,7 @@ class PetControllerTests {
 	}
 
 	private void stubOwner(Owner owner) {
-		given(this.owners.findById(owner.id())).willReturn(Optional.of(owner));
+		given(this.owners.findById(owner.savedId())).willReturn(Optional.of(owner));
 	}
 
 	private static Owner owner(int id, String firstName, String lastName, Pet... pets) {

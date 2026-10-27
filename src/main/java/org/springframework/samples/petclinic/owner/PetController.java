@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,8 @@ import org.springframework.web.servlet.view.RedirectView;
 /**
  * New Pet and Edit Pet. Pets are reached through their owner: an unknown owner, an
  * unknown pet, or a pet of another owner is 404 before anything is written.
+ *
+ * @author Matthew Porter
  */
 @Controller
 class PetController {
@@ -54,6 +57,7 @@ class PetController {
 	/**
 	 * Trims the form's values before validation; an empty value stays {@code ""} so it
 	 * fails {@code @NotBlank} and is redisplayed as typed.
+	 * @param binder the binder for the form
 	 */
 	@InitBinder("petForm")
 	void trimPetForm(WebDataBinder binder) {
@@ -112,8 +116,14 @@ class PetController {
 	 * The checks that need more than the value itself: the date's format and today's
 	 * date, the stored types, and the owner's other pets. A field that already failed
 	 * {@code @NotBlank} or {@code @Size} gets no second message.
+	 * @param form the bound form
+	 * @param result the binding result to add errors to
+	 * @param owner the pet's owner
+	 * @param petId the pet's id, or {@code null} for New Pet
+	 * @param types the stored pet types
 	 */
-	private void checkContext(PetForm form, BindingResult result, Owner owner, Integer petId, List<PetType> types) {
+	private void checkContext(PetForm form, BindingResult result, Owner owner, @Nullable Integer petId,
+			List<PetType> types) {
 		if (!result.hasFieldErrors("birthDate")) {
 			Optional<LocalDate> birthDate = IsoDates.parse(form.birthDate());
 			if (birthDate.isEmpty()) {
@@ -156,6 +166,9 @@ class PetController {
 	/**
 	 * Finds the pet among the owner's own, so a pet of another owner is as unknown as one
 	 * that does not exist.
+	 * @param owner the owner
+	 * @param petId the pet's id
+	 * @return the pet
 	 */
 	private static Pet findPet(Owner owner, Integer petId) {
 		return owner.pets()
@@ -171,8 +184,13 @@ class PetController {
 
 	/**
 	 * Fills in what differs between New Pet ({@code petId} null) and Edit Pet.
+	 * @param model the model to fill
+	 * @param owner the pet's owner
+	 * @param petId the pet's id, or {@code null} for New Pet
+	 * @param types the pet types to offer, sorted by name
+	 * @return the form view
 	 */
-	private String form(Model model, Owner owner, Integer petId, List<PetType> types) {
+	private String form(Model model, Owner owner, @Nullable Integer petId, List<PetType> types) {
 		boolean create = petId == null;
 		model.addAttribute("ownerName", owner.firstName() + " " + owner.lastName());
 		model.addAttribute("petTypes", types);
@@ -187,6 +205,8 @@ class PetController {
 	/**
 	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
 	 * browser to follow with a GET.
+	 * @param ownerId the owner's id
+	 * @return the redirect
 	 */
 	private static ModelAndView seeOther(Integer ownerId) {
 		RedirectView redirect = new RedirectView("/owners/" + ownerId + ".html", true);

@@ -33,8 +33,8 @@ class PetRepositoryTests {
 	void insertsAPetForAnOwnerWithAnIdAboveTheSeed() {
 		this.pets.insert(11, "Rex", LocalDate.of(2023, 4, 12), 2);
 
-		assertThat(this.owners.findById(11)).hasValueSatisfying((helen) -> assertThat(helen.pets()).singleElement()
-			.satisfies((rex) -> {
+		assertThat(this.owners.findById(11))
+			.hasValueSatisfying((helen) -> assertThat(helen.pets()).singleElement().satisfies((rex) -> {
 				assertThat(rex.id()).isGreaterThan(13);
 				assertThat(rex.name()).isEqualTo("Rex");
 				assertThat(rex.birthDate()).isEqualTo(LocalDate.of(2023, 4, 12));
@@ -47,14 +47,15 @@ class PetRepositoryTests {
 	void updatesOnlyTheNameBirthDateAndTypeOfOnePet() {
 		assertThat(this.pets.update(1, 1, "Leonard", LocalDate.of(2011, 1, 2), 2)).isTrue();
 
-		assertThat(this.owners.findById(1)).hasValueSatisfying((george) -> assertThat(george.pets()).singleElement()
-			.satisfies((pet) -> {
+		assertThat(this.owners.findById(1))
+			.hasValueSatisfying((george) -> assertThat(george.pets()).singleElement().satisfies((pet) -> {
 				assertThat(pet.id()).isEqualTo(1);
 				assertThat(pet.name()).isEqualTo("Leonard");
 				assertThat(pet.birthDate()).isEqualTo(LocalDate.of(2011, 1, 2));
 				assertThat(pet.type().getId()).isEqualTo(2);
 			}));
-		assertThat(this.owners.findById(1)).hasValueSatisfying((george) -> assertThat(george.lastName()).isEqualTo("Franklin"));
+		assertThat(this.owners.findById(1))
+			.hasValueSatisfying((george) -> assertThat(george.lastName()).isEqualTo("Franklin"));
 		assertThat(petCount()).isEqualTo(13);
 	}
 
@@ -62,20 +63,19 @@ class PetRepositoryTests {
 	void keepsTheOtherPetsAndTheirIdsWhenUpdatingOne() {
 		this.pets.update(6, 8, "Maxwell", LocalDate.of(2012, 9, 4), 1);
 
-		assertThat(this.owners.findById(6)).hasValueSatisfying((jean) -> assertThat(jean.pets())
-			.extracting(Pet::id, Pet::name)
-			.containsExactlyInAnyOrder(tuple(7, "Samantha"), tuple(8, "Maxwell")));
+		assertThat(this.owners.findById(6))
+			.hasValueSatisfying((jean) -> assertThat(jean.pets()).extracting(Pet::id, Pet::name)
+				.containsExactlyInAnyOrder(tuple(7, "Samantha"), tuple(8, "Maxwell")));
 	}
 
 	@Test
 	void updatesNothingThroughAnotherOwner() {
 		assertThat(this.pets.update(1, 2, "Stolen", LocalDate.of(2012, 8, 6), 6)).isFalse();
 
-		assertThat(this.owners.findById(2)).hasValueSatisfying((betty) -> assertThat(betty.pets())
-			.extracting(Pet::id, Pet::name)
-			.containsExactly(tuple(2, "Basil")));
-		assertThat(this.owners.findById(1)).hasValueSatisfying(
-				(george) -> assertThat(george.pets()).extracting(Pet::name).containsExactly("Leo"));
+		assertThat(this.owners.findById(2)).hasValueSatisfying(
+				(betty) -> assertThat(betty.pets()).extracting(Pet::id, Pet::name).containsExactly(tuple(2, "Basil")));
+		assertThat(this.owners.findById(1))
+			.hasValueSatisfying((george) -> assertThat(george.pets()).extracting(Pet::name).containsExactly("Leo"));
 	}
 
 	@Test

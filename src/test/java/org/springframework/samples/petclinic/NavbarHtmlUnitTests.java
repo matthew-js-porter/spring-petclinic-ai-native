@@ -17,10 +17,10 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Runs the navbar toggle script in HtmlUnit through MockMvc, with the window at phone width
- * so the stylesheet shows the toggle (HtmlUnit evaluates the media queries and ignores
- * clicks on hidden elements). The {@link WebClient} is shared with the other page tests, so
- * its width and JavaScript setting are put back after each test.
+ * Runs the navbar toggle script in HtmlUnit through MockMvc, with the window at phone
+ * width so the stylesheet shows the toggle (HtmlUnit evaluates the media queries and
+ * ignores clicks on hidden elements). The {@link WebClient} is shared with the other page
+ * tests, so its width and JavaScript setting are put back after each test.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

@@ -14,6 +14,7 @@ import org.htmlunit.WebResponse;
 import org.htmlunit.html.DomNode;
 import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlPage;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,8 +43,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Drives failing requests through a running server, because MockMvc does not perform the
  * container's error dispatch to {@code /error}. Browsers get the error page in the shared
- * layout with the original status; JSON clients get Boot's JSON error body. Neither carries
- * any internals.
+ * layout with the original status; JSON clients get Boot's JSON error body. Neither
+ * carries any internals.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(ErrorPageIntegrationTests.FailingEndpoints.class)
@@ -92,8 +93,8 @@ class ErrorPageIntegrationTests {
 
 	@ParameterizedTest(name = "{0} {1} -> {2}")
 	@MethodSource("failingBrowserRequests")
-	void showsTheErrorPageWithTheOriginalStatus(String method, String path, int status, String heading,
-			String echo) throws IOException {
+	void showsTheErrorPageWithTheOriginalStatus(String method, String path, int status, String heading, String echo)
+			throws IOException {
 		WebRequest request = new WebRequest(new URL(url(path)), HttpMethod.valueOf(method));
 		request.setAdditionalHeader("Accept", MediaType.TEXT_HTML_VALUE);
 		HtmlPage page = this.webClient.getPage(request);
@@ -150,7 +151,7 @@ class ErrorPageIntegrationTests {
 
 	private void assertJsonError(String path, String accept, HttpStatus status) {
 		RestClient client = RestClient.create();
-		record Result(int status, MediaType contentType, String body) {
+		record Result(int status, @Nullable MediaType contentType, String body) {
 		}
 		Result result = client.get()
 			.uri(URI.create(url(path)))

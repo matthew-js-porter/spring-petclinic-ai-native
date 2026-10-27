@@ -7,6 +7,13 @@ import jakarta.validation.constraints.Size;
 /**
  * What the New Owner and Edit Owner forms bind: the five editable fields and nothing
  * else, so a request cannot set an owner's id or pets. Values arrive trimmed.
+ *
+ * @param firstName the first name
+ * @param lastName the last name
+ * @param address the street address
+ * @param city the city
+ * @param telephone the telephone number, exactly 10 digits
+ * @author Matthew Porter
  */
 record OwnerForm(
 		@NotBlank(message = "First Name is required.") @Size(max = 30,

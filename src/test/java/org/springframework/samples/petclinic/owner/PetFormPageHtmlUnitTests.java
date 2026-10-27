@@ -207,8 +207,7 @@ class PetFormPageHtmlUnitTests {
 
 		assertThat(this.webClient.getPage("/owners/1/pets/2/edit.html").getWebResponse().getStatusCode())
 			.isEqualTo(404);
-		assertThat(this.webClient.getPage("/owners/999/pets/new.html").getWebResponse().getStatusCode())
-			.isEqualTo(404);
+		assertThat(this.webClient.getPage("/owners/999/pets/new.html").getWebResponse().getStatusCode()).isEqualTo(404);
 	}
 
 	private static HtmlForm form(HtmlPage page) {

@@ -25,6 +25,8 @@ import org.springframework.web.servlet.view.RedirectView;
 /**
  * New Visit. Visits are reached through their pet's owner: an unknown owner, an unknown
  * pet, or a pet of another owner is 404 before anything is written.
+ *
+ * @author Matthew Porter
  */
 @Controller
 class VisitController {
@@ -49,6 +51,7 @@ class VisitController {
 	/**
 	 * Trims the form's values before validation; an empty value stays {@code ""} so it
 	 * fails {@code @NotBlank} and is redisplayed as typed.
+	 * @param binder the binder for the form
 	 */
 	@InitBinder("visitForm")
 	void trimVisitForm(WebDataBinder binder) {
@@ -89,6 +92,9 @@ class VisitController {
 	/**
 	 * Finds the pet among the owner's own, so a pet of another owner is as unknown as one
 	 * that does not exist.
+	 * @param owner the owner
+	 * @param petId the pet's id
+	 * @return the pet
 	 */
 	private static Pet findPet(Owner owner, Integer petId) {
 		return owner.pets()
@@ -100,6 +106,10 @@ class VisitController {
 
 	/**
 	 * Fills in the context block, the form's target and the pet's previous visits.
+	 * @param model the model to fill
+	 * @param owner the pet's owner
+	 * @param pet the pet visited
+	 * @return the form view
 	 */
 	private String form(Model model, Owner owner, Pet pet) {
 		String typeName = this.petTypes.findAll()
@@ -120,6 +130,8 @@ class VisitController {
 	/**
 	 * Post/redirect/get to the owner's details page with 303 See Other, which tells the
 	 * browser to follow with a GET.
+	 * @param ownerId the owner's id
+	 * @return the redirect
 	 */
 	private static ModelAndView seeOther(Integer ownerId) {
 		RedirectView redirect = new RedirectView("/owners/" + ownerId + ".html", true);

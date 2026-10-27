@@ -68,8 +68,8 @@ class OwnerFormPageHtmlUnitTests {
 	@Test
 	void createsAnOwnerAndConfirmsOnce() throws IOException {
 		HtmlPage page = this.webClient.getPage("/owners/new.html");
-		fill(page, Map.of("firstName", "Ada", "lastName", "Lovelace", "address", "12 St James's Sq.", "city",
-				"London", "telephone", "6085550000"));
+		fill(page, Map.of("firstName", "Ada", "lastName", "Lovelace", "address", "12 St James's Sq.", "city", "London",
+				"telephone", "6085550000"));
 
 		HtmlPage details = submit(page);
 
@@ -122,8 +122,8 @@ class OwnerFormPageHtmlUnitTests {
 			assertThat(describedBy).isEqualTo(input.getId() + "-error");
 			assertThat(page.getElementById(describedBy).asNormalizedText()).endsWith("is required.");
 		});
-		assertThat(texts(page, ".pc-field-error")).containsExactly("First Name is required.",
-				"Last Name is required.", "Address is required.", "City is required.", "Telephone is required.");
+		assertThat(texts(page, ".pc-field-error")).containsExactly("First Name is required.", "Last Name is required.",
+				"Address is required.", "City is required.", "Telephone is required.");
 		assertThat(currentNavItems(page)).containsExactly("/owners.html");
 	}
 

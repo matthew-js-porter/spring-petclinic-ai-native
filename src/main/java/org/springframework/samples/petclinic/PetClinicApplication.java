@@ -16,6 +16,7 @@ public class PetClinicApplication {
 	/**
 	 * Today's date for checks such as "birth date not in the future"; tests replace it
 	 * with a fixed clock.
+	 * @return the system clock in the default time zone
 	 */
 	@Bean
 	Clock clock() {

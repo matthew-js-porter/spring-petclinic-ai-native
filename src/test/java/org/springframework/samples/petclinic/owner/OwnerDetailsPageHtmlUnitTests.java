@@ -97,7 +97,8 @@ class OwnerDetailsPageHtmlUnitTests {
 		assertThat(page.querySelectorAll("main button, main form")).isEmpty();
 		assertThat(page.querySelectorAll("main a")).extracting((link) -> ((HtmlAnchor) link).getHrefAttribute())
 			.containsExactly("/owners/6/edit.html", "/owners/6/pets/new.html", "/owners/6/pets/8/edit.html",
-					"/owners/6/pets/8/visits/new.html", "/owners/6/pets/7/edit.html", "/owners/6/pets/7/visits/new.html");
+					"/owners/6/pets/8/visits/new.html", "/owners/6/pets/7/edit.html",
+					"/owners/6/pets/7/visits/new.html");
 		assertThat(texts(page, "main a")).containsExactly("Edit Owner", "Add New Pet", "Edit Pet Max", "Add Visit Max",
 				"Edit Pet Samantha", "Add Visit Samantha");
 		assertThat(page.<HtmlAnchor>querySelector("h3 + a.pc-action").asNormalizedText()).isEqualTo("Add New Pet");
@@ -127,7 +128,8 @@ class OwnerDetailsPageHtmlUnitTests {
 		HtmlPage page = this.webClient.getPage("/owners/3.html");
 
 		assertThat(texts(page, "h4.pc-subsection-title")).containsExactly("Jewel", "Rosy");
-		assertThat(texts(page, "h4 + p.pc-empty")).containsExactly("This pet has no visits.", "This pet has no visits.");
+		assertThat(texts(page, "h4 + p.pc-empty")).containsExactly("This pet has no visits.",
+				"This pet has no visits.");
 		assertThat(page.querySelectorAll("table.pc-visits")).isEmpty();
 	}
 

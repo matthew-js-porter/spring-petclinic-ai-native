@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * End-to-end check of {@code GET /owners} and {@code GET /owners/{id}} with the real
  * database. The rendered pages are covered by {@link OwnersPageHtmlUnitTests} and
- * {@link OwnerDetailsPageHtmlUnitTests}. Tests that write roll back, so the seed count holds
- * for every other test.
+ * {@link OwnerDetailsPageHtmlUnitTests}. Tests that write roll back, so the seed count
+ * holds for every other test.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -46,8 +46,7 @@ class OwnersIntegrationTests {
 	@ParameterizedTest
 	@CsvSource({ "Davis, 2", "dav, 2", "e, 2", "zzz, 0", "%, 0" })
 	void filtersTheJsonByLastNamePrefix(String term, int owners) {
-		assertThat(this.mvc.get().uri("/owners?lastName={term}", term).accept(MediaType.APPLICATION_JSON))
-			.hasStatusOk()
+		assertThat(this.mvc.get().uri("/owners?lastName={term}", term).accept(MediaType.APPLICATION_JSON)).hasStatusOk()
 			.bodyJson()
 			.extractingPath("$.ownerList")
 			.asArray()
@@ -76,11 +75,9 @@ class OwnersIntegrationTests {
 			.extractingPath("$.ownerList[*].pets[*].visits")
 			.asArray()
 			.isEmpty();
-		assertThat(this.mvc.get().uri("/owners/11")).hasStatusOk()
-			.bodyJson()
-			.isLenientlyEqualTo("""
-					{"id":11,"firstName":"Helen","lastName":"Ostrander","pets":[]}
-					""");
+		assertThat(this.mvc.get().uri("/owners/11")).hasStatusOk().bodyJson().isLenientlyEqualTo("""
+				{"id":11,"firstName":"Helen","lastName":"Ostrander","pets":[]}
+				""");
 	}
 
 	@Test
@@ -96,6 +93,7 @@ class OwnersIntegrationTests {
 			.exchange();
 		assertThat(created).hasStatus(HttpStatus.SEE_OTHER);
 		String location = created.getResponse().getRedirectedUrl();
+		assertThat(location).isNotNull();
 		assertThat(location).matches("/owners/\\d+\\.html");
 		String json = location.replace(".html", "");
 

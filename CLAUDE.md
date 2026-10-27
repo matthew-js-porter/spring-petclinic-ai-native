@@ -12,6 +12,7 @@ Spring PetClinic built with the AI-native SDLC playbook. Currently a minimal Spr
 ./mvnw clean verify                                        # build + all tests
 ./mvnw spring-boot:run                                     # run on :8080
 ./mvnw test -Dtest=PetClinicApplicationTests#contextLoads  # single test
+./mvnw spring-javaformat:apply                             # reformat Java; verify fails on unformatted code
 curl -i localhost:8080/actuator/health
 ```
 
@@ -23,6 +24,16 @@ curl -i localhost:8080/actuator/health
 - Spring Data JDBC quotes explicit `@Table`/`@Column` names, so write them in UPPER CASE to match H2.
 - Never mention intents (e.g. "intent 009") in code, YAML, SQL or CSS comments; comments describe the code, and the `intent/` documents carry the history.
 - Boot 4 moved test annotations into modular packages (e.g. `org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc`); check the generated imports rather than assuming Boot 3 packages.
+
+## Code style and static checks
+
+`./mvnw verify` fails on any of these, in `src/main` and `src/test` alike, so run `./mvnw spring-javaformat:apply` and then `./mvnw verify` before committing Java.
+
+- **Spring Java Format** (tabs, Spring's wrapping). Never hand-format against it; `apply` is the fix.
+- **Spring Checkstyle rules** from `spring-javaformat-checkstyle`, wrapped by `src/checkstyle/checkstyle.xml` (only the licence-header check is off). Typical rules: `this.` on field access, Spring import order (`java`, `javax`, `jakarta`, other, `org.springframework`, static last), lambda parameters in parentheses, no trailing whitespace, AssertJ not JUnit assertions, BDDMockito not `Mockito.when`. Javadoc rules apply to main code only: a type's Javadoc has `@author First Last` and a `@param` per record component or type parameter; a method's Javadoc has `@param` for every parameter and `@return` for a non-void result; every package has a `package-info.java`.
+- **Error Prone** runs in `javac`; ERROR findings fail the build, warnings only print.
+- **NullAway with JSpecify.** Every package is `@NullMarked` through its `package-info.java` (a new package needs one), which also covers the same package under `src/test`. Mark what may be null with `org.jspecify.annotations.Nullable` in type-use position (`@Nullable Integer id`, `List<@Nullable String>`); never use other `@Nullable` flavours. Generated ids on records are `@Nullable`, so compare them with `Objects.equals` and pass them on only through an explicit check.
+- Suppressions are a last resort: narrow (`@SuppressWarnings("<Check>")` on the smallest element, one `<suppress files=... checks=...>` per entry, or one `-Xep:<Check>:OFF` in `pom.xml`) and always with a comment giving the reason. Never `@SuppressWarnings("NullAway")`, and never suppress to get green.
 
 ## Design system
 
@@ -38,16 +49,16 @@ UI work follows the Spring PetClinic design system in `docs/design-system/` (a v
 ## CI
 
 GitHub Actions workflows (intent 002) live in `.github/workflows/`:
-- `build.yml`: `./mvnw -B clean verify` on Temurin 27 for pushes to `main` and every PR.
+- `build.yml`: `./mvnw -B clean verify` on Temurin 27 for pushes to `main` and every PR, so it enforces formatting, Checkstyle, Error Prone and NullAway; `.mvn/jvm.config` holds the javac exports Error Prone needs.
 - `snyk.yml`: Snyk Open Source and Code scans that fail on `high` and above, and keep a `snyk-sarif` artifact.
 - `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, plus a `/security-review` job, including on fix commits pushed by `@claude`.
-- `claude.yml`: `@claude` mentions that push fixes to the PR branch. Bot comments are ignored unless they contain `@claude remove these Spring Boot version overrides` or `@claude update .sdkmanrc to the Temurin identifier`, the requests `REVIEW.md`'s Spring Boot overrides and Java pins rules end their comments with; the Claude run may `curl -s` the SDKMAN Java candidates API to answer the latter. claude-code-action strips HTML comments from the comments it posts, so a hidden marker cannot be used.
+- `claude.yml`: `@claude` mentions that push fixes to the PR branch; it may run `./mvnw` to format and verify them. Bot comments are ignored unless they contain `@claude remove these Spring Boot version overrides` or `@claude update .sdkmanrc to the Temurin identifier`, the requests `REVIEW.md`'s Spring Boot overrides and Java pins rules end their comments with; the Claude run may `curl -s` the SDKMAN Java candidates API to answer the latter. claude-code-action strips HTML comments from the comments it posts, so a hidden marker cannot be used.
 - `design-spec.yml`: drafts `spec.md` as a PR when an `intent.md` lands on `main`.
 - `triage-findings.yml`: weekly, runs the `/triage-findings` skill on the latest Snyk results and opens a PR with the `intent.md` files it writes.
 - `evals.yml`: runs `/skill-creator eval <skill>` on PRs that change a skill (or `CLAUDE.md`) and on dispatch, and comments the results on the PR.
 - `dependency-updates.yml`: when `build` fails on a `renovate/*` PR by `renovate[bot]`, Claude tries a fix on the PR branch, up to `MAX_FIX_ATTEMPTS` (2) per PR, then posts a give-up comment for a human.
 
-Dependency updates come from the hosted Mend Renovate App, configured in `renovate.json5` (JSON5, the format Renovate reads; the YAML-only rule is about Spring config). It opens grouped PRs before 05:00 UTC every day (`spring-boot`, `maven-minor-patch`, `github-actions`, `maven-wrapper`, `java`), never auto-merges and never pins actions to SHAs. The `java` group proposes every new Java major, LTS or not, moving `pom.xml` and the three `setup-java` pins together. Keep `setup-java` on `temurin`: Renovate's github-actions manager reads `java-version` only for `temurin` and `adopt`. It does not touch `.sdkmanrc`: on a Java major PR the review ends its comment with `@claude update .sdkmanrc to the Temurin identifier for Java <major> ...`. To answer it, `curl -s` `https://api.sdkman.io/2/candidates/java/linuxx64/versions/list?installed=` and the same URL with `darwinarm64`, and use the GA `-tem` identifier for that major listed on both (not EA); if there is none, change nothing and say so.
+Dependency updates come from the hosted Mend Renovate App, configured in `renovate.json5` (JSON5, the format Renovate reads; the YAML-only rule is about Spring config). It opens grouped PRs before 05:00 UTC every day (`spring-boot`, `maven-minor-patch`, `spring-javaformat`, `github-actions`, `maven-wrapper`, `java`), never auto-merges and never pins actions to SHAs. The `java` group proposes every new Java major, LTS or not, moving `pom.xml` and the three `setup-java` pins together. Keep `setup-java` on `temurin`: Renovate's github-actions manager reads `java-version` only for `temurin` and `adopt`. It does not touch `.sdkmanrc`: on a Java major PR the review ends its comment with `@claude update .sdkmanrc to the Temurin identifier for Java <major> ...`. To answer it, `curl -s` `https://api.sdkman.io/2/candidates/java/linuxx64/versions/list?installed=` and the same URL with `darwinarm64`, and use the GA `-tem` identifier for that major listed on both (not EA); if there is none, change nothing and say so.
 
 `claude-code-review.yml` and `claude.yml` were generated by `/install-github-app`; keep changes to them minimal so they stay close to the upstream templates.
 

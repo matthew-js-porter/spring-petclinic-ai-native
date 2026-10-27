@@ -13,11 +13,17 @@ import org.springframework.data.repository.Repository;
  * an existing owner deletes and re-inserts its pets, which renumbers them. So both writes
  * are explicit queries, and this interface extends {@link Repository} so that no other
  * write method exists.
+ *
+ * @author Matthew Porter
  */
 public interface PetRepository extends Repository<Pet, Integer> {
 
 	/**
 	 * Adds a pet to an owner; the id comes from the table's identity.
+	 * @param ownerId the owner's id
+	 * @param name the pet's name
+	 * @param birthDate the date of birth
+	 * @param typeId the id of the pet's type
 	 */
 	@Modifying
 	@Query("INSERT INTO PETS (NAME, BIRTH_DATE, TYPE_ID, OWNER_ID) VALUES (:name, :birthDate, :typeId, :ownerId)")
@@ -26,6 +32,11 @@ public interface PetRepository extends Repository<Pet, Integer> {
 	/**
 	 * Changes a pet's name, birth date and type. The owner is part of the match, so a pet
 	 * can only be changed through its own owner and never moves to another.
+	 * @param ownerId the owner's id
+	 * @param id the pet's id
+	 * @param name the new name
+	 * @param birthDate the new date of birth
+	 * @param typeId the id of the new type
 	 * @return {@code false} if that owner has no pet with that id
 	 */
 	@Modifying
