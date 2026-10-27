@@ -68,8 +68,7 @@ class OwnerRepositoryTests {
 	void seedsThePetsOfEachOwner() {
 		Map<Integer, List<String>> petsByOwner = this.owners.findAll(Sort.by("id"))
 			.stream()
-			.collect(Collectors.toMap(Owner::id,
-					(owner) -> owner.pets().stream().map(Pet::name).sorted().toList()));
+			.collect(Collectors.toMap(Owner::id, (owner) -> owner.pets().stream().map(Pet::name).sorted().toList()));
 
 		assertThat(petsByOwner).containsEntry(1, List.of("Leo"))
 			.containsEntry(2, List.of("Basil"))
@@ -152,8 +151,7 @@ class OwnerRepositoryTests {
 
 	@Test
 	void findsEveryOwnerWithTheSameInitial() {
-		assertThat(this.owners.findByLastNameStartingWithIgnoreCase("E", Sort.by("id")))
-			.extracting(Owner::lastName)
+		assertThat(this.owners.findByLastNameStartingWithIgnoreCase("E", Sort.by("id"))).extracting(Owner::lastName)
 			.containsExactly("Escobito", "Estaban");
 	}
 
@@ -186,8 +184,8 @@ class OwnerRepositoryTests {
 
 	@Test
 	void insertsANewOwnerWithAnIdAboveTheSeedAndNoPets() {
-		Owner saved = this.owners.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000",
-				Set.of()));
+		Owner saved = this.owners
+			.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000", Set.of()));
 
 		assertThat(saved.id()).isGreaterThan(11);
 		assertThat(this.owners.findById(saved.id())).hasValueSatisfying((ada) -> {
@@ -202,8 +200,8 @@ class OwnerRepositoryTests {
 		assertThat(this.owners.update(1, "Georgia", "Frank", "1 Main St.", "Sun Prairie", "6085559876")).isTrue();
 
 		assertThat(this.owners.findById(1)).hasValueSatisfying((owner) -> {
-			assertThat(owner).extracting(Owner::firstName, Owner::lastName, Owner::address, Owner::city,
-					Owner::telephone)
+			assertThat(owner)
+				.extracting(Owner::firstName, Owner::lastName, Owner::address, Owner::city, Owner::telephone)
 				.containsExactly("Georgia", "Frank", "1 Main St.", "Sun Prairie", "6085559876");
 			assertThat(owner.pets()).extracting(Pet::name).containsExactly("Leo");
 		});
@@ -213,10 +211,9 @@ class OwnerRepositoryTests {
 	void keepsThePetsAndTheirIdsWhenUpdatingAnOwner() {
 		this.owners.update(6, "Jean", "Coleman-Smith", "105 N. Lake St.", "Monona", "6085552654");
 
-		assertThat(this.owners.findById(6)).hasValueSatisfying((jean) -> assertThat(jean.pets())
-			.extracting(Pet::id, Pet::name)
-			.containsExactlyInAnyOrder(tuple(7, "Samantha"),
-					tuple(8, "Max")));
+		assertThat(this.owners.findById(6))
+			.hasValueSatisfying((jean) -> assertThat(jean.pets()).extracting(Pet::id, Pet::name)
+				.containsExactlyInAnyOrder(tuple(7, "Samantha"), tuple(8, "Max")));
 		assertThat(this.jdbc.sql("SELECT COUNT(*) FROM PETS").query(Integer.class).single()).isEqualTo(13);
 	}
 

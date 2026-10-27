@@ -42,8 +42,7 @@ class OwnerController {
 
 	private static final Sort BY_ID = Sort.by("id");
 
-	private static final Comparator<PetView> BY_NAME = Comparator.comparing(PetView::name)
-		.thenComparing(PetView::id);
+	private static final Comparator<PetView> BY_NAME = Comparator.comparing(PetView::name).thenComparing(PetView::id);
 
 	private static final Comparator<PetDetailView> DETAIL_BY_NAME = Comparator.comparing(PetDetailView::name)
 		.thenComparing(PetDetailView::id);
@@ -139,8 +138,8 @@ class OwnerController {
 	}
 
 	/**
-	 * One owner as JSON whatever the {@code Accept} header: no {@code produces} condition,
-	 * and a preset content type that Spring writes without negotiating.
+	 * One owner as JSON whatever the {@code Accept} header: no {@code produces}
+	 * condition, and a preset content type that Spring writes without negotiating.
 	 */
 	@GetMapping("/owners/{id}")
 	ResponseEntity<OwnerDetailView> showResourcesOwner(@PathVariable Integer id) {

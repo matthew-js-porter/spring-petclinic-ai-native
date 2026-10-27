@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
  */
 final class IsoDates {
 
-	// ISO_LOCAL_DATE resolves strictly, so 2024-02-30 is rejected rather than adjusted. It
+	// ISO_LOCAL_DATE resolves strictly, so 2024-02-30 is rejected rather than adjusted.
+	// It
 	// also reads signed and five-digit years, which the pattern rules out first.
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
 

@@ -42,8 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Drives failing requests through a running server, because MockMvc does not perform the
  * container's error dispatch to {@code /error}. Browsers get the error page in the shared
- * layout with the original status; JSON clients get Boot's JSON error body. Neither carries
- * any internals.
+ * layout with the original status; JSON clients get Boot's JSON error body. Neither
+ * carries any internals.
  */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(ErrorPageIntegrationTests.FailingEndpoints.class)
@@ -92,8 +92,8 @@ class ErrorPageIntegrationTests {
 
 	@ParameterizedTest(name = "{0} {1} -> {2}")
 	@MethodSource("failingBrowserRequests")
-	void showsTheErrorPageWithTheOriginalStatus(String method, String path, int status, String heading,
-			String echo) throws IOException {
+	void showsTheErrorPageWithTheOriginalStatus(String method, String path, int status, String heading, String echo)
+			throws IOException {
 		WebRequest request = new WebRequest(new URL(url(path)), HttpMethod.valueOf(method));
 		request.setAdditionalHeader("Accept", MediaType.TEXT_HTML_VALUE);
 		HtmlPage page = this.webClient.getPage(request);

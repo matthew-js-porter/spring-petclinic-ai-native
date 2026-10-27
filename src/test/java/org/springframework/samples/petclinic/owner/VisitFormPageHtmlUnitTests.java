@@ -144,8 +144,7 @@ class VisitFormPageHtmlUnitTests {
 		HtmlPage booked = submit(page);
 
 		assertThat(texts(booked, "p.pc-empty")).isEmpty();
-		assertThat(texts(booked, "table.pc-visits tbody tr"))
-			.containsExactly(LocalDate.now() + "\tfirst checkup");
+		assertThat(texts(booked, "table.pc-visits tbody tr")).containsExactly(LocalDate.now() + "\tfirst checkup");
 	}
 
 	@Test

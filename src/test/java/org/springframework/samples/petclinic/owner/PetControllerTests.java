@@ -140,7 +140,8 @@ class PetControllerTests {
 
 	/**
 	 * Writes go to the resource paths only. A POST to the New Pet page reaches
-	 * {@code POST /owners/{ownerId}/pets/{petId}} with a non-numeric pet id, so it is a 400.
+	 * {@code POST /owners/{ownerId}/pets/{petId}} with a non-numeric pet id, so it is a
+	 * 400.
 	 */
 	@Test
 	void writesNothingForAPostToAnHtmlPage() {
@@ -303,7 +304,8 @@ class PetControllerTests {
 
 		assertThat(post("/owners/1/pets", params)).hasStatusOk()
 			.bodyText()
-			.contains("value=\"Rex\"", "value=\"07/09/2010\"", "<option value=\"5\" selected=\"selected\">bird</option>")
+			.contains("value=\"Rex\"", "value=\"07/09/2010\"",
+					"<option value=\"5\" selected=\"selected\">bird</option>")
 			.containsPattern("aria-invalid=\"true\"\\s+aria-describedby=\"birthDate-help birthDate-error\"")
 			.containsOnlyOnce("selected=\"selected\"");
 	}

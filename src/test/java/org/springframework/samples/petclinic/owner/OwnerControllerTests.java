@@ -72,8 +72,9 @@ class OwnerControllerTests {
 			.model()
 			.containsKey("listOwners");
 		assertThat(result).bodyText()
-			.contains("<td><a href=\"/owners/1.html\">George Franklin</a></td>", "<td>1 Main St.</td>", "<td>Madison</td>",
-					"<td class=\"pc-nowrap\">6085550001</td>", "<td>Leo</td>", "<td>Jewel Rosy</td>")
+			.contains("<td><a href=\"/owners/1.html\">George Franklin</a></td>", "<td>1 Main St.</td>",
+					"<td>Madison</td>", "<td class=\"pc-nowrap\">6085550001</td>", "<td>Leo</td>",
+					"<td>Jewel Rosy</td>")
 			.doesNotContain("Jean Coleman");
 	}
 
@@ -143,7 +144,8 @@ class OwnerControllerTests {
 	void escapesOwnerValues() {
 		stubOwners(List.of(owner(1, "<script>alert(1)</script>", "Smith", pet(1, "<b>Rex</b>"))));
 
-		assertThat(body("/owners.html")).contains("&lt;script&gt;alert(1)&lt;/script&gt; Smith", "&lt;b&gt;Rex&lt;/b&gt;")
+		assertThat(body("/owners.html"))
+			.contains("&lt;script&gt;alert(1)&lt;/script&gt; Smith", "&lt;b&gt;Rex&lt;/b&gt;")
 			.doesNotContain("<script>alert(1)</script>", "<b>Rex</b>");
 	}
 
@@ -164,7 +166,8 @@ class OwnerControllerTests {
 	@ValueSource(strings = { "", "  " })
 	void listsAllOwnersWithoutASearchTerm(String term) {
 		assertThat(rows(body("/owners.html"))).isEqualTo(5);
-		assertThat(body("/owners.html?lastName={term}", term)).contains("<a href=\"/owners.html?page=2\" aria-label=\"Page 2\">2</a>")
+		assertThat(body("/owners.html?lastName={term}", term))
+			.contains("<a href=\"/owners.html?page=2\" aria-label=\"Page 2\">2</a>")
 			.doesNotContain("lastName=");
 		then(this.owners).should(never()).findByLastNameStartingWithIgnoreCase(anyString(), any(Pageable.class));
 	}
@@ -206,9 +209,10 @@ class OwnerControllerTests {
 
 	@Test
 	void keepsTheSearchTermInEveryPaginationLink() {
-		stubSearch("Dav", List.of(owner(1, "A", "Davis"), owner(2, "B", "Davis"), owner(3, "C", "Davis"),
-				owner(4, "D", "Davis"), owner(5, "E", "Davis"), owner(6, "F", "Davis"), owner(7, "G", "Davis"),
-				owner(8, "H", "Davis"), owner(9, "I", "Davis"), owner(10, "J", "Davis"), owner(11, "K", "Davis")));
+		stubSearch("Dav",
+				List.of(owner(1, "A", "Davis"), owner(2, "B", "Davis"), owner(3, "C", "Davis"), owner(4, "D", "Davis"),
+						owner(5, "E", "Davis"), owner(6, "F", "Davis"), owner(7, "G", "Davis"), owner(8, "H", "Davis"),
+						owner(9, "I", "Davis"), owner(10, "J", "Davis"), owner(11, "K", "Davis")));
 
 		String page2 = body("/owners.html?lastName=Dav&page=2");
 
@@ -221,7 +225,8 @@ class OwnerControllerTests {
 		String nav = page2.substring(page2.indexOf("<nav class=\"pc-pagination\""), page2.lastIndexOf("</nav>"));
 		List<String> links = List.of(nav.split("href=\"", -1)).subList(1, 7);
 		assertThat(nav.split("href=\"", -1)).hasSize(7);
-		assertThat(links).allSatisfy((link) -> assertThat(link).startsWith("/owners.html?page=").contains("lastName=Dav\""));
+		assertThat(links)
+			.allSatisfy((link) -> assertThat(link).startsWith("/owners.html?page=").contains("lastName=Dav\""));
 	}
 
 	@Test
@@ -257,8 +262,7 @@ class OwnerControllerTests {
 			.doesNotContain("Exception");
 
 		stubSearch("x".repeat(30), List.of());
-		assertThat(this.mvc.get().uri(path + "?lastName={term}", "x".repeat(30)).accept(MediaType.ALL))
-			.hasStatusOk();
+		assertThat(this.mvc.get().uri(path + "?lastName={term}", "x".repeat(30)).accept(MediaType.ALL)).hasStatusOk();
 	}
 
 	@Test
@@ -284,7 +288,8 @@ class OwnerControllerTests {
 	void filtersTheJsonByLastName() {
 		stubSearch("Davis", List.of(owner(2, "Betty", "Davis"), owner(4, "Harold", "Davis")));
 
-		assertThat(this.mvc.get().uri("/owners?lastName={term}", " Davis").accept(MediaType.APPLICATION_JSON)).hasStatusOk()
+		assertThat(this.mvc.get().uri("/owners?lastName={term}", " Davis").accept(MediaType.APPLICATION_JSON))
+			.hasStatusOk()
 			.bodyJson()
 			.isLenientlyEqualTo("""
 					{"ownerList":[{"id":2,"lastName":"Davis"},{"id":4,"lastName":"Davis"}]}
@@ -369,7 +374,8 @@ class OwnerControllerTests {
 
 		assertThat(body).contains("<h3 class=\"pc-section-title\">Visits</h3>",
 				"<caption class=\"pc-sr-only\">Visits of Samantha</caption>",
-				"<td class=\"pc-col-date\">2013-01-04</td>", "<p class=\"pc-muted pc-empty\">This pet has no visits.</p>");
+				"<td class=\"pc-col-date\">2013-01-04</td>",
+				"<p class=\"pc-muted pc-empty\">This pet has no visits.</p>");
 		String visitsSection = body.substring(body.indexOf(">Visits</h3>"));
 		assertThat(visitsSection.indexOf(">Lucky</h4>")).isLessThan(visitsSection.indexOf(">Max</h4>"));
 		assertThat(visitsSection.indexOf(">Max</h4>")).isLessThan(visitsSection.indexOf(">Samantha</h4>"));
@@ -394,9 +400,10 @@ class OwnerControllerTests {
 	void linksEachPetToEditPetThenAddVisit() {
 		stubOwner(owner(1, "George", "Franklin", pet(1, "Leo")));
 
-		assertThat(body("/owners/1.html")).containsPattern("<td class=\"pc-col-actions\"><a href=\"/owners/1/pets/1/edit.html\">"
-				+ "Edit Pet<span\\s+class=\"pc-sr-only\"> Leo</span></a><a\\s+href=\"/owners/1/pets/1/visits/new.html\">"
-				+ "Add Visit<span\\s+class=\"pc-sr-only\"> Leo</span></a></td>");
+		assertThat(body("/owners/1.html"))
+			.containsPattern("<td class=\"pc-col-actions\"><a href=\"/owners/1/pets/1/edit.html\">"
+					+ "Edit Pet<span\\s+class=\"pc-sr-only\"> Leo</span></a><a\\s+href=\"/owners/1/pets/1/visits/new.html\">"
+					+ "Add Visit<span\\s+class=\"pc-sr-only\"> Leo</span></a></td>");
 	}
 
 	@Test
@@ -405,7 +412,8 @@ class OwnerControllerTests {
 		given(this.visits.findByPetIds(any()))
 			.willReturn(List.of(visit(5, 1, "2020-01-01", "<script>alert(1)</script> & \"x\" 'y'")));
 
-		assertThat(body("/owners/1.html")).contains("&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;x&quot; &#39;y&#39;")
+		assertThat(body("/owners/1.html"))
+			.contains("&lt;script&gt;alert(1)&lt;/script&gt; &amp; &quot;x&quot; &#39;y&#39;")
 			.doesNotContain("<script>alert(1)</script>");
 		assertThat(this.mvc.get().uri("/owners/1")).bodyJson()
 			.extractingPath("$.pets[0].visits[0].description")
@@ -454,10 +462,11 @@ class OwnerControllerTests {
 		assertThat(this.mvc.get().uri("/owners/1").header("Accept", accept)).hasStatusOk()
 			.hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON)
 			.bodyJson()
-			.isStrictlyEqualTo("""
-					{"id":1,"firstName":"George","lastName":"Franklin","address":"1 Main St.","city":"Madison",
-					 "telephone":"6085550001","pets":[{"id":1,"name":"Leo","birthDate":"2010-09-07","type":"cat","visits":[]}]}
-					""");
+			.isStrictlyEqualTo(
+					"""
+							{"id":1,"firstName":"George","lastName":"Franklin","address":"1 Main St.","city":"Madison",
+							 "telephone":"6085550001","pets":[{"id":1,"name":"Leo","birthDate":"2010-09-07","type":"cat","visits":[]}]}
+							""");
 	}
 
 	@Test
@@ -483,8 +492,9 @@ class OwnerControllerTests {
 	}
 
 	/**
-	 * Writes go to the resource paths only. A POST to an owner's {@code .html} page reaches
-	 * {@code POST /owners/{id}} with a non-numeric id, so it is a 400 and writes nothing.
+	 * Writes go to the resource paths only. A POST to an owner's {@code .html} page
+	 * reaches {@code POST /owners/{id}} with a non-numeric id, so it is a 400 and writes
+	 * nothing.
 	 */
 	@Test
 	void writesNothingForAPostToAnHtmlPage() {
@@ -495,15 +505,16 @@ class OwnerControllerTests {
 		assertThat(post("/owners/new.html", valid())).hasStatus(HttpStatus.BAD_REQUEST);
 		assertThat(post("/owners/1/edit.html", valid())).hasStatus(HttpStatus.METHOD_NOT_ALLOWED);
 		then(this.owners).should(never()).save(any());
-		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
-				anyString());
+		then(this.owners).should(never())
+			.update(anyInt(), anyString(), anyString(), anyString(), anyString(), anyString());
 	}
 
 	@Test
 	void linksTheDetailsPageToTheEditForm() {
 		stubOwner(owner(1, "George", "Franklin"));
 
-		assertThat(body("/owners/1.html")).contains("<a class=\"pc-action\" href=\"/owners/1/edit.html\">Edit Owner</a>")
+		assertThat(body("/owners/1.html"))
+			.contains("<a class=\"pc-action\" href=\"/owners/1/edit.html\">Edit Owner</a>")
 			.doesNotContain("role=\"status\"");
 	}
 
@@ -655,8 +666,8 @@ class OwnerControllerTests {
 				.containsOnlyOnce("pc-field-error\"");
 		}
 		then(this.owners).should(never()).save(any());
-		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
-				anyString());
+		then(this.owners).should(never())
+			.update(anyInt(), anyString(), anyString(), anyString(), anyString(), anyString());
 	}
 
 	@Test
@@ -701,22 +712,23 @@ class OwnerControllerTests {
 		assertThat(post(path, valid())).hasStatus(HttpStatus.NOT_FOUND).bodyText().doesNotContain("Exception");
 		assertThat(post(path, Map.of())).hasStatus(HttpStatus.NOT_FOUND);
 		then(this.owners).should(never()).save(any());
-		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
-				anyString());
+		then(this.owners).should(never())
+			.update(anyInt(), anyString(), anyString(), anyString(), anyString(), anyString());
 	}
 
 	@Test
 	void rejectsANonNumericIdWhenUpdating() {
 		assertThat(post("/owners/abc", valid())).hasStatus(HttpStatus.BAD_REQUEST);
-		then(this.owners).should(never()).update(anyInt(), anyString(), anyString(), anyString(), anyString(),
-				anyString());
+		then(this.owners).should(never())
+			.update(anyInt(), anyString(), anyString(), anyString(), anyString(), anyString());
 	}
 
 	@Test
 	void keepsTheJsonEndpointsAlongsideThePosts() {
 		stubOwner(owner(1, "George", "Franklin"));
 
-		assertThat(this.mvc.get().uri("/owners")).hasStatusOk().hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
+		assertThat(this.mvc.get().uri("/owners")).hasStatusOk()
+			.hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
 		assertThat(this.mvc.get().uri("/owners/1")).hasStatusOk()
 			.hasContentTypeCompatibleWith(MediaType.APPLICATION_JSON);
 	}
@@ -757,7 +769,8 @@ class OwnerControllerTests {
 
 	private void stubOwners(List<Owner> all) {
 		given(this.owners.findAll(any(Sort.class))).willReturn(all);
-		given(this.owners.findAll(any(Pageable.class))).willAnswer((invocation) -> page(all, invocation.getArgument(0)));
+		given(this.owners.findAll(any(Pageable.class)))
+			.willAnswer((invocation) -> page(all, invocation.getArgument(0)));
 	}
 
 	private void stubSearch(String term, List<Owner> matches) {

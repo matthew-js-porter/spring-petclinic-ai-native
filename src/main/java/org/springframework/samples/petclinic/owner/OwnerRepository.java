@@ -29,8 +29,8 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
 
 	/**
 	 * Inserts a new owner and returns it with its generated id. Only for an owner with a
-	 * {@code null} id and no pets: saving an existing aggregate deletes and re-inserts its
-	 * pets, which renumbers them. Use {@link #update} for existing owners.
+	 * {@code null} id and no pets: saving an existing aggregate deletes and re-inserts
+	 * its pets, which renumbers them. Use {@link #update} for existing owners.
 	 */
 	Owner save(Owner owner);
 
