@@ -159,3 +159,11 @@ The existing Snyk cases stay unchanged so `skill-evals` compares like for like. 
 
 ## 8. Out of scope
 Replacing Snyk, self-hosted SonarQube, required-check branch protection, PetClinic features, custom quality profiles or gates, and Java language upgrades.
+
+## 9. Deviations found during implementation
+- **Java 27 is current.** Intent 016 landed before this work, so `sonar.yml` uses Temurin 27, as `build.yml` does (A7).
+- **JaCoCo is not Boot-managed.** Spring Boot 4.1.2's parent no longer manages `org.jacoco:jacoco-maven-plugin` (3.2 assumed it did). It is declared with `jacoco-maven-plugin.version` 0.8.16 in `pom.xml` `<properties>`, so Renovate's `maven-minor-patch` group updates it. **Stated reason:** JaCoCo is the coverage format SonarQube Cloud's Java analyser reads, Boot manages no coverage tool, and 0.8.16 is the first release with official Java 27 support (C3).
+- **Analysis scope.** `sonar.sources=pom.xml,src/main,.github/workflows` and `sonar.tests=src/test` are set in `pom.xml`. Without them the scanner's scan-all mode also analyses `docs/design-system/**` previews, the reference HTML under `intent/` and the skill eval fixtures, none of which is the application. This scopes the analysis to shipped code and its pipeline; it excludes no application code (3.2).
+- **Check-status action.** `sonarcloud-actions/sonarcloud-check-status-action` has one tag, `v1`. Its documented inputs (`url`, `org`, `repo`, `branch`, `wait-timeout`, `poll-interval`, `commit`) default to this repository's `<org>_<repo>` key and wait for the analysis of the head commit, and `SONAR_TOKEN` is only needed for private projects. So `quality-gate` passes no inputs and no token, and needs no `report-task.txt` artifact (3.1, A10, C1).
+- **Weekly fetch.** The cap equals the page size, so `triage-findings.yml` makes one request per type (`ps=500`) and compares `paging.total` with what it got to detect truncation, rather than paging. Snyk results also land in `.scan-results/`, and the run-link argument is `none` when there is no Snyk run.
+- **Eval fixtures.** The Sonar cases use their own tree, `evals/files/tree-sonar/`, with an existing intent `001-visit-booking-logging` for the covered-by-existing-intent case, so the Snyk cases' `tree/` is unchanged.

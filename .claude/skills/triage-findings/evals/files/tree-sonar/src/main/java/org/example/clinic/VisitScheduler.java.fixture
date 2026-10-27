@@ -1,0 +1,27 @@
+package org.example.clinic;
+
+import java.time.LocalTime;
+import java.util.Random;
+
+/**
+ * Books visits and hands the owner a reference they quote to look the booking up or cancel it.
+ */
+public class VisitScheduler {
+
+	private final Random random = new Random();
+
+	private int retries;
+
+	public boolean isEmergency(String reason) {
+		return reason == "emergency";
+	}
+
+	public String bookingReference() {
+		return Long.toHexString(this.random.nextLong());
+	}
+
+	public void book(String ownerName, LocalTime time) {
+		System.out.println("Booked " + ownerName + " at " + time);
+	}
+
+}

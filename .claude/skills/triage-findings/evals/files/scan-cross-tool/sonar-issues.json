@@ -1,0 +1,14 @@
+[
+  {
+    "key": "AZevalSonarVuln0005",
+    "rule": "javasecurity:S3649",
+    "severity": "BLOCKER",
+    "type": "VULNERABILITY",
+    "component": "example_clinic:src/main/java/org/example/clinic/OwnerSearch.java",
+    "project": "example_clinic",
+    "line": 20,
+    "message": "Change this code to not construct SQL queries directly from user-controlled data.",
+    "status": "OPEN",
+    "effort": "30min"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "key": "AZevalSonarSmell006",
+    "rule": "java:S106",
+    "severity": "MAJOR",
+    "type": "CODE_SMELL",
+    "component": "example_clinic:src/main/java/org/example/clinic/VisitScheduler.java",
+    "project": "example_clinic",
+    "line": 24,
+    "message": "Replace this use of System.out by a logger.",
+    "status": "OPEN",
+    "effort": "5min"
+  }
+]

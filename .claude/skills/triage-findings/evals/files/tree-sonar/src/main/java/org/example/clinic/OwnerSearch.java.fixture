@@ -1,0 +1,27 @@
+package org.example.clinic;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+
+/**
+ * Finds owners whose last name starts with the text typed into the search box.
+ */
+public class OwnerSearch {
+
+	private final JdbcTemplate jdbc;
+
+	public OwnerSearch(JdbcTemplate jdbc) {
+		this.jdbc = jdbc;
+	}
+
+	public List<Map<String, Object>> byLastName(String lastName) {
+		return this.jdbc.queryForList("SELECT * FROM OWNERS WHERE LAST_NAME LIKE '" + lastName + "%'");
+	}
+
+	public Map<String, Object> byId(int id) {
+		return this.jdbc.queryForMap("SELECT * FROM OWNERS WHERE ID = ?", id);
+	}
+
+}

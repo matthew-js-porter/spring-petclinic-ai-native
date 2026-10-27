@@ -1,0 +1,8 @@
+{
+  "dashboardUrl": "https://sonarcloud.io/project/overview?id=example_clinic&branch=main",
+  "projectKey": "example_clinic",
+  "branch": "main",
+  "fetchedAt": "2026-10-26T06:00:00Z",
+  "issues": 1,
+  "hotspots": 0
+}

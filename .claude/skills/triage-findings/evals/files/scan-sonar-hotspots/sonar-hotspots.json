@@ -1,0 +1,24 @@
+[
+  {
+    "key": "AZevalSonarHot0007",
+    "ruleKey": "java:S2245",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "component": "example_clinic:src/main/java/org/example/clinic/VisitScheduler.java",
+    "project": "example_clinic",
+    "line": 11,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "status": "TO_REVIEW"
+  },
+  {
+    "key": "AZevalSonarHot0008",
+    "ruleKey": "java:S2245",
+    "securityCategory": "weak-cryptography",
+    "vulnerabilityProbability": "MEDIUM",
+    "component": "example_clinic:src/test/java/org/example/clinic/VisitSchedulerTests.java",
+    "project": "example_clinic",
+    "line": 11,
+    "message": "Make sure that using this pseudorandom number generator is safe here.",
+    "status": "TO_REVIEW"
+  }
+]

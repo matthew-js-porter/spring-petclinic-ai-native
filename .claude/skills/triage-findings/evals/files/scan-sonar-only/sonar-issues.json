@@ -1,0 +1,50 @@
+[
+  {
+    "key": "AZevalSonarBug0001",
+    "rule": "java:S4973",
+    "severity": "MAJOR",
+    "type": "BUG",
+    "component": "example_clinic:src/main/java/org/example/clinic/VisitScheduler.java",
+    "project": "example_clinic",
+    "line": 16,
+    "message": "Strings and Boxed types should be compared using \"equals()\".",
+    "status": "OPEN",
+    "effort": "5min"
+  },
+  {
+    "key": "AZevalSonarSmell002",
+    "rule": "java:S1068",
+    "severity": "MAJOR",
+    "type": "CODE_SMELL",
+    "component": "example_clinic:src/main/java/org/example/clinic/VisitScheduler.java",
+    "project": "example_clinic",
+    "line": 13,
+    "message": "Remove this unused \"retries\" private field.",
+    "status": "OPEN",
+    "effort": "5min"
+  },
+  {
+    "key": "AZevalSonarSmell003",
+    "rule": "java:S5786",
+    "severity": "INFO",
+    "type": "CODE_SMELL",
+    "component": "example_clinic:src/test/java/org/example/clinic/VisitSchedulerTests.java",
+    "project": "example_clinic",
+    "line": 14,
+    "message": "Remove this 'public' modifier.",
+    "status": "OPEN",
+    "effort": "2min"
+  },
+  {
+    "key": "AZevalSonarSmell004",
+    "rule": "java:S1186",
+    "severity": "CRITICAL",
+    "type": "CODE_SMELL",
+    "component": "example_clinic:src/main/java/org/example/clinic/LegacyReport.java",
+    "project": "example_clinic",
+    "line": 31,
+    "message": "Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.",
+    "status": "OPEN",
+    "effort": "5min"
+  }
+]
