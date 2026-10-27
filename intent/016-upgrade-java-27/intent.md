@@ -11,7 +11,7 @@ The dependency pipeline keeps it there. Renovate allows only LTS Java majors (25
 ## Proposed outcome
 - `./mvnw clean verify` passes on Java 27, locally and in CI, and the app runs on 27 (`./mvnw spring-boot:run`, `/actuator/health` returns UP).
 - Every place that pins Java (the Maven `java.version`, `.sdkmanrc`, the CI and Snyk workflows) names 27, and they agree with each other.
-- Local development and CI both use Liberica 27, matching Spring Boot; `sdk env install` installs it on a fresh machine.
+- Local development and CI both use Temurin 27 (same vendor in both places); `sdk env install` installs it on a fresh machine.
 - Renovate proposes every new Java major as it ships (28, 29, …), LTS or not, still grouped and never auto-merged.
 - The Java 25 deviation recorded in the 001 and 014 specs is resolved, and the docs (`CLAUDE.md`, specs) no longer describe 25 as the target.
 
@@ -20,12 +20,12 @@ Out of scope: adopting Java 27 language or API features in application code, and
 ## Affected users and systems
 - Developers: local JDK via SDKMAN (`.sdkmanrc`).
 - Build: `pom.xml` Java version, the Maven wrapper build.
-- CI: `build.yml`, `snyk.yml` (setup-java, moving from Temurin to Liberica), the `dependency-updates.yml` fix loop and the review rule that flags Java major PRs.
+- CI: `build.yml`, `snyk.yml` (setup-java, staying on Temurin), the `dependency-updates.yml` fix loop and the review rule that flags Java major PRs.
 - Renovate config (`renovate.json5`) and its `java` group.
 - Docs: `CLAUDE.md`, `intent/001-spring-petclinic/spec.md`, `intent/014-automated-dependency-updates/spec.md`.
 
 ## Constraints
-- Liberica everywhere (SDKMAN `-librca`, setup-java `distribution: liberica`), so local and CI run the same vendor's JDK as Spring Boot.
+- Temurin everywhere (SDKMAN `-tem`, setup-java `distribution: temurin`), so local and CI run the same vendor's JDK. *Amended by the owner during implementation: originally Liberica everywhere, to match Spring Boot. Renovate's github-actions manager reads setup-java's `java-version` only for `temurin` and `adopt`, and its `java-version` datasource lists Adoptium (Temurin) releases, so Liberica needed a fragile regex manager and could get a major proposed before BellSoft shipped it. Matching Boot's vendor was judged not worth that.*
 - Must be a GA build, not early access.
 - Must stay within what the current Boot 4.1 line supports.
 - Non-LTS majors lose updates when the next one ships (27 at about the time 28 arrives, ~March 2027), so staying current is a commitment, not a one-off.
@@ -34,4 +34,4 @@ Out of scope: adopting Java 27 language or API features in application code, and
 
 ## Open questions
 - Do Snyk, Maven plugins and other build tooling work on 27 without changes? (Owner: spec/plan)
-- SDKMAN's Liberica build (27.0.0) trails setup-java's (27.0.1). Is a patch-level gap between local and CI acceptable, or should CI pin to what SDKMAN offers? (Owner: matthew-js-porter)
+- SDKMAN's build (27.0.0) trails setup-java's (27.0.1). Is a patch-level gap between local and CI acceptable, or should CI pin to what SDKMAN offers? (Owner: matthew-js-porter)

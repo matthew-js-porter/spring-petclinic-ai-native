@@ -51,16 +51,18 @@
       enabled: false,
     },
     {
-      description: "Java majors in pom.xml and setup-java move together; LTS only",
+      description: "Java majors in pom.xml and setup-java move together; every major, LTS or not",
       // java-jdk is setup-java's java-version, extracted by the github-actions manager.
       matchDepNames: ["java", "java-jdk"],
       groupName: "java",
       separateMajorMinor: false,
-      allowedVersions: "/^(25|29)(\\.|$)/",
+      // Overrides the LTS-only allowedVersions from config:recommended (workarounds:javaLTSVersions).
+      allowedVersions: "/^\\d+(\\.|-|$)/",
     },
   ],
   // .sdkmanrc is not managed: SDKMAN identifiers differ per platform and drop old builds,
-  // so no datasource can propose one that installs. A human sets it on Java major PRs.
+  // so no datasource can propose one that installs. On Java major PRs the review asks @claude
+  // to set it to a Temurin identifier SDKMAN lists.
   customManagers: [
     {
       customType: "regex",
