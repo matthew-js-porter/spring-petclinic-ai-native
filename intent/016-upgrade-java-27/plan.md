@@ -1,5 +1,7 @@
 # Plan: Upgrade to Java 27 (intent 016)
 
+> **Note:** this is the plan as approved. During implementation the owner switched the vendor from Liberica to Temurin (`27.0.0.0+35-tem`, `distribution: temurin`); read "Liberica" below as Temurin. See spec §11 for this and the other deviations.
+
 ## Context
 The project is on Java 25 only because SDKMAN couldn't install JDK 27 when intent 001 was specced. JDK 27 GA is now available, but Renovate's LTS-only filter means it will never be proposed. Local (Java.net) and CI (Temurin) also use different vendors, and neither is Liberica, which Spring Boot uses. Spec `intent/016-upgrade-java-27/spec.md` sets the target: Java 27 + Liberica everywhere, Renovate proposes every major, and `.sdkmanrc` gets updated on Java major PRs by a review-triggered `@claude` request (spec 3.6). Docs stop calling 25 the target.
 

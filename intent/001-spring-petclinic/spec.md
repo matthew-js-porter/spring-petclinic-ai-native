@@ -23,8 +23,8 @@ The repo has no application code. It contains only `.claude/` (settings, `intent
 - Maven build, with the Maven wrapper.
 - Dependencies limited to `spring-boot-starter-webmvc` (web MVC; the artifact name may be `spring-boot-starter-web` depending on Boot version) and `spring-boot-starter-actuator`, plus the default `spring-boot-starter-test` that start.spring.io adds.
 - Spring Boot: the latest stable release, resolved to a concrete version number at generation time and pinned in `pom.xml` (never a `LATEST`/range specifier).
-- Java: Java 25 (LTS), pinned as `java.version` 25. **Deviation:** the intent asks for the latest Java the Boot release supports (Boot 4.1.1 supports 27), and this spec originally asked for the latest non-LTS. JDK 27 could not be installed through SDKMAN (its download broker returns 404 for every 27 build), so 25 was chosen. **Resolved by intent [016](../016-upgrade-java-27/spec.md):** the project now pins `java.version` 27 on BellSoft Liberica.
-- JDK is managed with SDKMAN: `.sdkmanrc` at the repo root pins `java=27.0.0.0+36-librca` (Liberica; originally `java=25.0.2-open`, the Java.net build, changed by intent [016](../016-upgrade-java-27/spec.md)).
+- Java: Java 25 (LTS), pinned as `java.version` 25. **Deviation:** the intent asks for the latest Java the Boot release supports (Boot 4.1.1 supports 27), and this spec originally asked for the latest non-LTS. JDK 27 could not be installed through SDKMAN (its download broker returns 404 for every 27 build), so 25 was chosen. **Resolved by intent [016](../016-upgrade-java-27/spec.md):** the project now pins `java.version` 27 on Eclipse Temurin.
+- JDK is managed with SDKMAN: `.sdkmanrc` at the repo root pins `java=27.0.0.0+35-tem` (Temurin; originally `java=25.0.2-open`, the Java.net build, changed by intent [016](../016-upgrade-java-27/spec.md)).
 - Configuration is YAML (`application.yaml`), not `.properties`.
 - Artifact `spring-petclinic` (Maven `<name>` is `PetClinic`, which gives the `PetClinicApplication` class), generated at the repo root.
 - Generated with the `spring-tools:create-spring-boot-project` skill (start.spring.io).

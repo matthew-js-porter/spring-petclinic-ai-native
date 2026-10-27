@@ -36,7 +36,7 @@ jobs:
       # Run Snyk on the same JDK as the build (C5) instead of the snyk/actions/maven image.
       - uses: actions/setup-java@v6
         with:
-          distribution: liberica
+          distribution: temurin
           java-version: 27
           cache: maven
 
