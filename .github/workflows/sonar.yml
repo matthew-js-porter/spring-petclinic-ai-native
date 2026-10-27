@@ -55,4 +55,5 @@ jobs:
     timeout-minutes: 10
     steps:
       # The project is public, so the gate is read without SONAR_TOKEN.
-      - uses: sonarcloud-actions/sonarcloud-check-status-action@v1
+      # Actions are referenced by version tag, never a commit SHA (githubactions:S7637).
+      - uses: sonarcloud-actions/sonarcloud-check-status-action@v1 # NOSONAR
