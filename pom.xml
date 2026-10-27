@@ -156,7 +156,8 @@
 			</plugin>
 			<!--
 				Error Prone on every compile, main and test: ERROR findings fail the build, warnings only print.
-				NullAway checks JSpecify nullness in @NullMarked code. The javac exports it needs are in .mvn/jvm.config.
+				NullAway checks JSpecify nullness in @NullMarked code; HandleTestAssertionLibraries lets a test's
+				assertThat(x).isNotNull() count as the null check. The javac exports it needs are in .mvn/jvm.config.
 			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -165,7 +166,7 @@
 					<compilerArgs>
 						<arg>-XDcompilePolicy=simple</arg>
 						<arg>--should-stop=ifError=FLOW</arg>
-						<arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true</arg>
+						<arg>-Xplugin:ErrorProne -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</arg>
 					</compilerArgs>
 					<annotationProcessorPaths>
 						<path>

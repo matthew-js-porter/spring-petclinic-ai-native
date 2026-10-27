@@ -14,6 +14,7 @@ import org.htmlunit.WebResponse;
 import org.htmlunit.html.DomNode;
 import org.htmlunit.html.HtmlAnchor;
 import org.htmlunit.html.HtmlPage;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -150,7 +151,7 @@ class ErrorPageIntegrationTests {
 
 	private void assertJsonError(String path, String accept, HttpStatus status) {
 		RestClient client = RestClient.create();
-		record Result(int status, MediaType contentType, String body) {
+		record Result(int status, @Nullable MediaType contentType, String body) {
 		}
 		Result result = client.get()
 			.uri(URI.create(url(path)))

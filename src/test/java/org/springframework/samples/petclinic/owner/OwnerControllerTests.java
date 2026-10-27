@@ -755,7 +755,7 @@ class OwnerControllerTests {
 	}
 
 	private void stubOwner(Owner owner) {
-		given(this.owners.findById(owner.id())).willReturn(Optional.of(owner));
+		given(this.owners.findById(owner.savedId())).willReturn(Optional.of(owner));
 	}
 
 	private String body(String uri, Object... vars) {

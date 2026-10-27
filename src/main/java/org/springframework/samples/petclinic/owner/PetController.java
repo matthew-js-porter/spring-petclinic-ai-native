@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
@@ -121,7 +122,8 @@ class PetController {
 	 * @param petId the pet's id, or {@code null} for New Pet
 	 * @param types the stored pet types
 	 */
-	private void checkContext(PetForm form, BindingResult result, Owner owner, Integer petId, List<PetType> types) {
+	private void checkContext(PetForm form, BindingResult result, Owner owner, @Nullable Integer petId,
+			List<PetType> types) {
 		if (!result.hasFieldErrors("birthDate")) {
 			Optional<LocalDate> birthDate = IsoDates.parse(form.birthDate());
 			if (birthDate.isEmpty()) {
@@ -188,7 +190,7 @@ class PetController {
 	 * @param types the pet types to offer, sorted by name
 	 * @return the form view
 	 */
-	private String form(Model model, Owner owner, Integer petId, List<PetType> types) {
+	private String form(Model model, Owner owner, @Nullable Integer petId, List<PetType> types) {
 		boolean create = petId == null;
 		model.addAttribute("ownerName", owner.firstName() + " " + owner.lastName());
 		model.addAttribute("petTypes", types);

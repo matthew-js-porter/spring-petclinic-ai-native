@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.data.domain.Page;
@@ -70,8 +71,8 @@ class OwnerController {
 	}
 
 	@GetMapping("/owners.html")
-	String showOwnerList(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String lastName,
-			Model model) {
+	String showOwnerList(@RequestParam(defaultValue = "1") int page,
+			@RequestParam(required = false) @Nullable String lastName, Model model) {
 		if (page < 1) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "page must be 1 or greater");
 		}
@@ -89,7 +90,7 @@ class OwnerController {
 
 	@GetMapping(path = "/owners", produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	Owners showResourcesOwnerList(@RequestParam(required = false) String lastName) {
+	Owners showResourcesOwnerList(@RequestParam(required = false) @Nullable String lastName) {
 		String term = searchTerm(lastName);
 		List<Owner> result = term.isEmpty() ? this.owners.findAll(BY_ID)
 				: this.owners.findByLastNameStartingWithIgnoreCase(term, BY_ID);
@@ -117,7 +118,7 @@ class OwnerController {
 		Owner saved = this.owners.save(new Owner(null, form.firstName(), form.lastName(), form.address(), form.city(),
 				form.telephone(), Set.of()));
 		flash.addFlashAttribute("message", "New Owner Created");
-		return seeOther(saved.id());
+		return seeOther(saved.savedId());
 	}
 
 	@GetMapping("/owners/{id}/edit.html")
@@ -170,7 +171,7 @@ class OwnerController {
 					VisitView.mostRecentFirst(visitsByPet.getOrDefault(pet.id(), List.of()))))
 			.sorted(DETAIL_BY_NAME)
 			.toList();
-		return new OwnerDetailView(owner.id(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
+		return new OwnerDetailView(owner.savedId(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
 				owner.telephone(), pets);
 	}
 
@@ -185,7 +186,7 @@ class OwnerController {
 	 * @param ownerId the owner's id, or {@code null} for New Owner
 	 * @return the form view
 	 */
-	private static String form(Model model, Integer ownerId) {
+	private static String form(Model model, @Nullable Integer ownerId) {
 		boolean create = ownerId == null;
 		model.addAttribute("ownerId", ownerId);
 		model.addAttribute("heading", create ? "New Owner" : "Edit Owner");
@@ -214,7 +215,7 @@ class OwnerController {
 	 * @param lastName the request parameter, or {@code null} if absent
 	 * @return the term to search by, empty for all owners
 	 */
-	private static String searchTerm(String lastName) {
+	private static String searchTerm(@Nullable String lastName) {
 		String term = (lastName != null) ? lastName.strip() : "";
 		if (term.length() > MAX_LAST_NAME) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -229,7 +230,7 @@ class OwnerController {
 			.map((pet) -> new PetView(pet.id(), pet.name()))
 			.sorted(BY_NAME)
 			.toList();
-		return new OwnerView(owner.id(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
+		return new OwnerView(owner.savedId(), owner.firstName(), owner.lastName(), owner.address(), owner.city(),
 				owner.telephone(), pets);
 	}
 

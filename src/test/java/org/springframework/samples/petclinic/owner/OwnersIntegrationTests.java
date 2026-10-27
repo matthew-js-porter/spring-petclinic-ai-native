@@ -93,6 +93,7 @@ class OwnersIntegrationTests {
 			.exchange();
 		assertThat(created).hasStatus(HttpStatus.SEE_OTHER);
 		String location = created.getResponse().getRedirectedUrl();
+		assertThat(location).isNotNull();
 		assertThat(location).matches("/owners/\\d+\\.html");
 		String json = location.replace(".html", "");
 

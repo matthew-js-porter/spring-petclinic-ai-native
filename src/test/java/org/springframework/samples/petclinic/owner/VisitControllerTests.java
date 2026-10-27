@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,8 +52,9 @@ class VisitControllerTests {
 	@MockitoBean
 	private VisitRepository visits;
 
+	// Only registers the clock() override; never read, so it may stay null here.
 	@TestBean
-	private Clock clock;
+	private @Nullable Clock clock;
 
 	static Clock clock() {
 		return Clock.fixed(TODAY.atTime(12, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
@@ -278,7 +280,7 @@ class VisitControllerTests {
 	}
 
 	private void stubOwner(Owner owner) {
-		given(this.owners.findById(owner.id())).willReturn(Optional.of(owner));
+		given(this.owners.findById(owner.savedId())).willReturn(Optional.of(owner));
 	}
 
 	private static Owner owner(int id, String firstName, String lastName, Pet... pets) {

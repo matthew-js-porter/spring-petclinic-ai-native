@@ -188,7 +188,7 @@ class OwnerRepositoryTests {
 			.save(new Owner(null, "Ada", "Lovelace", "12 St James's Sq.", "London", "6085550000", Set.of()));
 
 		assertThat(saved.id()).isGreaterThan(11);
-		assertThat(this.owners.findById(saved.id())).hasValueSatisfying((ada) -> {
+		assertThat(this.owners.findById(saved.savedId())).hasValueSatisfying((ada) -> {
 			assertThat(ada.lastName()).isEqualTo("Lovelace");
 			assertThat(ada.pets()).isEmpty();
 		});
