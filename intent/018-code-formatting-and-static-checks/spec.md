@@ -124,3 +124,13 @@ The final PR state is green, and every commit after the first leaves behaviour u
 - **A9.** Only Java is formatted; `pom.xml` indentation is not enforced.
 - **A10.** A new `.mvn/jvm.config` is an acceptable home for Error Prone's `--add-exports`/`--add-opens` flags.
 - **A11.** If the Spring ruleset enables a licence-header check and the files carry no header, that check is disabled by one stated suppression; adding headers to every file is out of scope.
+
+## 9. Deviations in the implementation
+- **Checkstyle config (3.3, A11).** `configLocation` points at a 10-line `src/checkstyle/checkstyle.xml`, which loads Spring's `SpringChecks` module unchanged except for `headerType=none`. This is narrower than a suppressions file: it switches off only the licence-header check. It is not a copy of the rules. No `checkstyle-suppressions.xml` was needed.
+- **Javadoc tags.** Spring's ruleset already exempts test sources from Javadoc checks. In main code, existing Javadoc gained `@author`, `@param` and `@return` tags, as the owner chose; nothing is suppressed.
+- **Nullable ids (3.5).** Only `Owner.id` is `@Nullable`, because only owners are created with a `null` id. `Pet`, `Visit`, `PetType`, `Vet` and `Specialty` ids are never null in this code, so they stay non-null. `Owner.savedId()` is the one runtime assertion: it covers owners read or saved by the repository. `VisitController`'s `.orElse(null)` needed no change, because NullAway accepts the nullable local passed to `Model.addAttribute`.
+- **Extra NullAway option.** `HandleTestAssertionLibraries=true` makes a test's `assertThat(x).isNotNull()` count as a null check (`OwnersIntegrationTests`). Two test-only `@TestBean Clock` fields are `@Nullable`, following C7.
+- **Test packages (A6).** The main `@NullMarked` `package-info.java` covers the same-named test packages. Proved by a `return null` in a test failing compilation.
+- **`claude.yml` (3.7, C5).** The owner chose to add `Bash(./mvnw:*)` to its allowed tools so `@claude` fixes can run `spring-javaformat:apply` and `verify`. Because of this, the Claude workflows skip on this PR.
+- **Build time (A8).** A clean `verify` went from about 17–21 s to about 25–30 s locally, roughly +40%, above the 30% target. Error Prone and NullAway on compile account for most of it. No check was dropped.
+- **Blame (A7).** `.git-blame-ignore-revs` lists the mechanical-format commit.
