@@ -33,8 +33,9 @@
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.organization>matthew-js-porter</sonar.organization>
 		<sonar.projectKey>matthew-js-porter_spring-petclinic-ai-native</sonar.projectKey>
-		<!-- Analyse the application and its workflows, not the docs mirror, intent references or eval fixtures. -->
-		<sonar.sources>pom.xml,src/main,.github/workflows</sonar.sources>
+		<!-- Analyse everything except the docs mirror, intent references, agent config and eval fixtures; src/test is analysed as tests only. -->
+		<sonar.sources>.</sonar.sources>
+		<sonar.exclusions>docs/**,intent/**,.claude/**,.claude-pr/**,target/**,src/test/**</sonar.exclusions>
 		<sonar.tests>src/test</sonar.tests>
 		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>	</properties>
 	<dependencies>

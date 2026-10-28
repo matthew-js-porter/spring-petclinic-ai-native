@@ -11,7 +11,7 @@ Facts checked while planning:
 
 ## 1. Maven (`pom.xml`)
 - `<properties>`: `sonar-maven-plugin.version` (latest release at implementation time), `sonar.host.url=https://sonarcloud.io`, `sonar.organization=matthew-js-porter`, `sonar.projectKey=matthew-js-porter_spring-petclinic-ai-native`, `sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml`.
-- Scope the analysis to shipped code: `sonar.sources=pom.xml,src/main,.github/workflows`, `sonar.tests=src/test`. Without this, the 5.x scanner's scan-all mode would also analyse `docs/design-system/**` previews, `intent/**` reference HTML and eval fixtures, which are not the application. Recorded as a deviation in spec 3.2 (this is scoping, not excluding app code to pass the gate).
+- Analyse the whole repository (`sonar.sources=.`, `sonar.tests=src/test`) and exclude what is not the application via `sonar.exclusions`: `docs/**`, `intent/**` (previews, reference HTML, eval fixtures), `.claude/**`, `.claude-pr/**`, `target/**` and `src/test/**` (analysed as tests). Recorded as a deviation in spec 3.2 (this is scoping, not excluding app code to pass the gate).
 - `<build><plugins>`: `org.jacoco:jacoco-maven-plugin` with no `<version>` (Boot-managed), executions `prepare-agent` and `report` at `verify`.
 - `<build><pluginManagement>`: `org.sonarsource.scanner.maven:sonar-maven-plugin` at `${sonar-maven-plugin.version}` (reason already stated in spec 3.2; Renovate's maven manager sees the property).
 - First check: `./mvnw clean verify` locally on Temurin 27 and confirm `target/site/jacoco/jacoco.xml` is produced. If Boot's JaCoCo cannot instrument Java 27 class files, stop and report (spec C3); do not override `jacoco.version`.
