@@ -38,6 +38,8 @@
 		<sonar.sources>.</sonar.sources>
 		<sonar.exclusions>docs/**,intent/**,.claude/**,.claude-pr/**,target/**,src/test/**</sonar.exclusions>
 		<sonar.tests>src/test</sonar.tests>
+		<!-- Architecture rule fixtures break the rules on purpose for ArchitectureRulesTests; they are not test code to analyse. -->
+		<sonar.test.exclusions>src/test/java/org/springframework/samples/architecture/fixtures/**</sonar.test.exclusions>
 		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 	<dependencies>
