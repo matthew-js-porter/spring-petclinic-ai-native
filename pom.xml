@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>27</java.version>
+		<archunit.version>1.5.1</archunit.version>
 		<jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
 		<sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -37,6 +38,8 @@
 		<sonar.sources>.</sonar.sources>
 		<sonar.exclusions>docs/**,intent/**,.claude/**,.claude-pr/**,target/**,src/test/**</sonar.exclusions>
 		<sonar.tests>src/test</sonar.tests>
+		<!-- Architecture rule fixtures break the rules on purpose for ArchitectureRulesTests; they are not test code to analyse. -->
+		<sonar.test.exclusions>src/test/java/org/springframework/samples/architecture/fixtures/**</sonar.test.exclusions>
 		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 	<dependencies>
@@ -63,6 +66,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
 		</dependency>
 
 		<dependency>
@@ -96,6 +103,12 @@
 			<artifactId>htmlunit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit-junit5</artifactId>
+			<version>${archunit.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -112,6 +125,18 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<!-- Surefire's default, which setting excludes replaces -->
+						<exclude>**/*$*</exclude>
+						<!-- Architecture rule fixtures: classes for ArchitectureRulesTests to import, not tests to run -->
+						<exclude>org/springframework/samples/architecture/fixtures/**</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>

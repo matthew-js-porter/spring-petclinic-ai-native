@@ -36,8 +36,10 @@ Rules are ordinary JUnit tests run by Surefire in `verify`, so there is no new b
   - `ArchitectureRules` (package-private final class): shared constants and `ArchRule` factories, so the rule text is in one place.
   - `HygieneRulesTests`: imports main and test classes; one `@ArchTest` per hygiene rule.
   - `LayeringRulesTests`: imports main classes only (`ImportOption.DoNotIncludeTests`); one `@ArchTest` per layering rule.
+  - `TestConventionsRulesTests`: imports test classes only (`ImportOption.OnlyIncludeTests`); one `@ArchTest` per test convention (3.3a). *Deviation:* added after the first implementation; see 3.6a.
+  - `ArchitectureRulesTests`: runs each rule against passing and failing fixtures (3.6). `ImportedClassesTests`: guards against an empty import and empty layers (3.6a).
 - Separate classes so a failure names its category and each can be run alone: `./mvnw test -Dtest=LayeringRulesTests`.
-- `@AnalyzeClasses(packages = "org.springframework.samples.petclinic")` with `@ArchTest` fields/methods. Classes are imported once per test class (ArchUnit caches within a class). The architecture package itself is excluded from the imported set, so rules about tests do not trip on the rule code.
+- `@AnalyzeClasses(packages = "org.springframework.samples.petclinic")` with `@ArchTest` fields/methods. Classes are imported once per test class (ArchUnit caches within a class). The architecture package itself is excluded from the imported set, so rules about tests do not trip on the rule code. *Deviation:* not excluded; the fixtures moved out of the application package instead, and the rule code obeys the hygiene rules (3.6a).
 - Every rule uses `.as("...")` and `.because("...")` so the failure message states the rule and what to do instead (e.g. "Use String.toUpperCase(Locale), not toUpperCase()"). ArchUnit adds the offending class and member to each violation.
 - Each rule has `allowEmptyShould(false)` (the ArchUnit default), so a rule that matches nothing, for instance after a package rename, fails instead of silently passing. `archunit.properties` is not added.
 - Build-time budget: importing about 40 main and 25 test classes is sub-second to a few seconds; no `@SpringBootTest` is used.
@@ -47,16 +49,26 @@ Adapted from Spring Framework / Boot `ArchitectureRules`, kept only where they a
 
 | # | Rule | Message hint |
 |---|------|--------------|
-| H1 | No package cycles (`slices().matching("org.springframework.samples.petclinic.(*)..").should().beFreeOfCycles()`, plus root vs. feature packages) | break the cycle; move the shared type to the package that owns it |
+| H1 | No package cycles (`slices().matching("(**)").should().beFreeOfCycles()`: every package is a slice, the root package included, as in Spring Boot; see 3.6a) | break the cycle; move the shared type to the package that owns it |
 | H2 | `String.toUpperCase()` / `toLowerCase()` without args not called | pass `Locale.ROOT` or the user's locale |
 | H3 | `Collectors.toList()` not called | use `Stream.toList()` |
-| H4 | `URLEncoder.encode(String)` / `URLDecoder.decode(String)` without a `Charset` not called | pass `StandardCharsets.UTF_8` |
-| H5 | `@Bean` methods returning `BeanPostProcessor` or `BeanFactoryPostProcessor` are `static` | add `static` |
-| H6 | `@Bean` methods do not return private types | return a public/package type or an interface |
-| H7 | No `System.out` / `System.err` / `printStackTrace` use | use SLF4J (assumed addition, A5) |
+| H4 | `URLEncoder.encode(String)` / `encode(String, String)` and `URLDecoder.decode(String)` / `decode(String, String)` not called (a `Charset` is required) | pass `StandardCharsets.UTF_8` |
+| H5 | `@Bean` methods returning `BeanPostProcessor` or `BeanFactoryPostProcessor` are `static`; a `BeanPostProcessor` method's parameters are `@Lazy`, `ObjectProvider`, `ApplicationContext`, `Environment` or `@Role(ROLE_INFRASTRUCTURE)` types; a `BeanFactoryPostProcessor` method injects only the `Environment` | add `static`; inject an `ObjectProvider` or add `@Lazy`; look collaborators up from the bean factory |
+| H6 | `@Bean` methods do not return private types (Spring AOT processing cannot reference them) | return a public/package type or an interface |
+| H7 | No `System.out` / `System.err` / `printStackTrace()` use (on any `Throwable`) | use SLF4J (assumed addition, A5) |
+| H8 | Every package has a `package-info.java` annotated with JSpecify's `@NullMarked` (added at plan review) | add `package-info.java` with `@NullMarked` |
 
 Excluded as not applicable: anything about `@AutoConfiguration`, `@ConfigurationProperties`, `@ConditionalOn*`, reactive testing, `@Deprecated(since)` conventions of framework code, and Boot's `Objects.requireNonNull` → `Assert` rule (A3).
-H5 and H6 currently have nothing to match (no such `@Bean` methods); they use `allowEmptyShould(true)` with a comment that they guard future configuration classes (the only permitted use of that flag, A4).
+H5 and H6 currently have nothing to match (no such `@Bean` methods); they use `allowEmptyShould(true)` with a comment that they guard future configuration classes (the only permitted use of that flag, A4). *Deviation:* both have matches (`PetClinicApplication.clock()` for H6; the static `BeanPostProcessor` beans in `OwnerRepositoryTests` and `VetRepositoryTests` for H5), so no rule uses `allowEmptyShould(true)`. H5 stays one rule covering both post-processor types so that it always has a `BeanPostProcessor` method to check (3.6a).
+
+### 3.3a Test conventions (test code only)
+Adapted from the test rules Spring Framework and Boot enforce through Checkstyle (spring-javaformat's `SpringJUnit5Check` and the `*Test` name ban). A test class is a class that declares a `@Test` or `@ParameterizedTest` method.
+
+| # | Rule | Message hint |
+|---|------|--------------|
+| T1 | Test methods are package-private (neither `public` nor `private`) | remove the modifier |
+| T2 | Test classes are not `public` | remove the modifier |
+| T3 | Top-level test classes are named `*Tests` | rename the class |
 
 ### 3.4 Layering rules (main only)
 The `owner` and `vet` packages are flat, so layers are identified by role (annotation, supertype, or name suffix) not by package:
@@ -80,6 +92,7 @@ Rules:
 - L7 Only web and the application class use `jakarta.servlet` / `org.springframework.web` types; domain and repositories do not (covered by L1 for project types, this covers framework web types).
 
 ### 3.5 Existing violations
+- The only violation on the first run was H8: no package had a `package-info.java`. Fixed by adding one annotated `@NullMarked` to `petclinic`, `petclinic.owner` and `petclinic.vet` (in `src/main`; test classes in those packages share it) and to the test-only `petclinic.architecture`. `org.jspecify:jspecify` (Boot-managed, already on the compile classpath through `spring-core`) is now declared directly because main code imports it.
 - Run the rules, record every violation in the PR description, and fix each at source with the smallest change (e.g. add `Locale.ROOT`, `Stream.toList()`, move a shared type, reduce visibility).
 - Fixes must not change rendered output, URLs, validation messages or the design-system rules in `docs/design-system/`.
 - No `@ArchIgnore`, `ArchRule.ignoreViolations`, `archunit_ignore_patterns.txt`, `FreezingArchRule`, or `.that(not(...))` filters added merely to pass. If a class genuinely cannot satisfy a rule, the exclusion is expressed in the rule definition itself, names the exact class or method, and has a one-line reason on the line above it (C2).
@@ -87,19 +100,32 @@ Rules:
 
 ### 3.6 Verification that the rules are wired in
 - On a scratch branch (not merged, not pushed to `main`), the PR author adds one deliberate violation per category (e.g. a `"x".toUpperCase()` call; a controller field annotated `@Autowired`; an `owner` class importing a `vet` class; a repository importing a controller) and confirms `./mvnw clean verify` fails with a message naming the class and the fix. Results (command, failing test, message) are pasted in the PR description.
-- Optionally, and preferably, the rules themselves are tested: `ArchitectureRulesSelfTests` runs each rule against small fixture classes in `src/test/java/.../architecture/fixtures` (one passing and one failing type per rule) using `ClassFileImporter.importClasses`, and asserts `evaluate(...).hasViolation()`. This makes the "rules are wired in" check permanent and runs in `verify`. Fixtures are kept out of the production-class import set by the `architecture` package exclusion in 3.2 (A8).
+- The rules themselves are tested, following Spring Boot's `ArchitectureCheckTests`: `ArchitectureRulesTests` runs each rule against fixture packages under `src/test/java/org/springframework/samples/architecture/fixtures/`, one package per case named `<rule>/<case>`, and asserts that failing fixtures produce a report naming the offending code and compliant fixtures pass. This makes the "rules are wired in" check permanent and runs in `verify` (A8). Fixture location, the Surefire exclusion and the differences from Boot are in 3.6a.
+
+### 3.6a Implementation notes (deviations)
+- **Version:** ArchUnit 1.5.1. `ImportedClassesTests` guards the Java 27 check permanently: ArchUnit skips class files its ASM cannot read, so the test asserts known main and test classes are imported (class file major version 71 confirmed). The `archunit-junit5` engine runs alongside Boot's JUnit 6 with no clash, so the core-only fallback was not needed.
+- **Fixture location:** fixtures live in `org.springframework.samples.architecture.fixtures`, not under `.../petclinic/architecture`, because fixtures annotated `@Controller` or extending `Repository` inside the application package would be picked up by `@SpringBootApplication` component and repository scanning in the integration tests. Rules that depend on the root package's name (L3, the root-package rule and controller placement) take it as a parameter so the tests can run them on fixtures. The `architecture` package is therefore not excluded from the import: the rule code obeys the hygiene rules too.
+- **Self tests, aligned with Spring Boot's `ArchitectureCheckTests`:** `ArchitectureRulesTests` (named for the class it tests) replaces `ArchitectureRulesSelfTests`. Each case is its own fixture package `<rule>/<case>` (Boot's names where they exist: `tangled`/`untangled`, `string/toUpperCaseWithLocale`, `bpp/safeparameters`, `beans/regular`, ...), and a case may combine packages (for example `layers/respected` with `layers/repositoryUsesController`). Every rule has failing **and** compliant fixtures: `whenXShouldFail` asserts the failure report contains the rule's description and the offending member, and `whenXShouldSucceed` asserts no violation. This means a rule that becomes too broad fails here rather than only when application code happens to use the allowed form. Boot builds a Gradle project per fixture; here the rules are evaluated in the JVM on the imported fixture classes, which tests the same thing far faster. Surefire excludes the fixtures package in `pom.xml` (keeping its default `**/*$*` exclude), so fixtures named `*Tests` are imported, not run. The compliant `streams` fixture found a gap: `callMethod(Throwable.class, "printStackTrace")` missed `exception.printStackTrace()`, because the compiler records the receiver's declared type as the call's owner; the rule now matches any `printStackTrace()` call whose owner is assignable to `Throwable`.
+- **H1, Boot's slices:** `slices().matching("(**)")` (every package its own slice, as in Spring Boot) replaces the custom root-plus-top-level slice assignment. The root package is a slice like any other, so root-to-feature cycles are still found; cycles across sub-packages of different features are covered by L3.
+- **H4, Boot's overloads:** the rule also bans `URLEncoder.encode(String, String)` and `URLDecoder.decode(String, String)` (the overloads Boot bans), as well as the one-argument platform-charset forms.
+- **H5, Boot's parameter checks:** as in Boot, a `BeanPostProcessor` `@Bean` method's parameters must be `@Lazy`, an `ObjectProvider`, the `ApplicationContext` or `Environment`, or annotated `@Role(ROLE_INFRASTRUCTURE)`, and a `BeanFactoryPostProcessor` method may inject only the `Environment`. Boot has two rules with `allowEmptyShould(true)`; here they remain one rule whose condition checks the parameters according to the return type, because the application has no `BeanFactoryPostProcessor` beans and a separate rule would match nothing.
+- **H6 reason:** the `because` now gives Boot's reason, that Spring AOT processing cannot reference a private type.
+- **L3:** the feature-independence rule covers every first-level package under the root, not only `owner` and `vet`, so a new feature is covered without editing the rule.
+- **Sonar scope:** `pom.xml` sets `sonar.test.exclusions=src/test/java/org/springframework/samples/architecture/fixtures/**`. The fixtures break the rules on purpose (`System.out`, `printStackTrace()`, field injection, public test methods, package cycles), so Sonar would report them as issues and `/triage-findings` would file intents for them. They are neither application code nor tests that run, so this is scoping in the sense of intent 017's spec 3.2, not excluding code to pass the gate.
+- **Test conventions (3.3a):** T1 to T3 and `TestConventionsRulesTests` were added after the first implementation, beyond the intent's examples. When intent 018 brings spring-javaformat's Checkstyle checks, `SpringJUnit5Check` also enforces T1; keep one owner for each convention and note the choice in that PR.
+- **Layer coverage:** `ImportedClassesTests.everyLayerMatchesApplicationClasses` asserts that each role predicate (web, repository, domain, presentation) matches at least one main class, so a rename that empties a layer fails instead of making L1 vacuous.
 
 ### 3.7 Documentation
-- `CLAUDE.md`: new "Architecture rules" subsection under Project/Commands: where the tests live, the command `./mvnw test -Dtest='HygieneRulesTests,LayeringRulesTests'`, a one-line summary of each rule family, the "fix, don't suppress" policy, and the layering vocabulary (controller = web, `*Repository` = repository, `@Table` = domain, `*View`/`*Form` = presentation). Also add ArchUnit to the CI section note that `build.yml` already runs them.
+- `CLAUDE.md`: new "Architecture rules" subsection under Project/Commands: where the tests live, the command `./mvnw test -Dtest='HygieneRulesTests,LayeringRulesTests,TestConventionsRulesTests,ArchitectureRulesTests'`, how `ArchitectureRulesTests` and its fixtures are laid out, a one-line summary of each rule family, the "fix, don't suppress" policy, and the layering vocabulary (controller = web, `*Repository` = repository, `@Table` = domain, `*View`/`*Form` = presentation). Also add ArchUnit to the CI section note that `build.yml` already runs them.
 - `REVIEW.md`: a conformance bullet: a diff that deletes or weakens a rule in `src/test/.../architecture`, adds `@ArchIgnore`, an ignore-patterns file, `FreezingArchRule`, `allowEmptyShould(true)` or an exclusion without a reason is a `[major]` finding. Also state in this bullet that ArchUnit's `<version>` in `pom.xml` is justified by this spec (so the Boot-managed-dependencies rule stays quiet).
 - The `/spec` skill is not changed (A9).
 
 ## 4. Requirements and acceptance criteria
 1. `archunit` is declared test-scope with the version in a property and the reason in this spec. *Check:* `pom.xml` diff; `./mvnw dependency:tree` shows it in test scope only.
-2. `./mvnw clean verify` runs `HygieneRulesTests` and `LayeringRulesTests` and passes on the PR's code, locally and in `build.yml`. *Check:* Surefire report lists both classes with the expected number of tests.
-3. Every rule in 3.3 and 3.4 exists as a named test with `.as`/`.because`. *Check:* review of the test classes.
-4. A violation of any rule fails the build with the class name and corrective hint. *Check:* scratch-branch evidence (3.6) and self tests.
-5. No rule is suppressed, frozen or silently empty. *Check:* grep for `ArchIgnore`, `Freezing`, `ignore`, `allowEmptyShould`; the only `allowEmptyShould(true)` uses are H5/H6 with comments.
+2. `./mvnw clean verify` runs `HygieneRulesTests`, `LayeringRulesTests`, `TestConventionsRulesTests`, `ArchitectureRulesTests` and `ImportedClassesTests` and passes on the PR's code, locally and in `build.yml`. *Check:* Surefire report lists these classes with the expected number of tests, and no class from the fixtures package.
+3. Every rule in 3.3, 3.3a and 3.4 exists as a named test with `.as`/`.because`, and `ArchitectureRulesTests` has at least one failing and one passing case for it. *Check:* review of the test classes.
+4. A violation of any rule fails the build with the class name and corrective hint. *Check:* scratch-branch evidence (3.6) and `ArchitectureRulesTests`.
+5. No rule is suppressed, frozen or silently empty. *Check:* grep for `ArchIgnore`, `Freezing`, `ignore`, `allowEmptyShould`; the only `allowEmptyShould(true)` uses are H5/H6 with comments (in the implementation there are none, see 3.3).
 6. Behaviour is unchanged. *Check:* all pre-existing tests pass unmodified (other than a violation fix needing a test touch, which is noted in the PR); templates and CSS are untouched.
 7. `CLAUDE.md` and `REVIEW.md` updated as in 3.7.
 8. Added build time under about 10 seconds locally (A10).
@@ -111,17 +137,17 @@ Rules:
 - **C3 "Fix, not suppress" vs. rules that may not fit.** If an unavoidable violation exists (for example the Boot `main` class, or a record that must be public), the policy of no blanket ignores and the policy of a green PR can clash. The spec resolves it with a narrow, named, commented exclusion inside the rule, and requires the PR to list each.
 - **C4 Intent 018 ordering.** If intent 018 lands first, test code must be formatted (spring-javaformat), pass Checkstyle and be null-marked (`@NullMarked` in `package-info.java` for the new `architecture` package; fixtures that deliberately break rules must still compile under Error Prone/NullAway). If 019 lands first, 018 must format the new files. Either order works; the PR rebases onto whichever is on `main`.
 - **C5 Test-scope dependency vs. the `@AnalyzeClasses` scan root.** Rules that import test classes (hygiene) depend on the compiled test output, so they only run in `test`/`verify`, never in `compile`. Developers get the failure at test time, not at compile time. Accepted.
-- **C6 Rule drift in ArchUnit versions.** Renovate bumps can change which classes are matched (new API in the library or a stricter default). The self tests (3.6) catch a rule that silently stops working.
+- **C6 Rule drift in ArchUnit versions.** Renovate bumps can change which classes are matched (new API in the library or a stricter default). `ArchitectureRulesTests` (3.6) catches a rule that silently stops matching, and its compliant fixtures catch one that starts matching too much.
 
 ## 6. Assumptions
 - **A1** Intent 018 merges first, as the intent assumes. If it has not, the PR targets `main` as is and later conflicts are resolved by whichever lands second.
 - **A2** Rules run as ordinary JUnit tests in Surefire (`verify`), not as a separate plugin or Maven profile; hygiene and layering are separate test classes.
 - **A3** The Spring Boot `Objects.requireNonNull` → `Assert` rule is not adopted. Null checking belongs to NullAway from intent 018, and an `Assert`-based rule would conflict with NullAway's recognition of `Objects.requireNonNull`.
-- **A4** `allowEmptyShould(true)` is permitted only for H5 and H6, which have no matching code today, with an explanatory comment.
+- **A4** `allowEmptyShould(true)` is permitted only for H5 and H6, which have no matching code today, with an explanatory comment. (Both turned out to have matches; the flag is not used, see 3.3.)
 - **A5** H7 (no `System.out`/`printStackTrace`) is added beyond the intent's examples; it comes from the same family as Spring's rules and does not conflict with anything. It can be dropped without affecting the rest.
 - **A6** `*View`, `*Form`, `Owners` and `Vets` are treated as the presentation layer by name because they carry no stereotype annotation. The list lives in one place in `ArchitectureRules`.
 - **A7** Field injection is banned in main code only; `@Autowired` fields in test classes (e.g. `VetRepositoryTests`) remain, because Spring test conventions use them.
-- **A8** The rule self tests (3.6) are included, in addition to the manual scratch-branch check the intent asks for, so the evidence is repeatable and survives ArchUnit upgrades.
+- **A8** The rule tests (3.6, `ArchitectureRulesTests`) are included, in addition to the manual scratch-branch check the intent asks for, so the evidence is repeatable and survives ArchUnit upgrades.
 - **A9** The `/spec` skill is not changed; `CLAUDE.md` is enough for agents.
 - **A10** "Reasonable build time" means roughly 10 seconds added locally; no parallel execution or caching work is needed.
 - **A11** ArchUnit's exact version is chosen in the plan (latest release that reads Java 27 class files); it is not named here because it cannot be verified from this repository.
