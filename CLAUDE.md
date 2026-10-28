@@ -44,7 +44,7 @@ GitHub Actions workflows (intent 002) live in `.github/workflows/`:
 - `claude-code-review.yml`: advisory Claude review following `REVIEW.md`, plus a `/security-review` job, including on fix commits pushed by `@claude`.
 - `claude.yml`: `@claude` mentions that push fixes to the PR branch. Bot comments are ignored unless they contain `@claude remove these Spring Boot version overrides` or `@claude update .sdkmanrc to the Temurin identifier`, the requests `REVIEW.md`'s Spring Boot overrides and Java pins rules end their comments with; the Claude run may `curl -s` the SDKMAN Java candidates API to answer the latter. claude-code-action strips HTML comments from the comments it posts, so a hidden marker cannot be used.
 - `design-spec.yml`: drafts `spec.md` as a PR when an `intent.md` lands on `main`.
-- `triage-findings.yml`: weekly, runs the `/triage-findings` skill on the latest Snyk results and SonarQube Cloud issues and hotspots on `main` (fetched without a token; the project is public) and opens a PR with the `intent.md` files it writes.
+- `triage-findings.yml`: weekly, runs the `/triage-findings` skill, which fetches the latest Snyk results and SonarQube Cloud issues and hotspots on `main` itself (Sonar without a token; the project is public), and opens a PR with the `intent.md` files it writes.
 - `evals.yml`: runs `/skill-creator eval <skill>` on PRs that change a skill (or `CLAUDE.md`) and on dispatch, and comments the results on the PR.
 - `dependency-updates.yml`: when `build` fails on a `renovate/*` PR by `renovate[bot]`, Claude tries a fix on the PR branch, up to `MAX_FIX_ATTEMPTS` (2) per PR, then posts a give-up comment for a human.
 

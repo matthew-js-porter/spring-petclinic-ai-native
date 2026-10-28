@@ -26,96 +26,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Exclude scan results from git
-        run: echo ".scan-results/" >> .git/info/exclude
-
-      - name: Download latest Snyk results from main
-        id: download
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-        run: |
-          run_id=$(gh run list --repo "$REPO" --workflow snyk.yml --branch main --status completed \
-            --limit 20 --json databaseId,event \
-            --jq '[.[] | select(.event != "pull_request")][0].databaseId // empty')
-          if [ -z "$run_id" ]; then
-            echo "::warning::No completed snyk run on main found."
-            echo "count=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          mkdir -p .scan-results
-          if ! gh run download "$run_id" --repo "$REPO" -n snyk-sarif -D .scan-results; then
-            echo "::warning::Snyk run $run_id has no snyk-sarif artifact."
-            echo "count=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          count=$(jq -s '[.[].runs[]?.results[]?] | length' .scan-results/*.sarif)
-          echo "Snyk run $run_id: $count finding(s)"
-          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
-          echo "count=$count" >> "$GITHUB_OUTPUT"
-
-      # The project is public, so no token is sent. A failed fetch never blocks Snyk triage.
-      - name: Fetch Sonar results from main
-        id: sonar
-        env:
-          PROJECT: matthew-js-porter_spring-petclinic-ai-native
-          API: https://sonarcloud.io/api
-        run: |
-          mkdir -p .scan-results
-          # One page of up to 500 per type; paging.total says whether the cap truncated it.
-          if ! curl -fsS -o .scan-results/issues.raw \
-              "$API/issues/search?componentKeys=$PROJECT&branch=main&resolved=false&ps=500" \
-            || ! curl -fsS -o .scan-results/hotspots.raw \
-              "$API/hotspots/search?projectKey=$PROJECT&branch=main&status=TO_REVIEW&ps=500"; then
-            echo "::warning::Could not fetch Sonar results for $PROJECT."
-            rm -f .scan-results/*.raw
-            echo "count=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          jq '.issues' .scan-results/issues.raw > .scan-results/sonar-issues.json
-          jq '.hotspots' .scan-results/hotspots.raw > .scan-results/sonar-hotspots.json
-          issues=$(jq length .scan-results/sonar-issues.json)
-          hotspots=$(jq length .scan-results/sonar-hotspots.json)
-          truncated=$(jq -s --argjson i "$issues" --argjson h "$hotspots" \
-            '.[0].paging.total > $i or .[1].paging.total > $h' .scan-results/issues.raw .scan-results/hotspots.raw)
-          rm -f .scan-results/*.raw
-          jq -n --arg url "https://sonarcloud.io/project/overview?id=$PROJECT&branch=main" --arg key "$PROJECT" \
-            --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson i "$issues" --argjson h "$hotspots" \
-            '{dashboardUrl: $url, projectKey: $key, branch: "main", fetchedAt: $at, issues: $i, hotspots: $h}' \
-            > .scan-results/sonar-meta.json
-          echo "Sonar: $issues issue(s), $hotspots hotspot(s) to review (truncated: $truncated)"
-          echo "count=$((issues + hotspots))" >> "$GITHUB_OUTPUT"
-          echo "truncated=$truncated" >> "$GITHUB_OUTPUT"
-
-      - name: Count findings
-        id: total
-        env:
-          SNYK: ${{ steps.download.outputs.count }}
-          SONAR: ${{ steps.sonar.outputs.count }}
-        run: echo "count=$(( ${SNYK:-0} + ${SONAR:-0} ))" >> "$GITHUB_OUTPUT"
-
-      - name: Prepare branch and next intent number
-        id: prep
-        if: steps.total.outputs.count != '0'
-        run: |
-          last=$(find intent -maxdepth 1 -type d -name '[0-9][0-9][0-9]-*' -exec basename {} \; | cut -c1-3 | sort -n | tail -1)
-          printf 'next=%03d\n' "$((10#${last:-000} + 1))" >> "$GITHUB_OUTPUT"
-          echo "branch=maintain/findings-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
-
       - uses: anthropics/claude-code-action@v1
-        if: steps.total.outputs.count != '0'
+        env:
+          # The fetch script uses the job's token (actions: read) to download the Snyk artifact.
+          SNYK_ARTIFACT_TOKEN: ${{ github.token }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            /triage-findings .scan-results ${{ steps.download.outputs.run_id && format('https://github.com/{0}/actions/runs/{1}', github.repository, steps.download.outputs.run_id) || 'none' }} ${{ steps.prep.outputs.next }}
+            /triage-findings
 
             You are running unattended in CI as the Maintain stage. Nobody can answer questions.
-            `.scan-results/` holds ${{ steps.download.outputs.count || '0' }} Snyk result(s) from run ${{ steps.download.outputs.run_id || 'none' }} and ${{ steps.sonar.outputs.count || '0' }} Sonar issue(s) and hotspot(s), all from `main`. Sonar results truncated at 500 per type: ${{ steps.sonar.outputs.truncated || 'false' }}.
 
             After the skill has written its intents:
-            - If at least one intent was written: create branch `${{ steps.prep.outputs.branch }}` from `main`, commit only the new intent.md files (never `.scan-results/`) with message "Add intents from Snyk and Sonar findings on main", push it, and open one PR into `main` with `gh pr create`, titled "Maintain: findings ${{ steps.prep.outputs.branch }}". Put the skill's confirmed and dismissed tables in the body, and say so if the Sonar results were truncated.
-            - If nothing was confirmed, do not create a branch or PR. Print the dismissed table instead.
+            - If at least one intent was written: create branch `maintain/findings-<today's UTC date as YYYY-MM-DD>` from `main`, commit only the new intent.md files with message "Add intents from Snyk and Sonar findings on main", push it, and open one PR into `main` with `gh pr create`, titled "Maintain: findings <same date>". Put the skill's sources line and its confirmed and dismissed tables in the body.
+            - If nothing was confirmed, do not create a branch or PR. Print the skill's report instead.
             Never push to `main`.
           claude_args: >-
-            --max-turns 40
-            --allowedTools "Bash(git:*),Bash(gh pr create:*),Bash(jq:*),Read,Write,Edit,Glob,Grep,Skill"
+            --max-turns 50
+            --allowedTools "Bash(git:*),Bash(gh pr create:*),Bash(.claude/skills/triage-findings/scripts/fetch-results.sh),Bash(jq:*),Bash(date:*),Read,Write,Edit,Glob,Grep,Skill"

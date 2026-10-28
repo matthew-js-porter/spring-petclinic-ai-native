@@ -37,7 +37,8 @@
 		<sonar.sources>.</sonar.sources>
 		<sonar.exclusions>docs/**,intent/**,.claude/**,.claude-pr/**,target/**,src/test/**</sonar.exclusions>
 		<sonar.tests>src/test</sonar.tests>
-		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>	</properties>
+		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

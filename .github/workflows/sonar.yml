@@ -55,5 +55,4 @@ jobs:
     timeout-minutes: 10
     steps:
       # The project is public, so the gate is read without SONAR_TOKEN.
-      # Actions are referenced by version tag, never a commit SHA (githubactions:S7637).
-      - uses: sonarcloud-actions/sonarcloud-check-status-action@v1 # NOSONAR
+      - uses: sonarcloud-actions/sonarcloud-check-status-action@v1 # NOSONAR githubactions:S7637: CLAUDE.md requires version tags, never commit SHAs
