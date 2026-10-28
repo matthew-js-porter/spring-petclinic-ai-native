@@ -35,3 +35,6 @@ build/
 ### Skill evals (skill-creator workspaces) ###
 skill-evals/
 .claude/skills/*-workspace/
+
+### Scan results fetched by /triage-findings ###
+.scan-results/
