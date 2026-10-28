@@ -30,4 +30,14 @@ class ImportedClassesTests {
 			.hasSizeGreaterThan(30);
 	}
 
+	@Test
+	void everyLayerMatchesApplicationClasses() {
+		JavaClasses classes = new ClassFileImporter().withImportOption(new ImportOption.DoNotIncludeTests())
+			.importPackages(ArchitectureRules.ROOT_PACKAGE);
+		assertThat(classes.that(ArchitectureRules.WEB)).as("web types").isNotEmpty();
+		assertThat(classes.that(ArchitectureRules.REPOSITORY)).as("repositories").isNotEmpty();
+		assertThat(classes.that(ArchitectureRules.DOMAIN)).as("domain types").isNotEmpty();
+		assertThat(classes.that(ArchitectureRules.PRESENTATION)).as("presentation types").isNotEmpty();
+	}
+
 }

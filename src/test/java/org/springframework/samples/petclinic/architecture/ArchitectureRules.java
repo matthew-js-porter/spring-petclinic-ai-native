@@ -16,6 +16,8 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import com.tngtech.archunit.library.dependencies.SliceAssignment;
 import com.tngtech.archunit.library.dependencies.SliceIdentifier;
 import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -71,6 +73,13 @@ final class ArchitectureRules {
 	static final DescribedPredicate<JavaClass> PRESENTATION = DescribedPredicate.describe("presentation types",
 			(javaClass) -> PRESENTATION_NAMES.contains(javaClass.getSimpleName())
 					|| PRESENTATION_SUFFIXES.stream().anyMatch(javaClass.getSimpleName()::endsWith));
+
+	/** A class that declares at least one Jupiter test method. */
+	static final DescribedPredicate<JavaClass> TEST_CLASS = DescribedPredicate.describe("test classes",
+			(javaClass) -> javaClass.getMethods()
+				.stream()
+				.anyMatch((method) -> method.isAnnotatedWith(Test.class)
+						|| method.isAnnotatedWith(ParameterizedTest.class)));
 
 	private ArchitectureRules() {
 	}
@@ -145,6 +154,39 @@ final class ArchitectureRules {
 		return classes().should(beInNullMarkedPackage())
 			.as("Every package is @NullMarked")
 			.because("JSpecify treats unannotated packages as unspecified; add package-info.java with @NullMarked");
+	}
+
+	// Test conventions: test code only, from the Spring Framework and Boot test rules
+
+	static ArchRule testMethodsAreNotPublicOrPrivate() {
+		return methods().that()
+			.areAnnotatedWith(Test.class)
+			.or()
+			.areAnnotatedWith(ParameterizedTest.class)
+			.should()
+			.notBePublic()
+			.andShould()
+			.notBePrivate()
+			.as("Test methods are package-private")
+			.because("JUnit Jupiter does not need public methods and private ones are not run; remove the modifier");
+	}
+
+	static ArchRule testClassesAreNotPublic() {
+		return classes().that(TEST_CLASS)
+			.should()
+			.notBePublic()
+			.as("Test classes are package-private")
+			.because("JUnit Jupiter does not need public classes; remove the modifier");
+	}
+
+	static ArchRule testClassesAreNamedTests() {
+		return classes().that(TEST_CLASS)
+			.and()
+			.areTopLevelClasses()
+			.should()
+			.haveSimpleNameEndingWith("Tests")
+			.as("Test classes are named *Tests")
+			.because("Surefire and the other test classes use the Tests suffix; rename the class");
 	}
 
 	// Layering rules: main code only

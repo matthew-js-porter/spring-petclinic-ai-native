@@ -144,6 +144,21 @@ class ArchitectureRulesSelfTests {
 		assertViolation(ArchitectureRules.controllersAreNotPublic(), "stereotypes", "PublicController");
 	}
 
+	@Test
+	void publicTestMethodIsReported() {
+		assertViolation(ArchitectureRules.testMethodsAreNotPublicOrPrivate(), "testconventions", "PublicTestHolder");
+	}
+
+	@Test
+	void publicTestClassIsReported() {
+		assertViolation(ArchitectureRules.testClassesAreNotPublic(), "testconventions", "PublicTestHolder");
+	}
+
+	@Test
+	void testClassWithoutTestsSuffixIsReported() {
+		assertViolation(ArchitectureRules.testClassesAreNamedTests(), "testconventions", "PublicTestHolder");
+	}
+
 	/**
 	 * Evaluates the rule against a fixture package (absolute, or relative to
 	 * {@link #FIXTURES}) and asserts a violation names the offending class.
