@@ -14,7 +14,7 @@ import static org.springframework.samples.petclinic.architecture.ArchitectureRul
 class HygieneRulesTests {
 
 	@ArchTest
-	static final ArchRule packagesAreFreeOfCycles = ArchitectureRules.packagesAreFreeOfCycles(ROOT_PACKAGE);
+	static final ArchRule packagesAreFreeOfCycles = ArchitectureRules.packagesAreFreeOfCycles();
 
 	@ArchTest
 	static final ArchRule caseConversionUsesLocale = ArchitectureRules.caseConversionUsesLocale();
@@ -26,7 +26,8 @@ class HygieneRulesTests {
 	static final ArchRule urlCodingUsesCharset = ArchitectureRules.urlCodingUsesCharset();
 
 	@ArchTest
-	static final ArchRule postProcessorBeanMethodsAreStatic = ArchitectureRules.postProcessorBeanMethodsAreStatic();
+	static final ArchRule postProcessorBeanMethodsAreStaticAndDoNotInitializeEarly = ArchitectureRules
+		.postProcessorBeanMethodsAreStaticAndDoNotInitializeEarly();
 
 	@ArchTest
 	static final ArchRule beanMethodsDoNotReturnPrivateTypes = ArchitectureRules.beanMethodsDoNotReturnPrivateTypes();

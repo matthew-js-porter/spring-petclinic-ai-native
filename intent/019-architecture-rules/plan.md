@@ -49,6 +49,17 @@ Findings from the scan:
 
 ## Critical files
 - `pom.xml`
-- `src/test/java/org/springframework/samples/petclinic/architecture/{ArchitectureRules,HygieneRulesTests,LayeringRulesTests,ArchitectureRulesSelfTests,ImportedClassesTests}.java`, `architecture/fixtures/*.java`
+- `src/test/java/org/springframework/samples/petclinic/architecture/{ArchitectureRules,HygieneRulesTests,LayeringRulesTests,TestConventionsRulesTests,ArchitectureRulesTests,ImportedClassesTests}.java`
+- `src/test/java/org/springframework/samples/architecture/fixtures/<rule>/<case>/*.java`
 - `src/main/java/org/springframework/samples/petclinic/{,owner/,vet/}package-info.java`
 - `CLAUDE.md`, `REVIEW.md`, `intent/019-architecture-rules/{spec.md,plan.md}`
+
+## Amendments after approval
+Steps 2, 3 and 6 above are the plan as approved; the implementation differs as follows (details in spec 3.6a).
+- No `ImportOption` excludes the `architecture` package. Fixtures live in `org.springframework.samples.architecture.fixtures`, outside the application package, so component and repository scanning never sees them, and the rule code is checked like any other test code.
+- H1 uses Spring Boot's `slices().matching("(**)")`, not a `(*)` slice rule plus a `SliceAssignment`.
+- H4 also bans the `String` charset-name overloads; H5 also checks parameters as Boot does (one rule for both post-processor types); H6's reason is Boot's AOT reason; H7 matches `printStackTrace()` on any `Throwable` subtype.
+- No rule uses `allowEmptyShould(true)`, H5 included (step 2 and the step 6 grep expected it on H5).
+- `ArchitectureRulesSelfTests` became `ArchitectureRulesTests`, following Boot's `ArchitectureCheckTests`: a fixture package per case (`<rule>/<case>`), with `whenXShouldFail` and `whenXShouldSucceed` tests for every rule, evaluated in the JVM. Surefire excludes the fixtures package in `pom.xml`.
+- Added `TestConventionsRulesTests` (spec 3.3a) and a layer-coverage check in `ImportedClassesTests`.
+- Run them with `./mvnw test -Dtest='HygieneRulesTests,LayeringRulesTests,TestConventionsRulesTests,ArchitectureRulesTests'`.

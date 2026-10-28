@@ -7,22 +7,29 @@ import java.util.stream.Collectors;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.JavaPackage;
+import com.tngtech.archunit.core.domain.JavaParameter;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import com.tngtech.archunit.library.dependencies.SliceAssignment;
-import com.tngtech.archunit.library.dependencies.SliceIdentifier;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Role;
+import org.springframework.core.env.Environment;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.data.repository.Repository;
 import org.springframework.samples.petclinic.PetClinicApplication;
@@ -42,8 +49,8 @@ import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
 /**
- * The architecture rules, shared by {@link HygieneRulesTests}, {@link LayeringRulesTests}
- * and {@link ArchitectureRulesSelfTests}. Rules that depend on package names take the
+ * The architecture rules, shared by {@link HygieneRulesTests}, {@link LayeringRulesTests},
+ * {@link TestConventionsRulesTests} and {@link ArchitectureRulesTests}. Rules that depend on package names take the
  * root package so the self tests can run them against fixtures.
  * <p>
  * The feature packages are flat, so layers are identified by role: web types by their
@@ -74,6 +81,16 @@ final class ArchitectureRules {
 			(javaClass) -> PRESENTATION_NAMES.contains(javaClass.getSimpleName())
 					|| PRESENTATION_SUFFIXES.stream().anyMatch(javaClass.getSimpleName()::endsWith));
 
+	/**
+	 * A call to {@code printStackTrace()} on any {@code Throwable}: the compiler records the
+	 * receiver's declared type as the owner, so matching {@code Throwable} alone misses
+	 * {@code exception.printStackTrace()}.
+	 */
+	private static final DescribedPredicate<JavaMethodCall> PRINT_STACK_TRACE = DescribedPredicate.describe(
+			"Throwable.printStackTrace()",
+			(call) -> call.getName().equals("printStackTrace") && call.getTarget().getRawParameterTypes().isEmpty()
+					&& call.getTargetOwner().isAssignableTo(Throwable.class));
+
 	/** A class that declares at least one Jupiter test method. */
 	static final DescribedPredicate<JavaClass> TEST_CLASS = DescribedPredicate.describe("test classes",
 			(javaClass) -> javaClass.getMethods()
@@ -86,11 +103,11 @@ final class ArchitectureRules {
 
 	// Hygiene rules: main and test code
 
-	static ArchRule packagesAreFreeOfCycles(String rootPackage) {
-		return slices().assignedFrom(new TopLevelPackages(rootPackage))
+	static ArchRule packagesAreFreeOfCycles() {
+		return slices().matching("(**)")
 			.should()
 			.beFreeOfCycles()
-			.as("Packages under " + rootPackage + " are free of cycles")
+			.as("Packages are free of cycles")
 			.because("a cycle couples features; move the shared type into the package that owns it");
 	}
 
@@ -114,20 +131,34 @@ final class ArchitectureRules {
 		return noClasses().should()
 			.callMethod(URLEncoder.class, "encode", String.class)
 			.orShould()
+			.callMethod(URLEncoder.class, "encode", String.class, String.class)
+			.orShould()
 			.callMethod(URLDecoder.class, "decode", String.class)
-			.as("No URLEncoder.encode(String) or URLDecoder.decode(String) without a Charset")
-			.because("they use the platform charset; pass StandardCharsets.UTF_8");
+			.orShould()
+			.callMethod(URLDecoder.class, "decode", String.class, String.class)
+			.as("No URLEncoder.encode or URLDecoder.decode without a Charset")
+			.because("the one-argument forms use the platform charset and the String forms take an unchecked "
+					+ "charset name; pass StandardCharsets.UTF_8");
 	}
 
-	static ArchRule postProcessorBeanMethodsAreStatic() {
+	/**
+	 * Spring Boot's two post-processor rules in one, so the rule always has
+	 * {@code BeanPostProcessor} methods to check and needs no
+	 * {@code allowEmptyShould(true)}.
+	 */
+	static ArchRule postProcessorBeanMethodsAreStaticAndDoNotInitializeEarly() {
 		return methods().that()
 			.areAnnotatedWith(Bean.class)
 			.and()
 			.haveRawReturnType(assignableTo(BeanPostProcessor.class).or(assignableTo(BeanFactoryPostProcessor.class)))
 			.should()
 			.beStatic()
-			.as("@Bean methods returning a BeanPostProcessor or BeanFactoryPostProcessor are static")
-			.because("a non-static method creates its configuration class too early; add static");
+			.andShould(notHaveParametersThatInitializeEarly())
+			.as("@Bean methods returning a BeanPostProcessor or BeanFactoryPostProcessor are static and take no "
+					+ "parameter that is initialized early")
+			.because("a non-static method creates its configuration class too early, and a parameter is created "
+					+ "before it can be post-processed; add static, inject a BeanPostProcessor's collaborators as "
+					+ "ObjectProvider or @Lazy, and give a BeanFactoryPostProcessor only the Environment");
 	}
 
 	static ArchRule beanMethodsDoNotReturnPrivateTypes() {
@@ -136,7 +167,8 @@ final class ArchitectureRules {
 			.should()
 			.haveRawReturnType(DescribedPredicate.not(modifier(JavaModifier.PRIVATE)).as("a non-private type"))
 			.as("@Bean methods do not return private types")
-			.because("the bean type must be visible to injection points; return a package-private or public type or an interface");
+			.because("Spring AOT processing cannot reference a private type; return a package-private or public type "
+					+ "or an interface");
 	}
 
 	static ArchRule noStandardStreams() {
@@ -145,7 +177,7 @@ final class ArchitectureRules {
 			.orShould()
 			.accessField(System.class, "err")
 			.orShould()
-			.callMethod(Throwable.class, "printStackTrace")
+			.callMethodWhere(PRINT_STACK_TRACE)
 			.as("No System.out, System.err or printStackTrace()")
 			.because("output bypasses logging configuration; use an SLF4J logger");
 	}
@@ -347,6 +379,45 @@ final class ArchitectureRules {
 			.because("request handling belongs to the web layer; do the conversion in the controller");
 	}
 
+	/**
+	 * As in Spring Boot's rules: a {@code BeanFactoryPostProcessor} may inject only the
+	 * {@link Environment}; a {@code BeanPostProcessor} may also inject {@code @Lazy}
+	 * parameters, an {@link ObjectProvider}, the {@link ApplicationContext} and
+	 * infrastructure beans.
+	 */
+	private static ArchCondition<JavaMethod> notHaveParametersThatInitializeEarly() {
+		return new ArchCondition<>("not have parameters that are initialized early") {
+
+			@Override
+			public void check(JavaMethod method, ConditionEvents events) {
+				boolean factoryPostProcessor = method.getRawReturnType().isAssignableTo(BeanFactoryPostProcessor.class);
+				for (JavaParameter parameter : method.getParameters()) {
+					if (factoryPostProcessor && !parameter.getRawType().isEquivalentTo(Environment.class)) {
+						events.add(SimpleConditionEvent.violated(parameter, parameter.getDescription()
+								+ " is not the Environment; look it up from the bean factory instead"));
+					}
+					else if (!factoryPostProcessor && !parameter.isAnnotatedWith(Lazy.class)
+							&& !isSafeToInjectEarly(parameter.getRawType())) {
+						events.add(SimpleConditionEvent.violated(parameter, parameter.getDescription()
+								+ " is initialized before it can be post-processed; inject an ObjectProvider or add @Lazy"));
+					}
+				}
+			}
+
+		};
+	}
+
+	private static boolean isSafeToInjectEarly(JavaClass type) {
+		return type.isAssignableTo(ObjectProvider.class) || type.isAssignableTo(ApplicationContext.class)
+				|| type.isAssignableTo(Environment.class) || isInfrastructure(type);
+	}
+
+	private static boolean isInfrastructure(JavaClass type) {
+		return type.tryGetAnnotationOfType(Role.class)
+			.map((role) -> role.value() == BeanDefinition.ROLE_INFRASTRUCTURE)
+			.orElse(false);
+	}
+
 	private static ArchCondition<JavaClass> beInNullMarkedPackage() {
 		return new ArchCondition<>("be in a package annotated with @NullMarked") {
 
@@ -360,33 +431,6 @@ final class ArchitectureRules {
 			}
 
 		};
-	}
-
-	/**
-	 * Puts the root package in a slice of its own and each package below it in the slice
-	 * of its top-level package, so cycles between the root and a feature are found too.
-	 */
-	private record TopLevelPackages(String rootPackage) implements SliceAssignment {
-
-		@Override
-		public SliceIdentifier getIdentifierOf(JavaClass javaClass) {
-			String packageName = javaClass.getPackageName();
-			if (packageName.equals(this.rootPackage)) {
-				return SliceIdentifier.of(this.rootPackage);
-			}
-			if (!packageName.startsWith(this.rootPackage + ".")) {
-				return SliceIdentifier.ignore();
-			}
-			String subPackage = packageName.substring(this.rootPackage.length() + 1);
-			int dot = subPackage.indexOf('.');
-			return SliceIdentifier.of(this.rootPackage + "." + ((dot < 0) ? subPackage : subPackage.substring(0, dot)));
-		}
-
-		@Override
-		public String getDescription() {
-			return "top-level packages of " + this.rootPackage;
-		}
-
 	}
 
 }
